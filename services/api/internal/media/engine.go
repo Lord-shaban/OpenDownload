@@ -309,19 +309,20 @@ func collectOutputs(dir string, limit int64) ([]Output, error) {
 			return nil, errors.New("unsafe extractor output")
 		}
 		name := entry.Name()
+		info, err := entry.Info()
+		if err != nil || !info.Mode().IsRegular() {
+			return nil, errors.New("unsafe output file")
+		}
+		// Scratch fragments also consume storage even when they are not downloadable.
+		total += info.Size()
+		if total > limit {
+			return nil, errors.New("processed files exceed instance size limit")
+		}
 		ext := strings.TrimPrefix(filepath.Ext(name), ".")
 		switch ext {
 		case "mp4", "webm", "mkv", "m4a", "mp3", "ogg", "opus", "flac", "wav", "vtt", "jpg", "jpeg", "png", "gif", "webp", "zip":
 		default:
 			continue
-		}
-		info, err := entry.Info()
-		if err != nil || !info.Mode().IsRegular() {
-			return nil, errors.New("unsafe output file")
-		}
-		total += info.Size()
-		if total > limit {
-			return nil, errors.New("processed files exceed instance size limit")
 		}
 		out = append(out, Output{Name: name, Path: filepath.Join(dir, name), Bytes: info.Size()})
 	}
