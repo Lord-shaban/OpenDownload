@@ -1,0 +1,5 @@
+node_modules
+.next
+pnpm-lock.yaml
+apps/web/src/components/ui
+apps/web/next-env.d.ts

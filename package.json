@@ -1,0 +1,15 @@
+{
+  "name": "opendownload",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "lint": "pnpm --filter web lint",
+    "typecheck": "pnpm --filter web typecheck",
+    "test": "pnpm --filter web test",
+    "format": "prettier --write apps/web docs .github scripts/*.json",
+    "format:check": "prettier --check apps/web"
+  },
+  "devDependencies": { "prettier": "3.8.1" }
+}
