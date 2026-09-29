@@ -16,7 +16,7 @@ def api(path, method="GET", payload=None):
     if payload is not None:
         args += ["--input", "-"]
     result = subprocess.run(args, input=json.dumps(payload) if payload is not None else None,
-                            text=True, capture_output=True, check=True)
+                            text=True, encoding="utf-8", capture_output=True, check=True)
     return json.loads(result.stdout) if result.stdout.strip() else None
 
 
