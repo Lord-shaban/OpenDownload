@@ -2,8 +2,8 @@
 
 OpenDownload is pre-release. Only the latest development revision receives fixes.
 
-Report vulnerabilities privately using GitHub's **Report a vulnerability** flow
-when private vulnerability reporting is enabled for the repository. If unavailable,
+Report vulnerabilities privately using GitHub's **Report a vulnerability** flow;
+private vulnerability reporting is enabled in this repository. If unavailable,
 contact the repository owner privately through their published GitHub contact
 method. Never place exploit URLs, secrets, or sensitive logs in public issues.
 No response-time guarantee is offered by this volunteer project.

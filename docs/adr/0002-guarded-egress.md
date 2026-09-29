@@ -5,7 +5,10 @@ Status: accepted. Date: 2026-09-29.
 Validate initial URLs and every HTTP proxy request/HTTPS CONNECT target. Reject
 local/reserved IPs and DNS sets containing any unsafe address. Pin the selected
 public IP at dial time. Allow standard HTTP(S) ports only. Containers deny direct
-egress from API/extractors; only the proxy can contact the public internet.
+egress from API/extractors; their public traffic must pass through the proxy.
+The web container uses a separate bridge for its published loopback port and is
+not inside that egress fence. It proxies a fixed API address and does not fetch
+submitted media URLs or run extraction. See the [Compose verification evidence](../VERIFICATION.md).
 
 Why: Go URL validation cannot constrain yt-dlp's subsequent network requests,
 redirects, media manifests, or DNS rebinding. A proxy alone also cannot protect

@@ -2,6 +2,9 @@
 
 **A quieter way to save media.**
 
+[![CI](https://github.com/Lord-shaban/OpenDownload/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Lord-shaban/OpenDownload/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-28613e)](LICENSE)
+
 Paste a public link. See what is actually available. Choose a format. Save it.
 
 OpenDownload is a self-hosted, open-source media workspace built with Next.js,
@@ -18,6 +21,13 @@ Development follows the [roadmap](docs/ROADMAP.md) and
 [granular backlog](docs/BACKLOG.md). Architectural decisions, limitations, and
 research are recorded in the repository. See [verification](docs/VERIFICATION.md)
 for the checks actually completed; planned checks are not claimed as passing.
+
+The M0–M4 development baseline has passed Linux CI, ten browser integration tests,
+Docker egress checks and a separate real MP4/MP3 smoke. M5 tracks gallery expansion
+and locale/RTL support. No versioned release or published container image exists yet.
+Changes follow a [protected-branch PR workflow](docs/GITHUB_WORKFLOW.md).
+
+![OpenDownload workspace development preview](docs/assets/workspace.png)
 
 ## Focus
 
@@ -73,8 +83,8 @@ pnpm --filter web test
 pnpm --filter web build
 ```
 
-Linux CI also runs the Go race detector and deterministic browser integration
-tests. Fixture mode must be explicitly enabled and is visibly labeled in the UI.
+Linux CI also runs the Go race detector, dependency audits, deterministic browser
+integration tests and Docker network checks. Fixture mode must be explicitly enabled and is visibly labeled in the UI.
 Fixture results verify application behavior, not third-party extractor uptime.
 
 ## Architecture

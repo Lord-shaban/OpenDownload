@@ -4,7 +4,7 @@
 
 1. Pick a scoped issue from the backlog. Explain the user problem before proposing
    another dependency. Security changes need a threat-model update.
-2. Create a branch (`feat/…`, `fix/…`, `docs/…`). Keep one logical change per PR.
+2. Create a branch (`feat/…`, `fix/…`, `docs/…`, `chore/…`). Keep one logical change per PR.
 3. Add meaningful tests for changed behavior. Use deterministic fake extractors
    in CI; do not rely on real platforms for required tests.
 4. Run the commands in `docs/TESTING.md`, format Go with gofmt and frontend with
@@ -18,6 +18,11 @@ Do not add cookie import, authentication bypass, watermark removal, arbitrary
 shell commands, arbitrary paths, or unbounded batch downloading.
 
 ## Review
+
+`main` is protected, including for administrators. PRs must pass the `go`, `web`
+and `integration` checks, be up to date and resolve review conversations before
+squash merge. See [GitHub workflow](docs/GITHUB_WORKFLOW.md) for the enforced settings,
+single-maintainer review policy and release requirements.
 
 Reviewers check correctness, resource bounds, cancellation, access boundaries,
 accessibility, and behavior on mobile. Dependencies must explain their cost and

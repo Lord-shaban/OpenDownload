@@ -1,5 +1,11 @@
 # Roadmap
 
+The M0–M4 implementation baseline has passed its documented development gates.
+[GitHub milestones](https://github.com/Lord-shaban/OpenDownload/milestones) and
+the [issue index](GITHUB_ISSUES.md) track accepted work and remaining delivery
+changes; [VERIFICATION.md](VERIFICATION.md) records evidence and release limits.
+No versioned release has been published. M5 remains planned work.
+
 ## M0 — Foundation
 
 Research, product boundary, architecture, ADRs, design system, repository hygiene,

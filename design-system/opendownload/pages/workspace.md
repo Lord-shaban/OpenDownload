@@ -13,24 +13,24 @@ sections. Make the URL action the first useful element.
 
 ## Tokens
 
-| Token | Light | Dark |
-|---|---|---|
-| Canvas | #f6f7f3 | #121711 |
-| Surface | #ffffff | #1a2119 |
-| Text | #202b22 | #eef2eb |
+| Token          | Light   | Dark    |
+| -------------- | ------- | ------- |
+| Canvas         | #f6f7f3 | #121711 |
+| Surface        | #ffffff | #1a2119 |
+| Text           | #202b22 | #eef2eb |
 | Secondary text | #59655b | #a7b3a6 |
-| Border | #dce3d9 | #354132 |
-| Primary | #28613e | #a2d4a5 |
-| Primary text | #ffffff | #142719 |
+| Border         | #dce3d9 | #354132 |
+| Primary        | #28613e | #a2d4a5 |
+| Primary text   | #ffffff | #142719 |
 | Subtle primary | #eaf1e7 | #253826 |
-| Error | #a52b2b | #ffa6a6 |
-| Focus | #337348 | #b8dfad |
+| Error          | #a52b2b | #ffa6a6 |
+| Focus          | #337348 | #b8dfad |
 
 Typography: locally bundled Geist Sans (body/display) and Geist Mono (technical
 metadata). Body 16/24; secondary 13/20; title clamp(32, 4vw, 48)/1.12, -0.045em.
 Tabular numerals for progress. Never fetch fonts from Google at page load.
 
-Spacing: 4, 8, 12, 16, 24, 32, 48, 64. Page max 1200, rail 220, content max 780.
+Spacing: 4, 8, 12, 16, 24, 32, 48, 64. Desktop rail 230, main content max 1000.
 Radius: controls 8, cards 14, pills 999. One subtle raised form shadow.
 
 ## Layout
