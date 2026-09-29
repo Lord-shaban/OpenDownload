@@ -1,0 +1,76 @@
+name: opendownload
+services:
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [service, frontend]
+    read_only: true
+    tmpfs: [/tmp:size=64m,uid=1000,gid=1000]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    cpus: 1
+    pids_limit: 128
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+  api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+    environment:
+      OD_ORIGIN: ${OD_ORIGIN:-http://localhost:3000}
+      OD_EGRESS_PROXY: http://egress:8090
+      OD_DATA_DIR: /data
+      OD_WORKERS: ${OD_WORKERS:-2}
+      OD_QUEUE_LIMIT: ${OD_QUEUE_LIMIT:-20}
+      OD_MAX_BYTES: ${OD_MAX_BYTES:-536870912}
+      OD_JOB_TIMEOUT: ${OD_JOB_TIMEOUT:-15m}
+      OD_RETENTION: ${OD_RETENTION:-1h}
+      OD_FIXTURE_MODE: ${OD_FIXTURE_MODE:-false}
+    volumes: [media:/data]
+    networks: [service]
+    depends_on: [egress]
+    read_only: true
+    tmpfs: [/tmp:size=64m,uid=10001,gid=10001]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 1g
+    cpus: 2
+    pids_limit: 96
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/v1/health',timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+  egress:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.egress
+    environment:
+      OD_EGRESS_LISTEN: 0.0.0.0:8090
+    networks: [service, outbound]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 32
+    restart: unless-stopped
+networks:
+  service:
+    internal: true
+  frontend: {}
+  outbound: {}
+volumes:
+  media: {}

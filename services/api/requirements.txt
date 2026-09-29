@@ -1,0 +1,2 @@
+# Engine upgrades require smoke tests and an image rebuild, never a live self-update.
+yt-dlp[default]==2026.8.19

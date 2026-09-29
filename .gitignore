@@ -12,6 +12,7 @@ data/
 *.db-wal
 *.log
 *.exe
+*.tsbuildinfo
 .env*
 !.env.example
 .DS_Store

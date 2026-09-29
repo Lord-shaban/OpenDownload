@@ -54,7 +54,7 @@ func run() error {
 		return err
 	}
 	api := server.New(c, manager)
-	httpServer := &http.Server{Addr: ":" + c.Port, Handler: api.Handler(), ReadHeaderTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 << 10}
+	httpServer := &http.Server{Addr: ":" + c.Port, Handler: api.Handler(), ReadHeaderTimeout: 10 * time.Second, ReadTimeout: 60 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 << 10}
 	go func() {
 		<-ctx.Done()
 		shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)

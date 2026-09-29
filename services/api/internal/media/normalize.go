@@ -57,6 +57,7 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 	if a.Title == "" {
 		a.Title = "Untitled media"
 	}
+	a.HasThumbnail = raw.Thumbnail != ""
 	if len(raw.Entries) > 0 {
 		if len(raw.Entries) > 20 {
 			return Analysis{}, errors.New("collections are limited to 20 images")

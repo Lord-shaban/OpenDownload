@@ -20,16 +20,17 @@ type Option struct {
 }
 
 type Analysis struct {
-	ID        string   `json:"id"`
-	Title     string   `json:"title"`
-	Creator   string   `json:"creator"`
-	Platform  string   `json:"platform"`
-	Duration  float64  `json:"duration"`
-	Options   []Option `json:"options"`
-	ExpiresAt string   `json:"expiresAt"`
-	URL       string   `json:"-"`
-	Thumbnail string   `json:"-"`
-	Owner     string   `json:"-"`
+	ID           string   `json:"id"`
+	Title        string   `json:"title"`
+	Creator      string   `json:"creator"`
+	Platform     string   `json:"platform"`
+	Duration     float64  `json:"duration"`
+	Options      []Option `json:"options"`
+	ExpiresAt    string   `json:"expiresAt"`
+	URL          string   `json:"-"`
+	Thumbnail    string   `json:"-"`
+	HasThumbnail bool     `json:"hasThumbnail"`
+	Owner        string   `json:"-"`
 }
 
 type Progress struct {

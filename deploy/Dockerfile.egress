@@ -1,0 +1,10 @@
+FROM golang:1.27.1-bookworm AS builder
+WORKDIR /build
+COPY services/api/go.mod services/api/go.sum ./
+RUN go mod download
+COPY services/api/ ./
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /egress ./cmd/egress
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=builder /egress /egress
+USER 65532:65532
+ENTRYPOINT ["/egress"]
