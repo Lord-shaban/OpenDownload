@@ -33,6 +33,25 @@ type rateEntry struct {
 	count int
 	since time.Time
 }
+type responseLog struct {
+	http.ResponseWriter
+	status int
+}
+
+func (w *responseLog) WriteHeader(status int) {
+	if w.status == 0 {
+		w.status = status
+		w.ResponseWriter.WriteHeader(status)
+	}
+}
+func (w *responseLog) Write(b []byte) (int, error) {
+	if w.status == 0 {
+		w.WriteHeader(http.StatusOK)
+	}
+	return w.ResponseWriter.Write(b)
+}
+func (w *responseLog) Unwrap() http.ResponseWriter { return w.ResponseWriter }
+
 type Server struct {
 	Config   Config
 	Manager  *jobs.Manager
@@ -62,6 +81,15 @@ func (s *Server) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		requestID := jobs.ID()
+		logged := &responseLog{ResponseWriter: w}
+		w = logged
+		defer func() {
+			status := logged.status
+			if status == 0 {
+				status = http.StatusOK
+			}
+			slog.Info("request", "request_id", requestID, "method", r.Method, "route", r.Pattern, "status", status, "duration_ms", time.Since(start).Milliseconds())
+		}()
 		w.Header().Set("X-Request-ID", requestID)
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Cache-Control", "no-store")
@@ -85,7 +113,6 @@ func (s *Server) Handler() http.Handler {
 			}
 		}
 		mux.ServeHTTP(w, r)
-		slog.Info("request", "request_id", requestID, "method", r.Method, "route", r.Pattern, "duration_ms", time.Since(start).Milliseconds())
 	})
 }
 func (s *Server) allow(key string) bool {

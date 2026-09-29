@@ -17,7 +17,10 @@ type Resolver interface {
 	LookupNetIP(context.Context, string, string) ([]netip.Addr, error)
 }
 
-type Policy struct{ Resolver Resolver }
+type Policy struct {
+	Resolver Resolver
+	dial     func(context.Context, string, string) (net.Conn, error)
+}
 
 var reserved = []netip.Prefix{
 	netip.MustParsePrefix("0.0.0.0/8"), netip.MustParsePrefix("10.0.0.0/8"),
@@ -120,10 +123,14 @@ func (p Policy) DialContext(ctx context.Context, network, address string) (net.C
 		return nil, err
 	}
 	dialer := net.Dialer{Timeout: 10 * time.Second, KeepAlive: 30 * time.Second}
+	dial := p.dial
+	if dial == nil {
+		dial = dialer.DialContext
+	}
 	// Dial the validated literal IP. Never ask DNS a second time.
 	var last error
 	for _, ip := range ips {
-		conn, dialErr := dialer.DialContext(ctx, network, net.JoinHostPort(ip.String(), port))
+		conn, dialErr := dial(ctx, network, net.JoinHostPort(ip.String(), port))
 		if dialErr == nil {
 			return conn, nil
 		}
