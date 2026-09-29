@@ -35,3 +35,17 @@ func TestAccessAndPlaylists(t *testing.T) {
 		}
 	}
 }
+func TestDirectMediaKeepsUnknownQualityHonest(t *testing.T) {
+	raw := RawInfo{Title: "Public trailer", Extractor: "Generic", Formats: []RawFormat{{ID: "mp4", Ext: "mp4", Protocol: "https"}}}
+	a, err := Normalize(raw, "https://example.com/trailer.mp4")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(a.Options) != 2 || a.Options[0].Label != "Original video" || a.Options[0].Selector != "mp4" || !strings.Contains(a.Options[0].Detail, "quality not reported") || !strings.Contains(a.Options[1].Detail, "requires an audio track") {
+		t.Fatalf("misleading direct format: %+v", a.Options)
+	}
+	raw.Extractor = "Untrusted"
+	if _, err := Normalize(raw, "https://example.com/trailer.mp4"); err == nil {
+		t.Fatal("unknown format bypassed capability checks")
+	}
+}

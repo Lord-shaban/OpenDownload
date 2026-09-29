@@ -93,7 +93,14 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 	}
 	seen := map[string]bool{}
 	for _, f := range formats {
-		if !safeFormat(f) || f.VCodec == "none" || f.VCodec == "" || f.Height <= 0 {
+		// A generic direct file often has no probed codecs or dimensions. Keep the
+		// original download available without inventing a resolution or audio track.
+		directUnknown := raw.Extractor == "Generic" && f.VCodec == "" && (f.Protocol == "http" || f.Protocol == "https") && (f.Ext == "mp4" || f.Ext == "webm" || f.Ext == "mkv")
+		if !safeFormat(f) || f.VCodec == "none" || !directUnknown && (f.VCodec == "" || f.Height <= 0) {
+			continue
+		}
+		if directUnknown {
+			a.Options = append(a.Options, Option{ID: "video-" + f.ID, Kind: "video", Label: "Original video", Extension: f.Ext, Detail: "Source file · quality not reported", Selector: f.ID, Bytes: f.Bytes})
 			continue
 		}
 		ext := f.Ext
@@ -131,8 +138,16 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 		a.Options = append(a.Options, Option{ID: "audio-mp3", Kind: "audio", Label: "MP3 audio", Extension: "mp3", Detail: "Converted · up to 192 kbps", Selector: audio.ID})
 	} else {
 		for _, f := range formats {
-			if safeFormat(f) && f.ACodec != "none" && f.ACodec != "" {
-				a.Options = append(a.Options, Option{ID: "audio-mp3", Kind: "audio", Label: "MP3 audio", Extension: "mp3", Detail: "Converted from source · up to 192 kbps", Selector: f.ID})
+			directUnknown := raw.Extractor == "Generic" && f.ACodec == "" && (f.Protocol == "http" || f.Protocol == "https")
+			if safeFormat(f) && (f.ACodec != "none" && f.ACodec != "" || directUnknown) {
+				detail := "Converted from source · up to 192 kbps"
+				if directUnknown {
+					detail = "Conversion · requires an audio track"
+				}
+				if directUnknown && f.Ext != "mp4" && f.Ext != "webm" && f.Ext != "mkv" {
+					a.Options = append(a.Options, Option{ID: "audio-source", Kind: "audio", Label: "Original audio", Extension: f.Ext, Detail: "Source file · codec not reported", Selector: f.ID, Bytes: f.Bytes})
+				}
+				a.Options = append(a.Options, Option{ID: "audio-mp3", Kind: "audio", Label: "MP3 audio", Extension: "mp3", Detail: detail, Selector: f.ID})
 				break
 			}
 		}

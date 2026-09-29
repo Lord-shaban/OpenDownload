@@ -11,7 +11,7 @@ services:
         condition: service_healthy
     networks: [service, frontend]
     read_only: true
-    tmpfs: [/tmp:size=64m,uid=1000,gid=1000]
+    tmpfs: ["/tmp:size=64m,uid=1000,gid=1000"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     mem_limit: 512m
@@ -41,7 +41,7 @@ services:
     networks: [service]
     depends_on: [egress]
     read_only: true
-    tmpfs: [/tmp:size=64m,uid=10001,gid=10001]
+    tmpfs: ["/tmp:size=64m,uid=10001,gid=10001"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     mem_limit: 1g
@@ -70,7 +70,8 @@ services:
 networks:
   service:
     internal: true
-  frontend: {}
+  frontend:
+    internal: true
   outbound: {}
 volumes:
   media: {}

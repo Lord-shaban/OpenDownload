@@ -201,7 +201,7 @@ export function JobList({
                     key={file.id}
                     variant="secondary"
                     size="sm"
-                    className="min-h-10 gap-2"
+                    className="min-h-11 gap-2"
                   >
                     <a
                       href={`/api/v1/jobs/${job.id}/files/${file.id}`}

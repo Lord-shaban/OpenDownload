@@ -6,6 +6,7 @@ import urllib.request
 with urllib.request.urlopen("http://localhost:3000/api/v1/status", timeout=10) as response:
     status = json.load(response)
 assert status["ready"] and status["fixtureMode"], status
+assert all(status["dependencies"].values()), status
 
 direct = """
 import socket
@@ -30,4 +31,12 @@ for target in ('http://169.254.169.254/latest/meta-data/','https://127.0.0.1/'):
 """
 for code in (direct, blocked):
     subprocess.run(["docker", "compose", "exec", "-T", "api", "python3", "-c", code], check=True)
+web_direct = """
+const socket = require('node:net').connect({host:'1.1.1.1',port:443});
+socket.setTimeout(3000);
+socket.on('connect',()=>{console.error('FAIL: web has direct internet egress');socket.destroy();process.exit(1)});
+socket.on('error',()=>{console.log('Web egress blocked.');process.exit(0)});
+socket.on('timeout',()=>{socket.destroy();console.log('Web egress blocked.');process.exit(0)});
+"""
+subprocess.run(["docker", "compose", "exec", "-T", "web", "node", "-e", web_direct], check=True)
 print("Compose smoke checks passed.")
