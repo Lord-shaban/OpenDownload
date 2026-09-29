@@ -46,7 +46,7 @@ func ConfigFromEnv() (Config, error) {
 		return c, fmt.Errorf("OD_FIXTURE_MODE must be true or false")
 	}
 	u, err := url.Parse(c.Origin)
-	if err != nil || u.Host == "" || u.User != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Path != "" || u.RawQuery != "" {
+	if err != nil || u.Host == "" || u.User != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Path != "" || u.RawQuery != "" || u.Fragment != "" {
 		return c, fmt.Errorf("OD_ORIGIN must be an exact HTTP(S) origin")
 	}
 	port, err := strconv.Atoi(c.Port)

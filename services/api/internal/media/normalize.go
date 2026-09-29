@@ -49,8 +49,11 @@ type RawInfo struct {
 	Entries      []RawInfo                `json:"entries"`
 }
 
+func restricted(raw RawInfo) bool {
+	return raw.DRM || raw.Live || raw.Availability != "" && raw.Availability != "public" && raw.Availability != "unlisted"
+}
 func Normalize(raw RawInfo, source string) (Analysis, error) {
-	if raw.DRM || raw.Live || raw.Availability == "private" || raw.Availability == "premium_only" || raw.Availability == "subscriber_only" || raw.Availability == "needs_auth" {
+	if restricted(raw) {
 		return Analysis{}, ErrAccess
 	}
 	a := Analysis{Title: truncate(raw.Title, 300), Creator: truncate(raw.Uploader, 120), Platform: truncate(raw.Extractor, 60), Duration: raw.Duration, URL: source, Thumbnail: raw.Thumbnail, Options: []Option{}}
@@ -64,7 +67,7 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 		}
 		images := []string{}
 		for _, entry := range raw.Entries {
-			if entry.DRM || entry.Live || !imageExt(entry.Ext) || entry.URL == "" {
+			if restricted(entry) || !imageExt(entry.Ext) || entry.URL == "" {
 				return Analysis{}, errors.New("video playlists are outside this release; paste a single item")
 			}
 			images = append(images, entry.URL)
@@ -100,7 +103,15 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 			continue
 		}
 		if directUnknown {
+			key := "original-" + f.Ext
+			if seen[key] {
+				continue
+			}
+			seen[key] = true
 			a.Options = append(a.Options, Option{ID: "video-" + f.ID, Kind: "video", Label: "Original video", Extension: f.Ext, Detail: "Source file · quality not reported", Selector: f.ID, Bytes: f.Bytes})
+			if len(a.Options) >= 16 {
+				break
+			}
 			continue
 		}
 		ext := f.Ext

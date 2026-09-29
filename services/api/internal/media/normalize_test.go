@@ -29,7 +29,7 @@ func TestNormalizeSelections(t *testing.T) {
 	}
 }
 func TestAccessAndPlaylists(t *testing.T) {
-	for _, raw := range []RawInfo{{DRM: true}, {Live: true}, {Availability: "needs_auth"}, {Entries: []RawInfo{{Ext: "mp4", URL: "https://example.com/v"}}}} {
+	for _, raw := range []RawInfo{{DRM: true}, {Live: true}, {Availability: "needs_auth"}, {Availability: "future_restriction"}, {Entries: []RawInfo{{Availability: "private", Ext: "png", URL: "https://example.com/private.png"}}}, {Entries: []RawInfo{{Ext: "mp4", URL: "https://example.com/v"}}}} {
 		if _, err := Normalize(raw, "https://example.com"); err == nil {
 			t.Fatal("accepted access-restricted media or video playlist")
 		}

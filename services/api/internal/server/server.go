@@ -108,6 +108,7 @@ func (s *Server) Handler() http.Handler {
 			}
 			host, _, _ := net.SplitHostPort(r.RemoteAddr)
 			if !s.allow(host) {
+				w.Header().Set("Retry-After", "60")
 				problem(w, 429, "rate_limited", "Too many requests. Try again in a minute.")
 				return
 			}

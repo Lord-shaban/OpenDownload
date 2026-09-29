@@ -378,7 +378,7 @@ export function Workspace() {
               FFmpeg, or start the Docker deployment described in the README.
             </div>
           ) : null}
-          {connection && status ? (
+          {connection ? (
             <p className="mb-4 text-xs text-muted-foreground" role="status">
               {connection}
             </p>
