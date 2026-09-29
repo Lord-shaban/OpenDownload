@@ -61,3 +61,17 @@ Accessibility: native forms and labelled controls, 44px targets, visible 2px foc
 screen-reader status announcements only on meaningful changes, keyboard dialogs,
 errors with recovery actions, selected states shown with text/icons as well as color.
 Contrast/reflow checks required; do not claim WCAG certification.
+
+## Arabic and direction
+
+English and Arabic are selectable in the header. The preference persists in a
+language-only cookie and sets the initial document language/direction on reload.
+Use local Noto Sans Arabic for Arabic body/headings, normal letter spacing and
+1.7 body line height; small Arabic captions have a 12px minimum. Keep the Latin
+brand in Geist. The rail moves to the right using logical spacing/borders.
+
+URLs stay LTR. Isolate titles, platform names, filenames and codec/quality values
+with `bdi`/explicit direction; use Unicode isolation only where accessibility
+labels cannot contain markup. Mirror directional arrows, not media icons.
+Dialogs scroll within the viewport. Verify Arabic keyboard selection, focus
+restoration, short landscape viewports, light/dark themes and 375–1440px reflow.

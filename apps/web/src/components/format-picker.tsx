@@ -9,14 +9,16 @@ import {
   ArrowDownToLine,
   Clock3,
 } from "lucide-react";
+import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { type Analysis, type Option } from "@/lib/api";
-import { bytes, duration } from "@/lib/media";
+import { displayText, bytes, duration } from "@/lib/media";
+import { mediaLabel, mediaDetail } from "@/lib/localized-media";
 export const kinds = [
-  { id: "video", label: "Video", icon: Film },
-  { id: "audio", label: "Audio", icon: Headphones },
-  { id: "image", label: "Images", icon: ImageIcon },
-  { id: "subtitle", label: "Subtitles", icon: Subtitles },
+  { id: "video", label: "video", icon: Film },
+  { id: "audio", label: "audio", icon: Headphones },
+  { id: "image", label: "images", icon: ImageIcon },
+  { id: "subtitle", label: "subtitles", icon: Subtitles },
 ] as const;
 export function FormatPicker({
   analysis,
@@ -35,13 +37,15 @@ export function FormatPicker({
   fixture: boolean;
   maxBytes: number;
 }) {
+  const { locale, t } = useLocale();
+  const formatBytes = (value?: number) => bytes(value, locale);
   const available = kinds.filter((kind) =>
     analysis.options.some((option) => option.kind === kind.id),
   );
   const current = selected?.kind || available[0]?.id;
   return (
     <section
-      aria-label="Available media"
+      aria-label={t("availableMedia")}
       className="panel-enter overflow-hidden rounded-2xl border bg-card"
     >
       <div className="flex gap-5 border-b p-5 sm:p-6">
@@ -64,13 +68,17 @@ export function FormatPicker({
         <div className="min-w-0 flex-1">
           <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[.12em] text-primary">
             <span className="size-1.5 rounded-full bg-primary" />
-            {fixture ? "Test fixture" : analysis.platform}
+            {fixture ? (
+              t("testFixture")
+            ) : (
+              <bdi>{displayText(analysis.platform)}</bdi>
+            )}
           </div>
           <h2 className="text-lg leading-snug font-medium tracking-tight sm:text-xl">
-            {analysis.title}
+            <bdi>{displayText(analysis.title)}</bdi>
           </h2>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            {analysis.creator}
+            <bdi>{displayText(analysis.creator)}</bdi>
             {analysis.duration > 0 ? (
               <span className="inline-flex items-center gap-1.5">
                 <Clock3 size={12} aria-hidden="true" />
@@ -84,7 +92,7 @@ export function FormatPicker({
         <div
           className="mb-5 flex flex-wrap gap-1 rounded-lg bg-muted p-1"
           role="group"
-          aria-label="Media type"
+          aria-label={t("mediaType")}
         >
           {available.map((kind) => (
             <button
@@ -100,7 +108,7 @@ export function FormatPicker({
               className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium ${current === kind.id ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
             >
               <kind.icon size={16} aria-hidden="true" />
-              {kind.label}
+              {t(kind.label)}
             </button>
           ))}
         </div>
@@ -108,14 +116,14 @@ export function FormatPicker({
           <legend className="mb-3 flex w-full items-center justify-between text-xs font-medium text-muted-foreground">
             <span>
               {current === "video"
-                ? "AVAILABLE QUALITY"
+                ? t("quality")
                 : current === "audio"
-                  ? "AUDIO FORMAT"
+                  ? t("audioFormat")
                   : current === "subtitle"
-                    ? "CAPTION LANGUAGE"
-                    : "IMAGE FORMAT"}
+                    ? t("captionLanguage")
+                    : t("imageFormat")}
             </span>
-            <span className="font-normal">From the source</span>
+            <span className="font-normal">{t("fromSource")}</span>
           </legend>
           <div className="grid gap-2 sm:grid-cols-2">
             {analysis.options
@@ -139,20 +147,20 @@ export function FormatPicker({
                     />
                     <span className="min-w-0 flex-1">
                       <span className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-                        {option.label}
+                        <bdi>{mediaLabel(option.label, locale)}</bdi>
                         {index === 0 && current === "video" ? (
                           <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium tracking-wide text-primary">
-                            BEST AVAILABLE
+                            {t("bestAvailable")}
                           </span>
                         ) : null}
                       </span>
                       <span className="mt-1 block text-[11px] text-muted-foreground">
-                        {option.detail}
+                        <bdi>{mediaDetail(option.detail, locale)}</bdi>
                       </span>
                       <span className="mt-1 block font-mono text-[10px] text-muted-foreground">
                         {tooLarge
-                          ? "Exceeds instance limit"
-                          : bytes(option.bytes)}
+                          ? t("exceedsLimit")
+                          : formatBytes(option.bytes)}
                       </span>
                     </span>
                     <span
@@ -168,9 +176,7 @@ export function FormatPicker({
       </div>
       <div className="flex flex-wrap items-center justify-between gap-4 border-t bg-muted/30 px-5 py-4 sm:px-6">
         <p className="max-w-[260px] text-xs leading-relaxed text-muted-foreground">
-          {fixture
-            ? "A test file verifies this flow. No real media is extracted."
-            : "Saved temporarily on your instance. Original watermarks are preserved."}
+          {fixture ? t("testFileExplanation") : t("temporaryExplanation")}
         </p>
         <Button
           className="min-h-11 gap-2 px-5"
@@ -178,7 +184,7 @@ export function FormatPicker({
           disabled={busy || !selected || (selected.bytes || 0) > maxBytes}
         >
           <ArrowDownToLine size={16} aria-hidden="true" />
-          {busy ? "Adding to queue…" : "Queue download"}
+          {busy ? t("addingQueue") : t("queueDownload")}
         </Button>
       </div>
     </section>

@@ -11,7 +11,9 @@ export function useInstance() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [status, setStatus] = useState<Status | null>(null);
   const [now, setNow] = useState(0);
-  const [connection, setConnection] = useState("Connecting to your instance…");
+  const [connection, setConnection] = useState<
+    "connectInstance" | "interrupted" | ""
+  >("connectInstance");
   const controller = useRef<AbortController | null>(null);
   const active = useRef(false);
   const reload = useCallback(async () => {
@@ -30,7 +32,7 @@ export function useInstance() {
       setConnection(
         results.every((result) => result.status === "fulfilled")
           ? ""
-          : "Connection interrupted. Reconnecting; your jobs stay on the server.",
+          : "interrupted",
       );
     }
     if (controller.current === abort) active.current = false;

@@ -23,8 +23,9 @@ research are recorded in the repository. See [verification](docs/VERIFICATION.md
 for the checks actually completed; planned checks are not claimed as passing.
 
 The M0–M4 development baseline has passed Linux CI, ten browser integration tests,
-Docker egress checks and a separate real MP4/MP3 smoke. M5 tracks gallery expansion
-and locale/RTL support. No versioned release or published container image exists yet.
+Docker egress checks and a separate real MP4/MP3 smoke. English and Arabic/RTL are
+available; M5 still tracks gallery evaluation. No versioned release or published
+container image exists yet.
 Changes follow a [protected-branch PR workflow](docs/GITHUB_WORKFLOW.md).
 
 ![OpenDownload workspace development preview](docs/assets/workspace.png)
@@ -37,6 +38,7 @@ Changes follow a [protected-branch PR workflow](docs/GITHUB_WORKFLOW.md).
 - Keep jobs across restarts. Interruptions become explicit failures you can retry.
 - Keep files temporarily with a visible expiry; delete them on request.
 - Respect public access boundaries and retain embedded watermarks.
+- Switch between English and Arabic, with keyboard access and RTL layout.
 - Support public direct images and extractor-provided image collections; see
   [capabilities](docs/CAPABILITIES.md) for the limits of image extraction.
 
@@ -113,3 +115,5 @@ Read [CONTRIBUTING](CONTRIBUTING.md), [coding and testing standards](docs/TESTIN
 [SECURITY](SECURITY.md), and the [code of conduct](CODE_OF_CONDUCT.md).
 Small, tested pull requests are welcome. MIT applies to OpenDownload's original
 code; bundled dependencies retain their own licenses.
+
+[Localization guide](docs/LOCALIZATION.md) · [Third-party notices](THIRD_PARTY_NOTICES.md).

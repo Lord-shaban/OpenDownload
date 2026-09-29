@@ -13,9 +13,12 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { type Job } from "@/lib/api";
-import { bytes, expiryLabel } from "@/lib/media";
+import { isolate } from "@/lib/i18n";
+import { displayText, bytes, expiryLabel } from "@/lib/media";
+import { mediaLabel } from "@/lib/localized-media";
 const mediaIcons: Record<string, typeof Film> = {
   video: Film,
   audio: Headphones,
@@ -35,25 +38,24 @@ export function JobList({
   fixture: boolean;
   now: number;
 }) {
+  const { locale, t } = useLocale();
+  const formatBytes = (value?: number) => bytes(value, locale);
   if (jobs.length === 0)
     return (
       <div className="rounded-2xl border border-dashed bg-card/50 px-6 py-14 text-center">
         <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
           <Download size={22} aria-hidden="true" />
         </span>
-        <h2 className="text-sm font-medium">
-          A little space for what you save.
-        </h2>
+        <h2 className="text-sm font-medium">{t("emptyTitle")}</h2>
         <p className="mx-auto mt-2 max-w-xs text-xs leading-6 text-muted-foreground">
-          Your queued and completed downloads will appear here. Start with a
-          public link above.
+          {t("emptyExplanation")}
         </p>
       </div>
     );
   return (
     <ul
       className="divide-y overflow-hidden rounded-2xl border bg-card"
-      aria-label="Download jobs"
+      aria-label={t("downloadJobs")}
     >
       {jobs.map((job) => {
         const Icon = mediaIcons[job.kind] || Film;
@@ -62,17 +64,17 @@ export function JobList({
         const stateText =
           job.state === "processing"
             ? job.phase === "processing"
-              ? "Preparing file"
+              ? t("preparing")
               : job.phase === "analyzing"
-                ? "Checking source"
-                : "Downloading"
+                ? t("checkingSource")
+                : t("downloading")
             : job.state === "complete"
-              ? "Ready to save"
+              ? t("readySave")
               : job.state === "failed"
-                ? "Couldn’t finish"
+                ? t("failed")
                 : job.state === "canceled"
-                  ? "Canceled"
-                  : "In queue";
+                  ? t("canceled")
+                  : t("inQueue");
         return (
           <li key={job.id} className="p-4 sm:p-5">
             <div className="flex items-start gap-3 sm:gap-4">
@@ -82,20 +84,30 @@ export function JobList({
                 <Icon size={20} aria-hidden="true" />
               </span>
               <div className="min-w-0 flex-1">
-                <h3 className="truncate text-sm font-medium" title={job.title}>
-                  {job.title}
+                <h3
+                  className="truncate text-sm font-medium"
+                  title={displayText(job.title)}
+                >
+                  <bdi>{displayText(job.title)}</bdi>
                 </h3>
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
-                  <span>{fixture ? "Test fixture" : job.platform}</span>
+                  <span>
+                    {fixture ? (
+                      t("testFixture")
+                    ) : (
+                      <bdi>{displayText(job.platform)}</bdi>
+                    )}
+                  </span>
                   <span aria-hidden="true">·</span>
                   <span>
-                    {job.label} / {job.extension.toUpperCase()}
+                    <bdi>{mediaLabel(job.label, locale)}</bdi> /{" "}
+                    <bdi dir="ltr">{job.extension.toUpperCase()}</bdi>
                   </span>
                   {job.files[0] ? (
                     <>
                       <span aria-hidden="true">·</span>
                       <span>
-                        {bytes(
+                        {formatBytes(
                           job.files.reduce(
                             (total, file) => total + file.bytes,
                             0,
@@ -121,14 +133,14 @@ export function JobList({
                       aria-hidden="true"
                     />
                   ) : null}
-                  <span>{expired ? "Expired" : stateText}</span>
+                  <span>{expired ? t("expired") : stateText}</span>
                   {job.state === "complete" && !expired ? (
-                    <span className="ml-2 text-[10px] text-muted-foreground">
-                      {expiryLabel(job.expiresAt, now)}
+                    <span className="ms-2 text-[10px] text-muted-foreground">
+                      {expiryLabel(job.expiresAt, now, locale)}
                     </span>
                   ) : null}
                   {job.state === "processing" && job.percent >= 0 ? (
-                    <span className="ml-auto font-mono">
+                    <span className="ms-auto font-mono">
                       {Math.round(job.percent)}%
                     </span>
                   ) : null}
@@ -136,7 +148,7 @@ export function JobList({
                 {job.state === "processing" ? (
                   <div
                     role="progressbar"
-                    aria-label={`${stateText}: ${job.title}`}
+                    aria-label={`${stateText}: ${isolate(displayText(job.title))}`}
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-valuenow={
@@ -154,7 +166,7 @@ export function JobList({
                 ) : null}
                 {job.error ? (
                   <p className="mt-2 text-xs leading-5 text-destructive">
-                    {job.error}
+                    {locale === "ar" ? t("jobFailure") : job.error}
                   </p>
                 ) : null}
               </div>
@@ -163,7 +175,9 @@ export function JobList({
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Cancel ${job.title}`}
+                    aria-label={t("cancelJob", {
+                      title: isolate(displayText(job.title)),
+                    })}
                     disabled={busy === job.id}
                     onClick={() => onAction(job.id, "cancel")}
                   >
@@ -173,7 +187,9 @@ export function JobList({
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Retry ${job.title}`}
+                    aria-label={t("retryJob", {
+                      title: isolate(displayText(job.title)),
+                    })}
                     disabled={busy === job.id || expired}
                     onClick={() => onAction(job.id, "retry")}
                   >
@@ -184,7 +200,9 @@ export function JobList({
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Delete ${job.title} and its files`}
+                    aria-label={t("deleteJob", {
+                      title: isolate(displayText(job.title)),
+                    })}
                     disabled={busy === job.id}
                     onClick={() => onAction(job.id, "delete")}
                   >
@@ -194,7 +212,7 @@ export function JobList({
               </div>
             </div>
             {job.state === "complete" && !expired ? (
-              <div className="mt-4 flex flex-wrap gap-2 sm:ml-[60px]">
+              <div className="mt-4 flex flex-wrap gap-2 sm:ms-[60px]">
                 {job.files.map((file, index) => (
                   <Button
                     asChild
@@ -209,10 +227,10 @@ export function JobList({
                     >
                       <Download size={14} aria-hidden="true" />
                       {fixture
-                        ? "Save test file"
+                        ? t("saveTestFile")
                         : job.files.length > 1
-                          ? `Save file ${index + 1}`
-                          : "Save file"}
+                          ? t("saveNumberedFile", { number: index + 1 })
+                          : t("saveFile")}
                     </a>
                   </Button>
                 ))}
