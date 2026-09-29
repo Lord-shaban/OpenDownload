@@ -21,6 +21,10 @@ Extractor and codec parsing run outside the request handler and are untrusted.
 
 ## Deployment boundary
 
+URL bidi checks include the decoded hostname: percent escapes can hide formatting
+controls in the submitted spelling. Regression tests cover host, path, query and
+fragment forms while accepting ordinary Arabic text.
+
 Compose uses an **internal** API network. API/yt-dlp/FFmpeg cannot make direct
 internet connections. The proxy alone bridges to the outbound network. The proxy
 has no host-published port. No Docker socket, host networking, privileged mode,

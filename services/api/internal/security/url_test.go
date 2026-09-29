@@ -31,6 +31,9 @@ func TestURLBidiControls(t *testing.T) {
 				t.Fatalf("accepted URL with bidi control %U", control)
 			}
 		}
+		if _, err := Parse("https://exam" + url.QueryEscape(string(control)) + "ple.com/image"); err == nil {
+			t.Fatalf("accepted percent-encoded hostname with bidi control %U", control)
+		}
 	}
 	if _, err := Parse("https://example.com/صور?title=عنوان"); err != nil {
 		t.Fatal("ordinary Arabic text must remain valid", err)

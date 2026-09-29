@@ -64,7 +64,7 @@ func Parse(raw string) (*url.URL, error) {
 		return nil, ErrUnsafeURL
 	}
 	query, err := url.QueryUnescape(u.RawQuery)
-	if err != nil || containsBidiControls(raw) || containsBidiControls(u.Path) || containsBidiControls(query) || containsBidiControls(u.Fragment) {
+	if err != nil || containsBidiControls(raw) || containsBidiControls(u.Host) || containsBidiControls(u.Path) || containsBidiControls(query) || containsBidiControls(u.Fragment) {
 		return nil, ErrUnsafeURL
 	}
 	u.Scheme = strings.ToLower(u.Scheme)
