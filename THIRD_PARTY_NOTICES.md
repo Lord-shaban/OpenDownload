@@ -10,7 +10,8 @@ and the resolved package/image distribution before redistribution.
 official [shadcn registry](https://ui.shadcn.com), downloaded on 2026-09-29.
 CLI installation failed in the workstation package-manager environment; only
 used components were copied through `scripts/sync-shadcn.py`. Imports and control
-target sizes and controlled dialog focus restoration were adapted. shadcn is licensed under MIT:
+target sizes, controlled dialog focus restoration, translated labels, logical
+placement and bounded dialog height were adapted. shadcn is licensed under MIT:
 
 Copyright (c) 2023 shadcn
 
@@ -31,3 +32,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Noto Sans Arabic
+
+Unmodified variable font from the official
+[Google Fonts repository](https://github.com/google/fonts/tree/main/ofl/notosansarabic),
+retrieved on 2026-09-29. Font Git blob: `f1d01edce4ebaedcbe9a06fc75fec07b304ec3df`;
+license Git blob: `14c589f6384505ede3f8e52627d397513af3662d`.
+
+Copyright 2022 The Noto Project Authors (https://github.com/notofonts/arabic).
+Licensed under SIL Open Font License 1.1. The full license accompanies the font at
+`apps/web/src/app/fonts/OFL.txt` and is included in standalone/container assets at
+`apps/web/public/licenses/NotoSansArabic-OFL.txt`.

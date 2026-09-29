@@ -68,6 +68,26 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), sans-serif;
 }
+html[lang="ar"] body {
+  font-family: var(--font-arabic), "Segoe UI", Tahoma, Arial, sans-serif;
+  line-height: 1.7;
+}
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3 {
+  letter-spacing: normal;
+  line-height: 1.5;
+}
+html[lang="ar"] [class~="text-[10px]"],
+html[lang="ar"] [class~="text-[11px]"] {
+  font-size: 12px;
+}
+html[dir="rtl"] #media-url:placeholder-shown {
+  text-align: right;
+}
+html[dir="rtl"] .progress-value {
+  transform-origin: right;
+}
 button,
 a,
 summary,

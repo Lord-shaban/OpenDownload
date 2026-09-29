@@ -63,6 +63,10 @@ func Parse(raw string) (*url.URL, error) {
 	if err != nil || u == nil || u.Opaque != "" || u.User != nil || u.Hostname() == "" {
 		return nil, ErrUnsafeURL
 	}
+	query, err := url.QueryUnescape(u.RawQuery)
+	if err != nil || containsBidiControls(raw) || containsBidiControls(u.Path) || containsBidiControls(query) || containsBidiControls(u.Fragment) {
+		return nil, ErrUnsafeURL
+	}
 	u.Scheme = strings.ToLower(u.Scheme)
 	if u.Scheme != "http" && u.Scheme != "https" {
 		return nil, ErrUnsafeURL
@@ -76,6 +80,15 @@ func Parse(raw string) (*url.URL, error) {
 	}
 	u.Fragment = ""
 	return u, nil
+}
+
+func containsBidiControls(value string) bool {
+	for _, r := range value {
+		if r == '\u061c' || r == '\u200e' || r == '\u200f' || r >= '\u202a' && r <= '\u202e' || r >= '\u2066' && r <= '\u2069' {
+			return true
+		}
+	}
+	return false
 }
 
 func (p Policy) Resolve(ctx context.Context, host string) ([]netip.Addr, error) {

@@ -28,7 +28,7 @@ test("analyze, select, queue and save the labeled fixture", async ({
   expect(await readFile(saved!, "utf8")).toContain(
     "It is not extracted media.",
   );
-  await page.getByRole("button", { name: /Delete A small/ }).click();
+  await page.getByRole("button", { name: /Delete .*A small/ }).click();
   await page
     .getByRole("button", { name: "Delete download", exact: true })
     .click();
@@ -49,9 +49,9 @@ test("cancel active work and retry as a new job", async ({ page }) => {
     .fill("https://example.com/sample");
   await page.getByRole("button", { name: "Analyze link", exact: true }).click();
   await page.getByRole("button", { name: "Queue download" }).click();
-  await page.getByRole("button", { name: /^Cancel A small/ }).click();
+  await page.getByRole("button", { name: /^Cancel .*A small/ }).click();
   await expect(page.getByText("Canceled", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: /^Retry A small/ }).click();
+  await page.getByRole("button", { name: /^Retry .*A small/ }).click();
   await expect(page.getByText("Ready to save", { exact: true })).toBeVisible({
     timeout: 15_000,
   });
@@ -88,7 +88,7 @@ test("show processing failure and retry without inventing success", async ({
   await expect(page.getByText("Couldn’t finish", { exact: true })).toBeVisible({
     timeout: 15_000,
   });
-  await page.getByRole("button", { name: /^Retry A small/ }).click();
+  await page.getByRole("button", { name: /^Retry .*A small/ }).click();
   await expect(page.getByText("Couldn’t finish", { exact: true })).toHaveCount(
     2,
     { timeout: 15_000 },

@@ -34,17 +34,17 @@ Missing requirements resolved:
 
 ## Product evolution
 
-| Idea | Value | Complexity / maintenance | Performance / security | Decision |
-|---|---|---|---|---|
-| More complete gallery adapter | High | Medium, separate upstream extractor | Same egress and resource controls required | Next, evidence-led |
-| Locale/RTL support | High | Medium | Small cost; test bidi URLs and layouts | Next |
-| Filename preferences | Medium | Low | Allow safe preset names only | Next |
-| Remember local quality preferences | Medium | Low | Avoid storing submitted URLs in browser | Next |
-| Resumable interrupted processing | Medium | High | Partial file validation, leases | Later |
-| Playlist preview + explicit bounded selection | High | High | Abuse and disk amplification | Later |
-| Optional object storage / distributed workers | Medium | High | Useful only beyond a single node | Later |
-| Browser extension | Medium | Medium | Extra access surface | Later |
-| Cookies / private downloads / DRM / watermark removal | Outside purpose | High | Access-control and policy costs | Excluded |
+| Idea                                                  | Value           | Complexity / maintenance            | Performance / security                         | Decision                   |
+| ----------------------------------------------------- | --------------- | ----------------------------------- | ---------------------------------------------- | -------------------------- |
+| More complete gallery adapter                         | High            | Medium, separate upstream extractor | Same egress and resource controls required     | Next, evidence-led         |
+| Locale/RTL support                                    | High            | Medium                              | Bidi URL defenses and production browser tests | English/Arabic implemented |
+| Filename preferences                                  | Medium          | Low                                 | Allow safe preset names only                   | Next                       |
+| Remember local quality preferences                    | Medium          | Low                                 | Avoid storing submitted URLs in browser        | Next                       |
+| Resumable interrupted processing                      | Medium          | High                                | Partial file validation, leases                | Later                      |
+| Playlist preview + explicit bounded selection         | High            | High                                | Abuse and disk amplification                   | Later                      |
+| Optional object storage / distributed workers         | Medium          | High                                | Useful only beyond a single node               | Later                      |
+| Browser extension                                     | Medium          | Medium                              | Extra access surface                           | Later                      |
+| Cookies / private downloads / DRM / watermark removal | Outside purpose | High                                | Access-control and policy costs                | Excluded                   |
 
 Success criteria: new users complete an authorized download without reading docs;
 errors explain the next action; cancellation terminates work and frees capacity;

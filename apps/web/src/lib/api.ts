@@ -50,6 +50,14 @@ export type Analysis = z.infer<typeof analysisSchema>;
 export type Option = z.infer<typeof option>;
 export type Job = z.infer<typeof jobSchema>;
 export type Status = z.infer<typeof statusSchema>;
+export class ApiError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string,
+  ) {
+    super(message);
+  }
+}
 export async function request<T>(
   path: string,
   schema: z.ZodType<T>,
@@ -64,18 +72,25 @@ export async function request<T>(
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null);
     const error = z
-      .object({ error: z.object({ message: z.string().max(500) }) })
+      .object({
+        error: z.object({
+          code: z.string().max(80),
+          message: z.string().max(500),
+        }),
+      })
       .safeParse(payload);
-    throw new Error(
+    throw new ApiError(
+      error.success ? error.data.error.code : "operation_failed",
       error.success
         ? error.data.error.message
         : "The server could not complete this request. Try again shortly.",
     );
   }
   if (response.status === 204) return schema.parse(undefined);
-  const result = schema.safeParse(await response.json());
+  const result = schema.safeParse(await response.json().catch(() => null));
   if (!result.success)
-    throw new Error(
+    throw new ApiError(
+      "unexpected_response",
       "The server returned an unexpected response. Refresh to reconnect.",
     );
   return result.data;

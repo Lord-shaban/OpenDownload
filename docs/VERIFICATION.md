@@ -75,7 +75,7 @@ See [the delivery workflow](GITHUB_WORKFLOW.md) for the single-maintainer review
   Reddit, Vimeo or SoundCloud availability. Real smoke coverage is a public
   direct MP4 and audio conversion; live subtitles, thumbnails and galleries
   have not been checked across that platform matrix.
-- Dedicated public photo/gallery extraction and Arabic/RTL remain M5 work.
+- Dedicated public photo/gallery extraction remains under M5 evaluation.
   Existing bounded extractor image entries are covered by normalization tests.
 - Image publication is authored and gated, but no version tag, GitHub release,
   GHCR publication or published-image pull test has run. This record qualifies
@@ -86,3 +86,20 @@ See [the delivery workflow](GITHUB_WORKFLOW.md) for the single-maintainer review
 - Dependency locks and pinned tool versions help repeat builds; mutable base-image
   tags and distribution packages do not guarantee byte-identical images.
 - No independent human security review has occurred.
+
+## Arabic/RTL verification — 2026-09-29
+
+Local checks passed: ESLint, TypeScript, eight Vitest tests, Go URL security tests
+and sixteen Chromium browser tests (eight scenarios on desktop and mobile).
+Browser tests now build and run the production standalone application, including
+its copied static/public assets, instead of the development server.
+
+The additional scenarios verify language persistence and server-rendered RTL,
+preserving an entered URL while switching, Arabic keyboard format selection,
+queue/save/delete with fixture file content checks, translated URL errors,
+mixed-direction rejection, dialog keyboard dismissal/focus, reduced motion,
+375–1440px reflow and same-origin font requests. These fixtures test application
+behavior; they do not establish live platform availability.
+
+Manual review also covered Arabic light/dark desktop/mobile and a translated 404.
+The [Arabic preview](assets/workspace-ar.png) shows the development workspace.

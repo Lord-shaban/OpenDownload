@@ -3,6 +3,7 @@ package security
 import (
 	"context"
 	"net/netip"
+	"net/url"
 	"testing"
 )
 
@@ -20,6 +21,19 @@ func TestPublicIP(t *testing.T) {
 		if !PublicIP(netip.MustParseAddr(raw)) {
 			t.Errorf("rejected public IP %s", raw)
 		}
+	}
+}
+
+func TestURLBidiControls(t *testing.T) {
+	for _, control := range []rune{'\u061c', '\u200e', '\u200f', '\u202a', '\u202b', '\u202c', '\u202d', '\u202e', '\u2066', '\u2067', '\u2068', '\u2069'} {
+		for _, suffix := range []string{string(control), url.QueryEscape(string(control)), "?title=" + url.QueryEscape(string(control)), "#" + url.QueryEscape(string(control))} {
+			if _, err := Parse("https://example.com/image" + suffix); err == nil {
+				t.Fatalf("accepted URL with bidi control %U", control)
+			}
+		}
+	}
+	if _, err := Parse("https://example.com/صور?title=عنوان"); err != nil {
+		t.Fatal("ordinary Arabic text must remain valid", err)
 	}
 }
 

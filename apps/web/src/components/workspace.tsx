@@ -18,6 +18,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
+import { useLocale } from "@/components/locale-provider";
 import { Brand } from "@/components/brand";
 import Link from "next/link";
 import { FormatPicker } from "@/components/format-picker";
@@ -41,9 +42,13 @@ import {
   jobSchema,
   request,
 } from "@/lib/api";
-import { bytes, detectSource, sources } from "@/lib/media";
+import { isolate, type MessageKey } from "@/lib/i18n";
+import { bytes, detectSource, displayText, sources } from "@/lib/media";
+import { errorMessage } from "@/lib/localized-media";
 
 export function Workspace() {
+  const { locale, setLocale, t } = useLocale();
+  const formatBytes = (value?: number) => bytes(value, locale);
   const { jobs, status, connection, reload, now } = useInstance();
   const [view, setView] = useState<"workspace" | "downloads">("workspace");
   const [url, setUrl] = useState("");
@@ -51,8 +56,8 @@ export function Workspace() {
   const [selected, setSelected] = useState<Option | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [queueing, setQueueing] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  const [error, setError] = useState<unknown>(null);
+  const [notice, setNotice] = useState<MessageKey | "">("");
   const [actionBusy, setActionBusy] = useState("");
   const [help, setHelp] = useState(false);
   const [dark, setDark] = useState(false);
@@ -98,9 +103,7 @@ export function Workspace() {
       updateUrl(await navigator.clipboard.readText());
       input.current?.focus();
     } catch {
-      setError(
-        "Clipboard access isn’t available. Paste the link into the field with Ctrl+V or ⌘V.",
-      );
+      setError("clipboardError");
       input.current?.focus();
     }
   }
@@ -108,9 +111,7 @@ export function Workspace() {
     event.preventDefault();
     if (analyzing || !url.trim()) return;
     if (!detected.valid) {
-      setError(
-        "Enter a complete public link starting with https:// or http://.",
-      );
+      setError("invalidUrl");
       input.current?.focus();
       return;
     }
@@ -136,16 +137,11 @@ export function Workspace() {
               (option.bytes || 0) <= (status?.limits.maxBytes || Infinity),
           ) || null,
         );
-        setNotice("Analysis complete. Choose an available format.");
+        setNotice("analysisComplete");
         requestAnimationFrame(() => panel.current?.focus());
       }
     } catch (err) {
-      if (!controller.signal.aborted)
-        setError(
-          err instanceof Error
-            ? err.message
-            : "This link could not be analyzed.",
-        );
+      if (!controller.signal.aborted) setError(err);
     } finally {
       if (!controller.signal.aborted) setAnalyzing(false);
     }
@@ -162,15 +158,13 @@ export function Workspace() {
           optionId: selected.id,
         }),
       });
-      setNotice("Download added to your queue.");
+      setNotice("queuedNotice");
       await reload();
       setAnalysis(null);
       setSelected(null);
       setUrl("");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Could not queue this download.",
-      );
+      setError(err);
     } finally {
       setQueueing(false);
     }
@@ -187,16 +181,10 @@ export function Workspace() {
         method: "POST",
         body: "{}",
       });
-      setNotice(
-        operation === "cancel"
-          ? "Cancellation requested."
-          : "A new retry was added to the queue.",
-      );
+      setNotice(operation === "cancel" ? "cancelNotice" : "retryNotice");
       await reload();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "The job could not be updated.",
-      );
+      setError(err);
     } finally {
       setActionBusy("");
     }
@@ -210,13 +198,11 @@ export function Workspace() {
         method: "DELETE",
       });
       setPendingDelete(null);
-      setNotice("Job and temporary files deleted.");
+      setNotice("deleteNotice");
       await reload();
       main.current?.focus();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "The job could not be deleted.",
-      );
+      setError(err);
     } finally {
       setActionBusy("");
     }
@@ -230,25 +216,25 @@ export function Workspace() {
     <div className="min-h-dvh">
       <a
         href="#main-content"
-        className="sr-only fixed top-3 left-3 z-50 rounded-lg bg-card p-3 focus:not-sr-only"
+        className="sr-only fixed top-3 start-3 z-50 rounded-lg bg-card p-3 focus:not-sr-only"
       >
-        Skip to workspace
+        {t("skip")}
       </a>
-      <aside className="fixed inset-y-0 left-0 hidden w-[230px] flex-col border-r bg-card/40 px-5 py-7 lg:flex">
-        <Link href="/" className="px-2" aria-label="OpenDownload home">
+      <aside className="fixed inset-y-0 start-0 hidden w-[230px] flex-col border-e bg-card/40 px-5 py-7 lg:flex">
+        <Link href="/" className="px-2" aria-label={t("home")}>
           <Brand />
         </Link>
         <p className="mt-12 mb-3 px-3 text-[10px] font-medium tracking-[.16em] text-muted-foreground">
-          YOUR WORKSPACE
+          {t("yourWorkspace")}
         </p>
-        <nav aria-label="Main navigation" className="space-y-1">
+        <nav aria-label={t("mainNav")} className="space-y-1">
           <button
             onClick={() => setView("workspace")}
             aria-current={view === "workspace" ? "page" : undefined}
             className={`flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-[13px] font-medium ${view === "workspace" ? "bg-secondary text-primary" : "text-muted-foreground hover:bg-muted"}`}
           >
             <Plus size={17} aria-hidden="true" />
-            New download
+            {t("newDownload")}
           </button>
           <button
             onClick={() => setView("downloads")}
@@ -256,9 +242,9 @@ export function Workspace() {
             className={`flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-[13px] font-medium ${view === "downloads" ? "bg-secondary text-primary" : "text-muted-foreground hover:bg-muted"}`}
           >
             <Download size={17} aria-hidden="true" />
-            Downloads
+            {t("downloads")}
             {jobs.length > 0 ? (
-              <span className="ml-auto rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+              <span className="ms-auto rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
                 {jobs.length}
               </span>
             ) : null}
@@ -267,17 +253,18 @@ export function Workspace() {
         <div className="mt-auto">
           <div className="mx-2 mb-5 border-b pb-5">
             <Leaf size={20} className="mb-3 text-primary" aria-hidden="true" />
-            <p className="text-xs font-medium">Made to stay simple.</p>
+            <p className="text-xs font-medium">{t("simple")}</p>
             <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
-              Open source. Your instance.
-              <br />A little more control over your media.
+              {t("yourInstance")}
+              <br />
+              {t("moreControl")}
             </p>
           </div>
           <button
             onClick={() => setHelp(true)}
             className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-xs text-muted-foreground hover:bg-muted"
           >
-            Help & guidelines
+            {t("helpGuidelines")}
             <ArrowUpRight size={14} aria-hidden="true" />
           </button>
           <a
@@ -286,54 +273,74 @@ export function Workspace() {
             rel="noreferrer"
             className="flex min-h-11 items-center justify-between rounded-lg px-3 text-xs text-muted-foreground hover:bg-muted"
           >
-            View on GitHub
+            {t("github")}
             <Code2 size={14} aria-hidden="true" />
           </a>
           <div className="mt-6 flex items-center gap-2 px-3 font-mono text-[9px] tracking-wide text-muted-foreground">
             <span className="size-1.5 rounded-full bg-primary" />
-            SELF-HOSTED / PRE-RELEASE
+            {t("preRelease")}
           </div>
         </div>
       </aside>
-      <div className="lg:ml-[230px]">
+      <div className="lg:ms-[230px]">
         <header className="flex h-[76px] items-center justify-between border-b px-5 sm:px-8 xl:px-12">
           <div className="lg:hidden">
             <Brand />
           </div>
           <div className="hidden items-center gap-2 text-xs text-muted-foreground lg:flex">
-            Workspace
-            <ChevronRight size={13} aria-hidden="true" />
+            {t("workspace")}
+            <ChevronRight
+              size={13}
+              className="rtl:rotate-180"
+              aria-hidden="true"
+            />
             <span className="text-foreground">
-              {view === "workspace" ? "New download" : "Downloads"}
+              {view === "workspace" ? t("newDownload") : t("downloads")}
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
+            <label className="sr-only" htmlFor="workspace-language">
+              {t("language")}
+            </label>
+            <select
+              id="workspace-language"
+              value={locale}
+              onChange={(event) =>
+                setLocale(event.target.value === "ar" ? "ar" : "en")
+              }
+              className="min-h-11 max-w-[110px] rounded-lg border bg-background px-2 text-xs"
+            >
+              <option value="en" lang="en">
+                English
+              </option>
+              <option value="ar" lang="ar">
+                العربية
+              </option>
+            </select>
             <span className="hidden items-center gap-2 text-[11px] text-muted-foreground sm:flex">
               <span
                 className={`size-1.5 rounded-full ${connection ? "bg-muted-foreground" : status?.ready ? "bg-primary" : "bg-destructive"}`}
               />
               {fixture
-                ? "Test instance"
+                ? t("testInstance")
                 : status?.ready
-                  ? "Instance ready"
+                  ? t("instanceReady")
                   : connection
-                    ? "Connecting"
-                    : "Setup needed"}
+                    ? t("connecting")
+                    : t("setupNeeded")}
             </span>
             <Button
               variant="ghost"
               size="icon"
               onClick={switchTheme}
-              aria-label={
-                dark ? "Switch to light theme" : "Switch to dark theme"
-              }
+              aria-label={dark ? t("lightTheme") : t("darkTheme")}
             >
               {dark ? <Sun size={17} /> : <Moon size={17} />}
             </Button>
           </div>
         </header>
         <nav
-          aria-label="Mobile navigation"
+          aria-label={t("mobileNav")}
           className="flex border-b px-5 lg:hidden"
         >
           <button
@@ -341,20 +348,21 @@ export function Workspace() {
             aria-current={view === "workspace" ? "page" : undefined}
             onClick={() => setView("workspace")}
           >
-            New download
+            {t("newDownload")}
           </button>
           <button
             className={`min-h-12 flex-1 text-xs font-medium ${view === "downloads" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
             aria-current={view === "downloads" ? "page" : undefined}
             onClick={() => setView("downloads")}
           >
-            Downloads{activeJobs ? ` (${activeJobs} active)` : ""}
+            {t("downloads")}
+            {activeJobs ? ` (${t("activeCount", { count: activeJobs })})` : ""}
           </button>
           <button
             className="min-h-12 px-4 text-xs text-muted-foreground"
             onClick={() => setHelp(true)}
           >
-            Help
+            {t("help")}
           </button>
         </nav>
         <main
@@ -371,38 +379,30 @@ export function Workspace() {
                 aria-hidden="true"
               />
               <p>
-                <strong>Fixture mode.</strong> This instance tests the complete
-                workflow. It produces a labeled test file, not extracted media.
+                <strong>{t("fixtureMode")}</strong> {t("fixtureExplanation")}
               </p>
             </div>
           ) : null}
           {status && !status.ready ? (
             <div className="mb-6 rounded-lg border border-destructive/30 bg-card p-4 text-xs leading-6 text-destructive">
-              Media tools are missing from this instance. Install yt-dlp and
-              FFmpeg, or start the Docker deployment described in the README.
+              {t("missingTools")}
             </div>
           ) : null}
           {connection ? (
             <p className="mb-4 text-xs text-muted-foreground" role="status">
-              {connection}
+              {connection ? t(connection) : ""}
             </p>
           ) : null}
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
               <p className="mb-3 text-[10px] font-medium tracking-[.18em] text-primary">
-                {view === "workspace"
-                  ? "LESS FRICTION. MORE FREEDOM."
-                  : "YOUR TEMPORARY LIBRARY"}
+                {view === "workspace" ? t("freedom") : t("library")}
               </p>
               <h1 className="text-[clamp(30px,3.8vw,46px)] leading-[1.14] font-medium tracking-[-.05em]">
-                {view === "workspace"
-                  ? "Save something good."
-                  : "Ready when you are."}
+                {view === "workspace" ? t("saveGood") : t("readyWhen")}
               </h1>
               <p className="mt-4 max-w-lg text-sm leading-6 text-muted-foreground">
-                {view === "workspace"
-                  ? "A link is all you need. Choose what to keep, and we’ll handle the rest."
-                  : "Follow your downloads and save finished files before they expire."}
+                {view === "workspace" ? t("intro") : t("downloadsIntro")}
               </p>
             </div>
             {view === "downloads" ? (
@@ -412,7 +412,7 @@ export function Workspace() {
                 className="shrink-0 gap-2"
               >
                 <Plus size={15} aria-hidden="true" />
-                <span className="hidden sm:inline">New download</span>
+                <span className="hidden sm:inline">{t("newDownload")}</span>
               </Button>
             ) : null}
           </div>
@@ -427,10 +427,10 @@ export function Workspace() {
                   htmlFor="media-url"
                   className="mb-3 block text-xs font-medium"
                 >
-                  Media link
+                  {t("mediaLink")}
                 </label>
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <div className="relative min-w-0 flex-1">
+                  <div dir="ltr" className="relative min-w-0 flex-1">
                     <Link2
                       size={17}
                       className="pointer-events-none absolute top-4 left-3.5 text-muted-foreground"
@@ -447,7 +447,7 @@ export function Workspace() {
                       dir="ltr"
                       value={url}
                       onChange={(event) => updateUrl(event.target.value)}
-                      placeholder="Paste a public video, audio, or image link"
+                      placeholder={t("placeholder")}
                       aria-invalid={!!error}
                       aria-describedby={error ? "workspace-error" : "url-hint"}
                       className="h-12 w-full rounded-lg border bg-background/40 pr-12 pl-11 text-base sm:text-[13px] placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
@@ -455,7 +455,7 @@ export function Workspace() {
                     {url ? (
                       <button
                         type="button"
-                        aria-label="Clear link"
+                        aria-label={t("clearLink")}
                         className="absolute top-0 right-0 flex size-12 items-center justify-center text-muted-foreground hover:text-foreground"
                         onClick={() => updateUrl("")}
                       >
@@ -464,8 +464,8 @@ export function Workspace() {
                     ) : (
                       <button
                         type="button"
-                        aria-label="Paste link from clipboard"
-                        title="Paste from clipboard"
+                        aria-label={t("pasteLink")}
+                        title={t("pasteClipboard")}
                         className="absolute top-0 right-0 flex size-12 items-center justify-center text-muted-foreground hover:text-primary"
                         onClick={() => void paste()}
                       >
@@ -487,12 +487,16 @@ export function Workspace() {
                           className="spinner"
                           aria-hidden="true"
                         />
-                        Analyzing…
+                        {t("analyzing")}
                       </>
                     ) : (
                       <>
-                        Analyze link
-                        <ArrowRight size={15} aria-hidden="true" />
+                        {t("analyzeLink")}
+                        <ArrowRight
+                          size={15}
+                          className="rtl:rotate-180"
+                          aria-hidden="true"
+                        />
                       </>
                     )}
                   </Button>
@@ -510,13 +514,13 @@ export function Workspace() {
                           aria-hidden="true"
                         />
                         <span className="font-medium text-primary">
-                          {detected.name} detected
+                          {t("detected", { source: isolate(detected.name) })}
                         </span>
                       </>
                     ) : (
                       <>
                         <ShieldCheck size={12} aria-hidden="true" />
-                        Only analyzed when you ask. No login required.
+                        {t("explicitAnalysis")}
                       </>
                     )}
                   </span>
@@ -526,15 +530,15 @@ export function Workspace() {
                       onClick={() => {
                         abort.current?.abort();
                         setAnalyzing(false);
-                        setNotice("Analysis canceled.");
+                        setNotice("analysisCanceled");
                       }}
                       className="min-h-6 text-primary underline underline-offset-2"
                     >
-                      Cancel analysis
+                      {t("cancelAnalysis")}
                     </button>
                   ) : (
                     <span className="hidden items-center gap-1 sm:flex">
-                      Focus link{" "}
+                      {t("focusLink")}{" "}
                       <kbd className="rounded border px-1.5 py-0.5 font-mono">
                         /
                       </kbd>
@@ -543,7 +547,7 @@ export function Workspace() {
                 </div>
               </form>
               <div className="mt-5 mb-9 flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] text-muted-foreground">
-                <span className="mr-1">POPULAR SOURCES</span>
+                <span className="me-1">{t("popularSources")}</span>
                 {sources.map((source) => (
                   <span key={source} className="font-medium">
                     {source}
@@ -553,7 +557,7 @@ export function Workspace() {
                   onClick={() => setHelp(true)}
                   className="min-h-7 text-primary underline underline-offset-3"
                 >
-                  & other public sources
+                  {t("otherSources")}
                 </button>
               </div>
             </>
@@ -569,11 +573,11 @@ export function Workspace() {
                 className="mt-1 shrink-0"
                 aria-hidden="true"
               />
-              {error}
+              {errorMessage(error, locale)}
             </div>
           ) : null}
           <p className="sr-only" role="status" aria-live="polite">
-            {notice}
+            {notice ? t(notice) : ""}
           </p>
           {view === "workspace" && analyzing ? (
             <div className="mb-8 rounded-2xl border bg-card p-6" role="status">
@@ -586,16 +590,16 @@ export function Workspace() {
                   />
                 </span>
                 <div>
-                  <p className="text-sm font-medium">Looking at the source.</p>
+                  <p className="text-sm font-medium">{t("looking")}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Checking public access and available formats…
+                    {t("checkingFormats")}
                   </p>
                 </div>
               </div>
               <div className="h-2 w-3/4 rounded bg-muted" />
               <div className="mt-3 h-2 w-1/2 rounded bg-muted" />
               <p className="mt-5 text-[11px] text-muted-foreground">
-                This can take a moment. You can cancel at any time.
+                {t("takesMoment")}
               </p>
             </div>
           ) : null}
@@ -603,7 +607,7 @@ export function Workspace() {
             <div
               ref={panel}
               tabIndex={-1}
-              aria-label="Analysis results"
+              aria-label={t("results")}
               className="mb-9 rounded-2xl outline-none"
             >
               <FormatPicker
@@ -623,22 +627,22 @@ export function Workspace() {
           jobs.length === 0 ? (
             <section
               className="mb-10 grid grid-cols-1 gap-6 border-y py-7 sm:grid-cols-3"
-              aria-label="How it works"
+              aria-label={t("howWorks")}
             >
               {[
                 {
-                  title: "One link.",
-                  text: "Paste a public media URL.",
+                  title: t("oneLink"),
+                  text: t("pastePublic"),
                   number: "01",
                 },
                 {
-                  title: "Your choice.",
-                  text: "Pick from the available formats.",
+                  title: t("yourChoice"),
+                  text: t("pickFormats"),
                   number: "02",
                 },
                 {
-                  title: "It’s yours to save.",
-                  text: "We process. You download.",
+                  title: t("yoursToSave"),
+                  text: t("processDownload"),
                   number: "03",
                 },
               ].map((step) => (
@@ -662,10 +666,10 @@ export function Workspace() {
                 id="jobs-heading"
                 className="text-sm font-medium tracking-tight"
               >
-                {view === "workspace" ? "Your downloads" : "All downloads"}
+                {view === "workspace" ? t("yourDownloads") : t("allDownloads")}
                 {activeJobs > 0 ? (
-                  <span className="ml-2 rounded-full bg-secondary px-2 py-0.5 text-[10px] text-primary">
-                    {activeJobs} active
+                  <span className="ms-2 rounded-full bg-secondary px-2 py-0.5 text-[10px] text-primary">
+                    {t("activeCount", { count: activeJobs })}
                   </span>
                 ) : null}
               </h2>
@@ -678,14 +682,18 @@ export function Workspace() {
                   }}
                   className="flex min-h-9 items-center gap-1.5 text-xs text-primary"
                 >
-                  Try a test link
+                  {t("testLink")}
                   <ArrowUpRight size={12} aria-hidden="true" />
                 </button>
               ) : (
                 <span className="text-[10px] text-muted-foreground">
                   {status
-                    ? `Files kept for ${Math.round(status.limits.retentionSeconds / 3600)}h`
-                    : "Temporary storage"}
+                    ? t("retention", {
+                        hours: Math.round(
+                          status.limits.retentionSeconds / 3600,
+                        ),
+                      })
+                    : t("temporaryStorage")}
                 </span>
               )}
             </div>
@@ -700,17 +708,19 @@ export function Workspace() {
           <footer className="mt-9 flex flex-wrap items-center justify-between gap-4 border-t pt-5 text-[10px] leading-5 text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <ShieldCheck size={12} aria-hidden="true" />
-              No trackers. No ads. Just your media.
+              {t("noTrackers")}
             </span>
             <button
               onClick={() => setHelp(true)}
               className="min-h-8 hover:text-primary"
             >
-              {status ? `${bytes(status.limits.maxBytes)} per job · ` : ""}
-              Public content only
+              {status
+                ? `${t("perJob", { size: isolate(formatBytes(status.limits.maxBytes)) })} · `
+                : ""}
+              {t("publicOnly")}
               <ArrowUpRight
                 size={11}
-                className="ml-1 inline"
+                className="ms-1 inline"
                 aria-hidden="true"
               />
             </button>
@@ -726,23 +736,22 @@ export function Workspace() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete this download?</DialogTitle>
-            <DialogDescription>
-              The job and its temporary files will be removed from this
-              instance. Files already saved to your device are unaffected.
-            </DialogDescription>
+            <DialogTitle>{t("deleteQuestion")}</DialogTitle>
+            <DialogDescription>{t("deleteExplanation")}</DialogDescription>
           </DialogHeader>
-          <p className="truncate text-sm font-medium">{pendingDelete?.title}</p>
+          <p className="truncate text-sm font-medium">
+            <bdi>{displayText(pendingDelete?.title || "")}</bdi>
+          </p>
           <div className="mt-4 flex justify-end gap-2">
             <Button variant="outline" onClick={() => setPendingDelete(null)}>
-              Keep download
+              {t("keepDownload")}
             </Button>
             <Button
               variant="destructive"
               disabled={!!actionBusy}
               onClick={() => void confirmDelete()}
             >
-              {actionBusy ? "Deleting…" : "Delete download"}
+              {actionBusy ? t("deleting") : t("deleteDownload")}
             </Button>
           </div>
         </DialogContent>

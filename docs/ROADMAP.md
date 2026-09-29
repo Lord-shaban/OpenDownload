@@ -4,7 +4,7 @@ The M0–M4 implementation baseline has passed its documented development gates.
 [GitHub milestones](https://github.com/Lord-shaban/OpenDownload/milestones) and
 the [issue index](GITHUB_ISSUES.md) track accepted work and remaining delivery
 changes; [VERIFICATION.md](VERIFICATION.md) records evidence and release limits.
-No versioned release has been published. M5 remains planned work.
+No versioned release has been published. M5 is in progress.
 
 ## M0 — Foundation
 
@@ -37,8 +37,11 @@ process-group tests; dependency audit; explicit unsupported extractor evidence.
 
 ## M5 — Broader media coverage
 
-Dedicated public image/gallery adapter; platform-specific authorized fixtures,
-gallery zip with item limit, locale support. Evaluate user value before extras.
+- English/Arabic catalogs, RTL layout, mixed-direction safety and browser gates:
+  implemented. See [localization](LOCALIZATION.md).
+- Evaluate a dedicated public image/gallery adapter and authorized platform
+  evidence. Existing gallery ZIP processing remains bounded; integration awaits
+  evidence of user value and public access compatibility.
 
 Long-term ideas and cost evaluations live in PRODUCT.md. Milestones describe work,
 not delivery-date promises. No release tag before its gates pass.
