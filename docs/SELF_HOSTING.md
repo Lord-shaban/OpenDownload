@@ -43,11 +43,15 @@ be discarded and should not be included in a durable backup by default.
 Compose only publishes `127.0.0.1:3000`. API containers live on an internal network.
 Egress proxy bridges that network to public internet and validates destinations.
 It has no published host port. Proxy ports allow HTTP 80 and HTTPS 443 only.
+The web container uses a separate ingress bridge for its published loopback port;
+it is not subject to the extractor's egress fence. It proxies a fixed API address
+and never fetches submitted source URLs or runs extraction. Making every web
+network internal also prevents host port publication on the tested Docker engine.
 Do not add another external network to API, host-network it, or bypass the proxy.
 
 Trusted native development lacks a network fence; environment proxies are not an
 isolation boundary. No cookies, credentials, proxies from users or arbitrary flags.
-Update pinned yt-dlp/FFmpeg versions through reviewed image rebuilds; no live
+Update the pinned yt-dlp and distribution-provided FFmpeg through reviewed image rebuilds; no live
 self-updating workers. YouTube support may fail due to platform access restrictions;
 do not fix that by importing credentials or evading denied access.
 

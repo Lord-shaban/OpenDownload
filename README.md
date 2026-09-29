@@ -38,13 +38,14 @@ docker compose up --build
 ```
 
 Open **http://localhost:3000**. Compose exposes the web app on loopback only.
-The API and its outbound proxy run on an internal network. The proxy is the
-only container allowed outbound networking. See [self-hosting](docs/SELF_HOSTING.md)
+The API and its outbound proxy share an internal network. Extractor traffic can
+reach the internet only through that proxy. The web service has a separate ingress
+network for its published port. See [self-hosting](docs/SELF_HOSTING.md)
 before changing network exposure.
 
 ## Local development
 
-Prerequisites: Node.js 22+, pnpm 10+, Go 1.26+, Python 3.12+, yt-dlp, FFmpeg.
+Prerequisites: Node.js 24, pnpm 11.25.0, Go 1.27.1+, Python 3.12+, yt-dlp, FFmpeg.
 
 ```sh
 pnpm install --frozen-lockfile

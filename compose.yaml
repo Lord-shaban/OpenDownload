@@ -70,8 +70,7 @@ services:
 networks:
   service:
     internal: true
-  frontend:
-    internal: true
+  frontend: {}
   outbound: {}
 volumes:
   media: {}

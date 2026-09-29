@@ -21,7 +21,7 @@ def api(path, method="GET", payload=None):
 
 
 def main():
-    plan = json.loads((ROOT / "scripts/github-plan.json").read_text())
+    plan = json.loads((ROOT / "scripts/github-plan.json").read_text(encoding="utf-8"))
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", default=plan["repository"])
     opts = parser.parse_args()
