@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a reproducible defect (security issues must be reported privately).
+title: "bug: "
+labels: [bug, "status:triage"]
+body:
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+      description: Do not include private URLs or downloaded media.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Revision and deployment mode
+      placeholder: Commit SHA, Docker or native, OS, browser
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence
+      description: Remove secrets, source URL query strings and personal information.

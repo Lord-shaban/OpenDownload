@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+.tools/
+.data/
+data/
+*.db
+*.db-shm
+*.db-wal
+*.log
+*.exe
+.env*
+!.env.example
+.DS_Store

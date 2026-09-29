@@ -1,0 +1,21 @@
+name: Feature proposal
+description: Describe the user value and the simplest approach.
+title: "feat: "
+labels: [enhancement, "status:triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+    validations:
+      required: true
+  - type: textarea
+    id: approach
+    attributes:
+      label: Proposed behavior and alternatives
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Maintenance, performance and security cost
