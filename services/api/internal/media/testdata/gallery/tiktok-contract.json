@@ -1,0 +1,18 @@
+{
+  "title": "OpenDownload original shapes — TikTok contract",
+  "uploader": "OpenDownload synthetic fixture",
+  "extractor_key": "TikTok",
+  "availability": "public",
+  "entries": [
+    {
+      "ext": "png",
+      "url": "http://images.example.test/green.png",
+      "availability": "public"
+    },
+    {
+      "ext": "png",
+      "url": "http://cdn.example.test/blue.png",
+      "availability": "public"
+    }
+  ]
+}

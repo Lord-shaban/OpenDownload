@@ -40,8 +40,9 @@ process-group tests; dependency audit; explicit unsupported extractor evidence.
 - English/Arabic catalogs, RTL layout, mixed-direction safety and browser gates:
   implemented. See [localization](LOCALIZATION.md).
 - Evaluate a dedicated public image/gallery adapter and authorized platform
-  evidence. Existing gallery ZIP processing remains bounded; integration awaits
-  evidence of user value and public access compatibility.
+  evidence: [source review and contract tests](GALLERY_EVALUATION.md) completed.
+  Integration is deferred; #13 remains open for authorized live fixtures and
+  challenge-stop evidence. Existing gallery ZIP processing remains bounded.
 
 Long-term ideas and cost evaluations live in PRODUCT.md. Milestones describe work,
 not delivery-date promises. No release tag before its gates pass.
