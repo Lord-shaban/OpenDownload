@@ -42,6 +42,10 @@ describe("locale contracts", () => {
   });
   it("rejects raw and encoded bidi controls without rejecting Arabic URLs", () => {
     for (const control of ["\u202e", "\u2066", "\u200f", "\u061c"]) {
+      expect(
+        detectSource(`https://exam${encodeURIComponent(control)}ple.com/photo`)
+          .valid,
+      ).toBe(false);
       expect(detectSource(`https://example.com/${control}photo`).valid).toBe(
         false,
       );
