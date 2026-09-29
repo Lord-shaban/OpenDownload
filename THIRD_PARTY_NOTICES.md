@@ -10,7 +10,7 @@ and the resolved package/image distribution before redistribution.
 official [shadcn registry](https://ui.shadcn.com), downloaded on 2026-09-29.
 CLI installation failed in the workstation package-manager environment; only
 used components were copied through `scripts/sync-shadcn.py`. Imports and control
-target sizes were adapted. shadcn is licensed under MIT:
+target sizes and controlled dialog focus restoration were adapted. shadcn is licensed under MIT:
 
 Copyright (c) 2023 shadcn
 

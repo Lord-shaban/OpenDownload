@@ -58,6 +58,7 @@ export function Workspace() {
   const [dark, setDark] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Job | null>(null);
   const input = useRef<HTMLInputElement>(null);
+  const main = useRef<HTMLElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const abort = useRef<AbortController | null>(null);
   const detected = detectSource(url);
@@ -211,6 +212,7 @@ export function Workspace() {
       setPendingDelete(null);
       setNotice("Job and temporary files deleted.");
       await reload();
+      main.current?.focus();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "The job could not be deleted.",
@@ -356,6 +358,8 @@ export function Workspace() {
           </button>
         </nav>
         <main
+          ref={main}
+          tabIndex={-1}
           id="main-content"
           className="mx-auto max-w-[1000px] px-5 pt-9 pb-12 sm:px-8 sm:pt-14 xl:px-12"
         >
