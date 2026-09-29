@@ -89,6 +89,10 @@ See [the delivery workflow](GITHUB_WORKFLOW.md) for the single-maintainer review
 
 ## Arabic/RTL verification — 2026-09-29
 
+[PR #17](https://github.com/Lord-shaban/OpenDownload/pull/17) merged after
+[CI run 36592605343](https://github.com/Lord-shaban/OpenDownload/actions/runs/36592605343)
+passed all required jobs on head `9f93d125c8c36bddc87f69b42fe5aa83525d8f38`.
+
 Local checks passed: ESLint, TypeScript, eight Vitest tests, Go URL security tests
 and sixteen Chromium browser tests (eight scenarios on desktop and mobile).
 Browser tests now build and run the production standalone application, including
@@ -103,3 +107,16 @@ behavior; they do not establish live platform availability.
 
 Manual review also covered Arabic light/dark desktop/mobile and a translated 404.
 The [Arabic preview](assets/workspace-ar.png) shows the development workspace.
+
+## Gallery contract verification — 2026-09-29
+
+Six additional Go test functions passed locally, including table cases for both
+synthetic platform labels, restricted/mixed collections and download failures.
+Original PNGs are encoded during tests; ZIP members preserve exact bytes and
+decode successfully. HTTP archive requests use a local proxy; the actual guarded
+proxy rejects loopback/metadata assets. Tests also verify the 20-item bound,
+aggregate byte refusal, 403 termination and cancellation before the next image.
+
+No gallery-dl package or runtime path was added. [Source review and coverage
+matrix](GALLERY_EVALUATION.md) explain the decision. No live Instagram/TikTok photo
+extraction was run; no captured platform fixture is claimed.
