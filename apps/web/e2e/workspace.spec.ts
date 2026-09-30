@@ -16,8 +16,10 @@ test("analyze, select, queue and save the labeled fixture", async ({
   ).toBeVisible();
   await page.getByText("720p", { exact: true }).click();
   await expect(page.getByRole("radio", { name: /720p/ })).toBeChecked();
-  await page.getByRole("button", { name: "Queue download" }).click();
-  await expect(page.getByText("Ready to save", { exact: true })).toBeVisible({
+  await page.getByRole("button", { name: "Download", exact: true }).click();
+  await expect(
+    page.getByText("Your file is ready", { exact: true }),
+  ).toBeVisible({
     timeout: 15_000,
   });
   const downloadPromise = page.waitForEvent("download");
@@ -32,9 +34,7 @@ test("analyze, select, queue and save the labeled fixture", async ({
   await page
     .getByRole("button", { name: "Delete download", exact: true })
     .click();
-  await expect(
-    page.getByText("A little space for what you save."),
-  ).toBeVisible();
+  await expect(page.getByText("No downloads yet")).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -48,11 +48,13 @@ test("cancel active work and retry as a new job", async ({ page }) => {
     .getByLabel("Media link", { exact: true })
     .fill("https://example.com/sample");
   await page.getByRole("button", { name: "Analyze link", exact: true }).click();
-  await page.getByRole("button", { name: "Queue download" }).click();
+  await page.getByRole("button", { name: "Download", exact: true }).click();
   await page.getByRole("button", { name: /^Cancel .*A small/ }).click();
   await expect(page.getByText("Canceled", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: /^Retry .*A small/ }).click();
-  await expect(page.getByText("Ready to save", { exact: true })).toBeVisible({
+  await expect(
+    page.getByText("Your file is ready", { exact: true }),
+  ).toBeVisible({
     timeout: 15_000,
   });
   await expect(
@@ -72,7 +74,7 @@ test("reject invalid URLs and expose recovery", async ({ page }) => {
     .fill("https://example.com/unsupported");
   await page.getByRole("button", { name: "Analyze link" }).click();
   await expect(page.locator("#workspace-error")).toContainText(
-    "supported downloadable media",
+    "Couldn't reach public media",
   );
 });
 test("show processing failure and retry without inventing success", async ({
@@ -84,7 +86,7 @@ test("show processing failure and retry without inventing success", async ({
     .getByLabel("Media link", { exact: true })
     .fill("https://example.com/fail");
   await page.getByRole("button", { name: "Analyze link", exact: true }).click();
-  await page.getByRole("button", { name: "Queue download" }).click();
+  await page.getByRole("button", { name: "Download", exact: true }).click();
   await expect(page.getByText("Couldn’t finish", { exact: true })).toBeVisible({
     timeout: 15_000,
   });
@@ -109,7 +111,7 @@ test("reflow, reduced motion and keyboard dialog dismissal", async ({
     .fill("https://example.com/sample");
   await page.getByRole("button", { name: "Analyze link", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Queue download" }),
+    page.getByRole("button", { name: "Download", exact: true }),
   ).toBeVisible();
   expect(
     await page

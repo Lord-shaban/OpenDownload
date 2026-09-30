@@ -10,7 +10,9 @@ test("switch locale without losing input, persist SSR direction and return to En
   await page.getByLabel("Language", { exact: true }).selectOption("ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(
-    page.getByRole("heading", { name: "احفظ ما يستحق." }),
+    page
+      .getByRole("navigation")
+      .getByRole("button", { name: "تنزيل جديد", exact: true }),
   ).toBeVisible();
   await expect(page.getByLabel("رابط الوسائط", { exact: true })).toHaveValue(
     source,
@@ -22,11 +24,13 @@ test("switch locale without losing input, persist SSR direction and return to En
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   const serverHTML = await (await page.request.get("/")).text();
   expect(serverHTML).toMatch(/<html[^>]+lang="ar"[^>]+dir="rtl"/);
-  expect(serverHTML).toContain("احفظ ما يستحق.");
+  expect(serverHTML).toContain("وسائطك، بطريقتك.");
   await page.getByLabel("اللغة", { exact: true }).selectOption("en");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
   await expect(
-    page.getByRole("heading", { name: "Save something good." }),
+    page
+      .getByRole("navigation")
+      .getByRole("button", { name: "New download", exact: true }),
   ).toBeVisible();
 });
 
@@ -44,8 +48,8 @@ test("complete the Arabic keyboard selection, save and delete flow", async ({
   await radios.first().focus();
   await page.keyboard.press("ArrowDown");
   await expect(page.getByRole("radio", { name: /720p/ })).toBeChecked();
-  await page.getByRole("button", { name: "إضافة إلى قائمة الانتظار" }).click();
-  await expect(page.getByText("جاهز للحفظ", { exact: true })).toBeVisible({
+  await page.getByRole("button", { name: "نزّل الملف", exact: true }).click();
+  await expect(page.getByText("ملفك جاهز", { exact: true })).toBeVisible({
     timeout: 15_000,
   });
   const pending = page.waitForEvent("download");
@@ -57,7 +61,7 @@ test("complete the Arabic keyboard selection, save and delete flow", async ({
   await page.getByRole("button", { name: /^حذف .*A small/ }).click();
   await expect(page.getByRole("dialog")).toContainText("حذف هذا التنزيل؟");
   await page.getByRole("button", { name: "حذف التنزيل", exact: true }).click();
-  await expect(page.getByText("مساحة لما تريد حفظه.")).toBeVisible();
+  await expect(page.getByText("لا توجد تنزيلات بعد")).toBeVisible();
   await expect(page.locator("#main-content")).toBeFocused();
 });
 
@@ -82,11 +86,12 @@ test("Arabic errors, RTL reflow, local fonts and bounded keyboard dialog", async
     .fill("https://example.com/unsupported");
   await page.getByRole("button", { name: "تحليل الرابط", exact: true }).click();
   await expect(page.locator("#workspace-error")).toContainText(
-    "لا يوفر وسائط عامة مدعومة",
+    "لم نصل إلى وسائط عامة",
   );
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const size of [
     { width: 1440, height: 1000 },
+    { width: 320, height: 740 },
     { width: 375, height: 812 },
     { width: 812, height: 375 },
     { width: 768, height: 1024 },

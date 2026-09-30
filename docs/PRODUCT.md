@@ -13,7 +13,7 @@ not the MVP deployment target. No promise of universal platform availability.
 
 ## Essential MVP
 
-One URL → detect source locally → analyze on explicit submission → display
+One URL → detect source locally → analyze on deliberate paste or typed submission → display
 metadata and actual options → choose → queue → show progress → download.
 Include cancellation, retry, job history, expiry, delete, accessible errors,
 direct images, thumbnails, and available subtitles. Offer audio conversion and

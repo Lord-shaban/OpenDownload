@@ -7,10 +7,25 @@ import { LocaleProvider } from "@/components/locale-provider";
 import { direction, LOCALE_COOKIE, parseLocale, translate } from "@/lib/i18n";
 import "./globals.css";
 const arabicFont = localFont({
-  src: "./fonts/NotoSansArabic.ttf",
+  src: [
+    {
+      path: "./fonts/IBMPlexSansArabic-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/IBMPlexSansArabic-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/IBMPlexSansArabic-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+  ],
   variable: "--font-arabic",
   display: "swap",
-  weight: "100 900",
   preload: false,
 });
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,12 +39,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const locale = parseLocale((await cookies()).get(LOCALE_COOKIE)?.value);
+  const preferences = await cookies();
+  const locale = parseLocale(preferences.get(LOCALE_COOKIE)?.value);
+  const dark = preferences.get("od_theme")?.value === "dark";
   return (
     <html
       lang={locale}
       dir={direction(locale)}
-      className={`${GeistSans.variable} ${GeistMono.variable} ${arabicFont.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${arabicFont.variable}${dark ? " dark" : ""}`}
       suppressHydrationWarning
     >
       <body>

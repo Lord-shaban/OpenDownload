@@ -24,7 +24,6 @@ export function errorMessage(error: unknown, locale: Locale) {
   if (typeof error === "string" && Object.hasOwn(messages, error))
     return translate(locale, error as MessageKey);
   if (error instanceof ApiError) {
-    if (locale === "en") return error.message;
     return translate(locale, codes[error.code] || "requestFailed");
   }
   return translate(locale, "networkError");

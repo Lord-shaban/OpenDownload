@@ -1,29 +1,23 @@
 "use client";
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Check,
-  ChevronRight,
-  CircleAlert,
-  Clipboard,
-  Download,
-  Code2,
-  Leaf,
-  Link2,
-  LoaderCircle,
-  Moon,
-  Plus,
-  ShieldCheck,
-  Sun,
-  X,
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRightIcon as ArrowRight } from "@phosphor-icons/react/dist/csr/ArrowRight";
+import { WarningCircleIcon as CircleAlert } from "@phosphor-icons/react/dist/csr/WarningCircle";
+import { ClipboardTextIcon as Clipboard } from "@phosphor-icons/react/dist/csr/ClipboardText";
+import { QuestionIcon as CircleHelp } from "@phosphor-icons/react/dist/csr/Question";
+import { LinkSimpleIcon as Link2 } from "@phosphor-icons/react/dist/csr/LinkSimple";
+import { CircleNotchIcon as LoaderCircle } from "@phosphor-icons/react/dist/csr/CircleNotch";
+import { MoonStarsIcon as Moon } from "@phosphor-icons/react/dist/csr/MoonStars";
+import { PlusIcon as Plus } from "@phosphor-icons/react/dist/csr/Plus";
+import { SunIcon as Sun } from "@phosphor-icons/react/dist/csr/Sun";
+import { XIcon as X } from "@phosphor-icons/react/dist/csr/X";
 import { useLocale } from "@/components/locale-provider";
+import { FlowProgress } from "@/components/flow-progress";
 import { Brand } from "@/components/brand";
 import Link from "next/link";
 import { FormatPicker } from "@/components/format-picker";
 import { HelpDialog } from "@/components/help-dialog";
 import { JobList } from "@/components/job-list";
+import { SupportedSites } from "@/components/supported-sites";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,13 +36,12 @@ import {
   jobSchema,
   request,
 } from "@/lib/api";
-import { isolate, type MessageKey } from "@/lib/i18n";
-import { bytes, detectSource, displayText, sources } from "@/lib/media";
+import { type MessageKey } from "@/lib/i18n";
+import { detectSource, displayText } from "@/lib/media";
 import { errorMessage } from "@/lib/localized-media";
 
-export function Workspace() {
+export function Workspace({ initialDark = false }: { initialDark?: boolean }) {
   const { locale, setLocale, t } = useLocale();
-  const formatBytes = (value?: number) => bytes(value, locale);
   const { jobs, status, connection, reload, now } = useInstance();
   const [view, setView] = useState<"workspace" | "downloads">("workspace");
   const [url, setUrl] = useState("");
@@ -60,7 +53,7 @@ export function Workspace() {
   const [notice, setNotice] = useState<MessageKey | "">("");
   const [actionBusy, setActionBusy] = useState("");
   const [help, setHelp] = useState(false);
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(initialDark);
   const [pendingDelete, setPendingDelete] = useState<Job | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const main = useRef<HTMLElement>(null);
@@ -80,7 +73,8 @@ export function Workspace() {
         !target.isContentEditable
       ) {
         event.preventDefault();
-        input.current?.focus();
+        setView("workspace");
+        requestAnimationFrame(() => input.current?.focus());
       }
     };
     window.addEventListener("keydown", shortcut);
@@ -100,17 +94,18 @@ export function Workspace() {
   }
   async function paste() {
     try {
-      updateUrl(await navigator.clipboard.readText());
+      const pasted = await navigator.clipboard.readText();
+      updateUrl(pasted);
       input.current?.focus();
+      if (detectSource(pasted).valid && status?.ready) void analyzeUrl(pasted);
     } catch {
       setError("clipboardError");
       input.current?.focus();
     }
   }
-  async function analyze(event: FormEvent) {
-    event.preventDefault();
-    if (analyzing || !url.trim()) return;
-    if (!detected.valid) {
+  async function analyzeUrl(value: string) {
+    if (!value.trim()) return;
+    if (!detectSource(value).valid) {
       setError("invalidUrl");
       input.current?.focus();
       return;
@@ -126,7 +121,7 @@ export function Workspace() {
     try {
       const result = await request("/analyze", analysisSchema, {
         method: "POST",
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify({ url: value.trim() }),
         signal: controller.signal,
       });
       if (!controller.signal.aborted) {
@@ -159,6 +154,8 @@ export function Workspace() {
         }),
       });
       setNotice("queuedNotice");
+      setView("downloads");
+      requestAnimationFrame(() => main.current?.focus());
       await reload();
       setAnalysis(null);
       setSelected(null);
@@ -207,408 +204,284 @@ export function Workspace() {
       setActionBusy("");
     }
   }
+  function showWorkspace() {
+    setView("workspace");
+    requestAnimationFrame(() => input.current?.focus());
+  }
   function switchTheme() {
     const next = !dark;
     setDark(next);
     document.documentElement.classList.toggle("dark", next);
+    document.cookie = `od_theme=${next ? "dark" : "light"}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
   }
   return (
-    <div className="min-h-dvh">
-      <a
-        href="#main-content"
-        className="sr-only fixed top-3 start-3 z-50 rounded-lg bg-card p-3 focus:not-sr-only"
-      >
+    <div className="workspace-shell">
+      <a href="#main-content" className="skip-link">
         {t("skip")}
       </a>
-      <aside className="fixed inset-y-0 start-0 hidden w-[230px] flex-col border-e bg-card/40 px-5 py-7 lg:flex">
-        <Link href="/" className="px-2" aria-label={t("home")}>
+      <header className="app-header">
+        <Link href="/" aria-label={t("home")} className="shrink-0">
           <Brand />
         </Link>
-        <p className="mt-12 mb-3 px-3 text-[10px] font-medium tracking-[.16em] text-muted-foreground">
-          {t("yourWorkspace")}
-        </p>
-        <nav aria-label={t("mainNav")} className="space-y-1">
-          <button
-            onClick={() => setView("workspace")}
-            aria-current={view === "workspace" ? "page" : undefined}
-            className={`flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-[13px] font-medium ${view === "workspace" ? "bg-secondary text-primary" : "text-muted-foreground hover:bg-muted"}`}
+        <div className="header-controls">
+          <label className="sr-only" htmlFor="workspace-language">
+            {t("language")}
+          </label>
+          <select
+            id="workspace-language"
+            value={locale}
+            onChange={(event) =>
+              setLocale(event.target.value === "ar" ? "ar" : "en")
+            }
+            className="language-control"
           >
-            <Plus size={17} aria-hidden="true" />
+            <option value="en" lang="en">
+              English
+            </option>
+            <option value="ar" lang="ar">
+              العربية
+            </option>
+          </select>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="glass-control"
+            onClick={switchTheme}
+            aria-label={dark ? t("lightTheme") : t("darkTheme")}
+          >
+            {dark ? (
+              <Sun weight="duotone" size={18} aria-hidden="true" />
+            ) : (
+              <Moon weight="duotone" size={18} aria-hidden="true" />
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="glass-control"
+            onClick={() => setHelp(true)}
+            aria-label={t("help")}
+          >
+            <CircleHelp weight="duotone" size={18} aria-hidden="true" />
+          </Button>
+        </div>
+      </header>
+      <main
+        id="main-content"
+        ref={main}
+        tabIndex={-1}
+        className="workspace-main outline-none"
+      >
+        <nav aria-label={t("mainNav")} className="workspace-nav">
+          <button
+            onClick={showWorkspace}
+            aria-current={view === "workspace" ? "page" : undefined}
+          >
             {t("newDownload")}
           </button>
           <button
             onClick={() => setView("downloads")}
+            aria-label={t("downloads")}
             aria-current={view === "downloads" ? "page" : undefined}
-            className={`flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-[13px] font-medium ${view === "downloads" ? "bg-secondary text-primary" : "text-muted-foreground hover:bg-muted"}`}
           >
-            <Download size={17} aria-hidden="true" />
             {t("downloads")}
             {jobs.length > 0 ? (
-              <span className="ms-auto rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                {jobs.length}
-              </span>
+              <span className="nav-count">{jobs.length}</span>
             ) : null}
           </button>
         </nav>
-        <div className="mt-auto">
-          <div className="mx-2 mb-5 border-b pb-5">
-            <Leaf size={20} className="mb-3 text-primary" aria-hidden="true" />
-            <p className="text-xs font-medium">{t("simple")}</p>
-            <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
-              {t("yourInstance")}
-              <br />
-              {t("moreControl")}
-            </p>
-          </div>
-          <button
-            onClick={() => setHelp(true)}
-            className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-xs text-muted-foreground hover:bg-muted"
-          >
-            {t("helpGuidelines")}
-            <ArrowUpRight size={14} aria-hidden="true" />
-          </button>
-          <a
-            href="https://github.com/Lord-shaban/OpenDownload"
-            target="_blank"
-            rel="noreferrer"
-            className="flex min-h-11 items-center justify-between rounded-lg px-3 text-xs text-muted-foreground hover:bg-muted"
-          >
-            {t("github")}
-            <Code2 size={14} aria-hidden="true" />
-          </a>
-          <div className="mt-6 flex items-center gap-2 px-3 font-mono text-[9px] tracking-wide text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-primary" />
-            {t("preRelease")}
-          </div>
-        </div>
-      </aside>
-      <div className="lg:ms-[230px]">
-        <header className="flex h-[76px] items-center justify-between border-b px-5 sm:px-8 xl:px-12">
-          <div className="lg:hidden">
-            <Brand />
-          </div>
-          <div className="hidden items-center gap-2 text-xs text-muted-foreground lg:flex">
-            {t("workspace")}
-            <ChevronRight
-              size={13}
-              className="rtl:rotate-180"
-              aria-hidden="true"
-            />
-            <span className="text-foreground">
-              {view === "workspace" ? t("newDownload") : t("downloads")}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <label className="sr-only" htmlFor="workspace-language">
-              {t("language")}
-            </label>
-            <select
-              id="workspace-language"
-              value={locale}
-              onChange={(event) =>
-                setLocale(event.target.value === "ar" ? "ar" : "en")
-              }
-              className="min-h-11 max-w-[110px] rounded-lg border bg-background px-2 text-xs"
-            >
-              <option value="en" lang="en">
-                English
-              </option>
-              <option value="ar" lang="ar">
-                العربية
-              </option>
-            </select>
-            <span className="hidden items-center gap-2 text-[11px] text-muted-foreground sm:flex">
-              <span
-                className={`size-1.5 rounded-full ${connection ? "bg-muted-foreground" : status?.ready ? "bg-primary" : "bg-destructive"}`}
-              />
-              {fixture
-                ? t("testInstance")
-                : status?.ready
-                  ? t("instanceReady")
-                  : connection
-                    ? t("connecting")
-                    : t("setupNeeded")}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={switchTheme}
-              aria-label={dark ? t("lightTheme") : t("darkTheme")}
-            >
-              {dark ? <Sun size={17} /> : <Moon size={17} />}
-            </Button>
-          </div>
-        </header>
-        <nav
-          aria-label={t("mobileNav")}
-          className="flex border-b px-5 lg:hidden"
-        >
-          <button
-            className={`min-h-12 flex-1 text-xs font-medium ${view === "workspace" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-            aria-current={view === "workspace" ? "page" : undefined}
-            onClick={() => setView("workspace")}
-          >
-            {t("newDownload")}
-          </button>
-          <button
-            className={`min-h-12 flex-1 text-xs font-medium ${view === "downloads" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-            aria-current={view === "downloads" ? "page" : undefined}
-            onClick={() => setView("downloads")}
-          >
-            {t("downloads")}
-            {activeJobs ? ` (${t("activeCount", { count: activeJobs })})` : ""}
-          </button>
-          <button
-            className="min-h-12 px-4 text-xs text-muted-foreground"
-            onClick={() => setHelp(true)}
-          >
-            {t("help")}
-          </button>
-        </nav>
-        <main
-          ref={main}
-          tabIndex={-1}
-          id="main-content"
-          className="mx-auto max-w-[1000px] px-5 pt-9 pb-12 sm:px-8 sm:pt-14 xl:px-12"
-        >
+        <div key={view} className="workspace-stage view-enter">
+          <h1 className="sr-only">
+            {t(view === "workspace" ? "newDownload" : "downloads")}
+          </h1>
           {fixture ? (
-            <div className="mb-6 flex items-start gap-2 rounded-lg border border-primary/20 bg-secondary px-4 py-3 text-xs leading-5 text-primary">
-              <CircleAlert
-                size={15}
-                className="mt-0.5 shrink-0"
-                aria-hidden="true"
-              />
+            <div className="instance-notice" role="status">
+              <CircleAlert size={16} className="shrink-0" aria-hidden="true" />
               <p>
                 <strong>{t("fixtureMode")}</strong> {t("fixtureExplanation")}
               </p>
             </div>
           ) : null}
           {status && !status.ready ? (
-            <div className="mb-6 rounded-lg border border-destructive/30 bg-card p-4 text-xs leading-6 text-destructive">
+            <div className="instance-notice text-destructive">
               {t("missingTools")}
             </div>
           ) : null}
           {connection ? (
-            <p className="mb-4 text-xs text-muted-foreground" role="status">
-              {connection ? t(connection) : ""}
+            <p
+              className="mb-4 text-center text-sm text-muted-foreground"
+              role="status"
+            >
+              {t(connection)}
             </p>
           ) : null}
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <p className="mb-3 text-[10px] font-medium tracking-[.18em] text-primary">
-                {view === "workspace" ? t("freedom") : t("library")}
-              </p>
-              <h1 className="text-[clamp(30px,3.8vw,46px)] leading-[1.14] font-medium tracking-[-.05em]">
-                {view === "workspace" ? t("saveGood") : t("readyWhen")}
-              </h1>
-              <p className="mt-4 max-w-lg text-sm leading-6 text-muted-foreground">
-                {view === "workspace" ? t("intro") : t("downloadsIntro")}
-              </p>
-            </div>
-            {view === "downloads" ? (
-              <Button
-                variant="outline"
-                onClick={() => setView("workspace")}
-                className="shrink-0 gap-2"
-              >
-                <Plus size={15} aria-hidden="true" />
-                <span className="hidden sm:inline">{t("newDownload")}</span>
-              </Button>
-            ) : null}
+          <div className="sr-only">
+            <FlowProgress step={view === "downloads" ? 3 : analysis ? 2 : 1} />
           </div>
           {view === "workspace" ? (
             <>
               <form
-                onSubmit={analyze}
-                className="relative rounded-2xl border bg-card p-4 shadow-[0_3px_14px_-8px_#202b2225] sm:p-5"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (!analyzing) void analyzeUrl(url);
+                }}
+                className="link-composer glass-panel"
+                data-filled={!!url}
                 aria-busy={analyzing}
               >
-                <label
-                  htmlFor="media-url"
-                  className="mb-3 block text-xs font-medium"
-                >
+                <label htmlFor="media-url" className="sr-only">
                   {t("mediaLink")}
                 </label>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <div dir="ltr" className="relative min-w-0 flex-1">
-                    <Link2
-                      size={17}
-                      className="pointer-events-none absolute top-4 left-3.5 text-muted-foreground"
-                      aria-hidden="true"
-                    />
-                    <input
-                      ref={input}
-                      id="media-url"
-                      type="text"
-                      inputMode="url"
-                      autoComplete="off"
-                      autoCapitalize="none"
-                      spellCheck={false}
-                      dir="ltr"
-                      value={url}
-                      onChange={(event) => updateUrl(event.target.value)}
-                      placeholder={t("placeholder")}
-                      aria-invalid={!!error}
-                      aria-describedby={error ? "workspace-error" : "url-hint"}
-                      className="h-12 w-full rounded-lg border bg-background/40 pr-12 pl-11 text-base sm:text-[13px] placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-                    />
-                    {url ? (
-                      <button
-                        type="button"
-                        aria-label={t("clearLink")}
-                        className="absolute top-0 right-0 flex size-12 items-center justify-center text-muted-foreground hover:text-foreground"
-                        onClick={() => updateUrl("")}
-                      >
-                        <X size={15} />
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        aria-label={t("pasteLink")}
-                        title={t("pasteClipboard")}
-                        className="absolute top-0 right-0 flex size-12 items-center justify-center text-muted-foreground hover:text-primary"
-                        onClick={() => void paste()}
-                      >
-                        <Clipboard size={16} />
-                      </button>
-                    )}
-                  </div>
+                <div className="composer-input" dir="ltr">
+                  <Link2
+                    weight="duotone"
+                    size={20}
+                    className="link-icon"
+                    aria-hidden="true"
+                  />
+                  <input
+                    ref={input}
+                    id="media-url"
+                    name="url"
+                    type="text"
+                    inputMode="url"
+                    autoComplete="off"
+                    spellCheck={false}
+                    dir="ltr"
+                    value={url}
+                    disabled={queueing}
+                    onChange={(event) => updateUrl(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        if (!analyzing && status?.ready)
+                          void analyzeUrl(event.currentTarget.value);
+                      }
+                    }}
+                    onPaste={(event) => {
+                      const pasted = event.clipboardData.getData("text").trim();
+                      if (detectSource(pasted).valid && status?.ready) {
+                        event.preventDefault();
+                        updateUrl(pasted);
+                        void analyzeUrl(pasted);
+                      }
+                    }}
+                    placeholder={t("placeholder")}
+                    aria-invalid={!!error && !!url.trim()}
+                    aria-describedby={error ? "workspace-error" : "url-hint"}
+                  />
+                  {url ? (
+                    <button
+                      type="button"
+                      className="input-action"
+                      aria-label={t("clearLink")}
+                      disabled={queueing}
+                      onClick={() => {
+                        updateUrl("");
+                        input.current?.focus();
+                      }}
+                    >
+                      <X size={16} aria-hidden="true" />
+                    </button>
+                  ) : null}
                   <Button
                     type="submit"
-                    className="h-12 gap-2 rounded-lg px-6 text-xs"
+                    className="analyze-button"
+                    size="icon"
                     disabled={
-                      analyzing || !url.trim() || status?.ready === false
+                      analyzing || !url.trim() || !status?.ready || queueing
                     }
+                    aria-label={analyzing ? t("analyzing") : t("analyzeLink")}
+                    title={t("analyzeLink")}
                   >
                     {analyzing ? (
-                      <>
-                        <LoaderCircle
-                          size={15}
-                          className="spinner"
-                          aria-hidden="true"
-                        />
-                        {t("analyzing")}
-                      </>
+                      <LoaderCircle
+                        size={19}
+                        className="spinner"
+                        aria-hidden="true"
+                      />
                     ) : (
-                      <>
-                        {t("analyzeLink")}
-                        <ArrowRight
-                          size={15}
-                          className="rtl:rotate-180"
-                          aria-hidden="true"
-                        />
-                      </>
+                      <ArrowRight
+                        size={19}
+                        className="rtl:rotate-180"
+                        aria-hidden="true"
+                      />
                     )}
                   </Button>
                 </div>
-                <div
-                  id="url-hint"
-                  className="mt-3 flex min-h-5 flex-wrap items-center justify-between gap-2 text-[10px] text-muted-foreground"
-                >
-                  <span className="flex items-center gap-1.5">
+              </form>
+              <div className="composer-tools">
+                {!url ? (
+                  <Button
+                    variant="secondary"
+                    className="paste-button"
+                    onClick={() => void paste()}
+                    disabled={!status?.ready}
+                    aria-label={t("pasteLink")}
+                  >
+                    <Clipboard weight="duotone" size={16} aria-hidden="true" />
+                    {t("pasteClipboard")}
+                  </Button>
+                ) : analyzing ? (
+                  <button
+                    className="quiet-action"
+                    onClick={() => {
+                      abort.current?.abort();
+                      setAnalyzing(false);
+                      setNotice("analysisCanceled");
+                    }}
+                  >
+                    {t("cancelAnalysis")}
+                  </button>
+                ) : (
+                  <span id="url-hint" className="source-hint">
                     {detected.valid ? (
-                      <>
-                        <Check
-                          size={12}
-                          className="text-primary"
-                          aria-hidden="true"
-                        />
-                        <span className="font-medium text-primary">
-                          {t("detected", { source: isolate(detected.name) })}
-                        </span>
-                      </>
+                      <bdi>{detected.name}</bdi>
                     ) : (
-                      <>
-                        <ShieldCheck size={12} aria-hidden="true" />
-                        {t("explicitAnalysis")}
-                      </>
+                      t("publicOnly")
                     )}
                   </span>
-                  {analyzing ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        abort.current?.abort();
-                        setAnalyzing(false);
-                        setNotice("analysisCanceled");
-                      }}
-                      className="min-h-6 text-primary underline underline-offset-2"
-                    >
-                      {t("cancelAnalysis")}
-                    </button>
-                  ) : (
-                    <span className="hidden items-center gap-1 sm:flex">
-                      {t("focusLink")}{" "}
-                      <kbd className="rounded border px-1.5 py-0.5 font-mono">
-                        /
-                      </kbd>
-                    </span>
-                  )}
-                </div>
-              </form>
-              <div className="mt-5 mb-9 flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] text-muted-foreground">
-                <span className="me-1">{t("popularSources")}</span>
-                {sources.map((source) => (
-                  <span key={source} className="font-medium">
-                    {source}
-                  </span>
-                ))}
-                <button
-                  onClick={() => setHelp(true)}
-                  className="min-h-7 text-primary underline underline-offset-3"
+                )}
+                <span
+                  id={!url || analyzing ? "url-hint" : undefined}
+                  className="sr-only"
                 >
-                  {t("otherSources")}
-                </button>
+                  {t("publicOnly")}
+                </span>
               </div>
+              {!analysis && !analyzing ? <SupportedSites /> : null}
             </>
           ) : null}
           {error ? (
-            <div
-              id="workspace-error"
-              role="alert"
-              className="mb-6 flex items-start gap-2 rounded-xl border border-destructive/25 bg-card px-4 py-3 text-xs leading-6 text-destructive"
-            >
-              <CircleAlert
-                size={16}
-                className="mt-1 shrink-0"
-                aria-hidden="true"
-              />
-              {errorMessage(error, locale)}
+            <div id="workspace-error" className="error-panel" role="alert">
+              <CircleAlert size={18} className="shrink-0" aria-hidden="true" />
+              <p>{errorMessage(error, locale)}</p>
             </div>
           ) : null}
           <p className="sr-only" role="status" aria-live="polite">
             {notice ? t(notice) : ""}
           </p>
           {view === "workspace" && analyzing ? (
-            <div className="mb-8 rounded-2xl border bg-card p-6" role="status">
-              <div className="mb-5 flex items-center gap-3">
-                <span className="flex size-12 items-center justify-center rounded-xl bg-secondary">
-                  <LoaderCircle
-                    size={22}
-                    className="spinner text-primary"
-                    aria-hidden="true"
-                  />
-                </span>
-                <div>
-                  <p className="text-sm font-medium">{t("looking")}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t("checkingFormats")}
-                  </p>
-                </div>
+            <div
+              className="loading-panel glass-panel panel-enter"
+              role="status"
+            >
+              <div className="loading-lines" aria-hidden="true">
+                <span />
+                <span />
+                <span />
               </div>
-              <div className="h-2 w-3/4 rounded bg-muted" />
-              <div className="mt-3 h-2 w-1/2 rounded bg-muted" />
-              <p className="mt-5 text-[11px] text-muted-foreground">
-                {t("takesMoment")}
-              </p>
+              <span className="text-sm text-muted-foreground">
+                {t("checkingFormats")}
+              </span>
             </div>
           ) : null}
-          {view === "workspace" && analysis ? (
+          {view === "workspace" && analysis && !analyzing ? (
             <div
               ref={panel}
               tabIndex={-1}
               aria-label={t("results")}
-              className="mb-9 rounded-2xl outline-none"
+              className="analysis-region outline-none"
             >
               <FormatPicker
                 analysis={analysis}
@@ -617,116 +490,67 @@ export function Workspace() {
                 busy={queueing}
                 onQueue={() => void queue()}
                 fixture={fixture}
-                maxBytes={status?.limits.maxBytes || Infinity}
+                maxBytes={status?.limits.maxBytes || 0}
               />
             </div>
           ) : null}
-          {view === "workspace" &&
-          !analysis &&
-          !analyzing &&
-          jobs.length === 0 ? (
+          {view === "downloads" ? (
             <section
-              className="mb-10 grid grid-cols-1 gap-6 border-y py-7 sm:grid-cols-3"
-              aria-label={t("howWorks")}
+              aria-labelledby="jobs-heading"
+              className="downloads-section"
             >
-              {[
-                {
-                  title: t("oneLink"),
-                  text: t("pastePublic"),
-                  number: "01",
-                },
-                {
-                  title: t("yourChoice"),
-                  text: t("pickFormats"),
-                  number: "02",
-                },
-                {
-                  title: t("yoursToSave"),
-                  text: t("processDownload"),
-                  number: "03",
-                },
-              ].map((step) => (
-                <div key={step.number} className="flex gap-3">
-                  <span className="pt-0.5 font-mono text-[10px] text-muted-foreground/80">
-                    {step.number}
-                  </span>
-                  <div>
-                    <h2 className="text-xs font-medium">{step.title}</h2>
-                    <p className="mt-1.5 text-[11px] leading-5 text-muted-foreground">
-                      {step.text}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </section>
-          ) : null}
-          <section aria-labelledby="jobs-heading">
-            <div className="mb-4 flex items-center justify-between">
-              <h2
-                id="jobs-heading"
-                className="text-sm font-medium tracking-tight"
-              >
-                {view === "workspace" ? t("yourDownloads") : t("allDownloads")}
+              <div className="downloads-heading">
+                <h2 id="jobs-heading" className="sr-only">
+                  {t("allDownloads")}
+                </h2>
                 {activeJobs > 0 ? (
-                  <span className="ms-2 rounded-full bg-secondary px-2 py-0.5 text-[10px] text-primary">
+                  <span className="text-xs text-muted-foreground">
                     {t("activeCount", { count: activeJobs })}
                   </span>
                 ) : null}
-              </h2>
-              {jobs.length === 0 && fixture ? (
-                <button
-                  onClick={() => {
-                    setView("workspace");
-                    updateUrl("https://example.com/sample");
-                    input.current?.focus();
-                  }}
-                  className="flex min-h-9 items-center gap-1.5 text-xs text-primary"
+                <Button
+                  variant="ghost"
+                  className="quiet-action"
+                  onClick={showWorkspace}
                 >
-                  {t("testLink")}
-                  <ArrowUpRight size={12} aria-hidden="true" />
-                </button>
-              ) : (
-                <span className="text-[10px] text-muted-foreground">
-                  {status
-                    ? t("retention", {
-                        hours: Math.round(
-                          status.limits.retentionSeconds / 3600,
-                        ),
-                      })
-                    : t("temporaryStorage")}
-                </span>
-              )}
-            </div>
-            <JobList
-              now={now}
-              jobs={jobs}
-              busy={actionBusy}
-              onAction={(id, operation) => void action(id, operation)}
-              fixture={fixture}
-            />
-          </section>
-          <footer className="mt-9 flex flex-wrap items-center justify-between gap-4 border-t pt-5 text-[10px] leading-5 text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck size={12} aria-hidden="true" />
-              {t("noTrackers")}
-            </span>
-            <button
-              onClick={() => setHelp(true)}
-              className="min-h-8 hover:text-primary"
-            >
-              {status
-                ? `${t("perJob", { size: isolate(formatBytes(status.limits.maxBytes)) })} · `
-                : ""}
-              {t("publicOnly")}
-              <ArrowUpRight
-                size={11}
-                className="ms-1 inline"
-                aria-hidden="true"
+                  <Plus size={16} aria-hidden="true" />
+                  {t("newDownload")}
+                </Button>
+              </div>
+              <JobList
+                jobs={jobs}
+                onAction={(id, operation) => void action(id, operation)}
+                busy={actionBusy}
+                fixture={fixture}
+                now={now}
               />
+            </section>
+          ) : null}
+          {fixture && view === "workspace" && !analysis && !analyzing ? (
+            <button
+              className="quiet-action mx-auto mt-4 flex"
+              onClick={() => {
+                updateUrl("https://example.com/sample");
+                input.current?.focus();
+              }}
+            >
+              {t("testLink")}
             </button>
+          ) : null}
+          <footer className="workspace-footer">
+            <button onClick={() => setHelp(true)}>{t("publicOnly")}</button>
+            <span aria-hidden="true">·</span>
+            <a
+              href="https://github.com/Lord-shaban/OpenDownload"
+              target="_blank"
+              rel="noreferrer"
+              aria-label={t("github")}
+            >
+              GitHub
+            </a>
           </footer>
-        </main>
-      </div>
+        </div>
+      </main>
       <HelpDialog open={help} onOpenChange={setHelp} />
       <Dialog
         open={!!pendingDelete}
@@ -742,12 +566,17 @@ export function Workspace() {
           <p className="truncate text-sm font-medium">
             <bdi>{displayText(pendingDelete?.title || "")}</bdi>
           </p>
-          <div className="mt-4 flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setPendingDelete(null)}>
+          <div className="mt-4 flex flex-wrap justify-end gap-2">
+            <Button
+              variant="outline"
+              className="min-h-11"
+              onClick={() => setPendingDelete(null)}
+            >
               {t("keepDownload")}
             </Button>
             <Button
               variant="destructive"
+              className="min-h-11"
               disabled={!!actionBusy}
               onClick={() => void confirmDelete()}
             >

@@ -120,3 +120,38 @@ aggregate byte refusal, 403 termination and cancellation before the next image.
 No gallery-dl package or runtime path was added. [Source review and coverage
 matrix](GALLERY_EVALUATION.md) explain the decision. No live Instagram/TikTok photo
 extraction was run; no captured platform fixture is claimed.
+
+## Minimal workspace revision — 2026-09-29
+
+Issue [#20](https://github.com/Lord-shaban/OpenDownload/issues/20) tracks the visual
+redesign and the user's refinement toward a minimal cobalt-like interaction.
+The header/marketing copy and visible stepper were removed from the primary
+flow. Deliberate clipboard/native paste now analyzes immediately; typing still
+waits for Enter/the arrow. Real media choices and explicit fixture identity
+remain intact. English/Arabic API errors now use the same safe catalog rather
+than raw diagnostics.
+
+New browser scenarios cover clipboard/native paste without an extra submit,
+clipboard denial and keyboard recovery, and persistent/server-rendered theme
+with focus through Enter → formats → Downloads → new link. Arabic reflow includes
+320px. Visual artifacts are actual previews, including
+[Arabic dark](assets/workspace-glass-ar-dark.jpg),
+[English light](assets/workspace-glass-en-light.jpg),
+[Arabic mobile](assets/workspace-glass-ar-mobile.jpg) and
+[supported sites on mobile](assets/workspace-glass-sites-mobile.jpg).
+
+## Owned direct image smoke — 2026-09-29
+
+A real API with fixture mode disabled downloaded this repository's original
+[public preview asset](https://raw.githubusercontent.com/Lord-shaban/OpenDownload/588a4adbd401e5931c5f64f38a599f7acd3f4ff5/docs/assets/workspace-ar.png)
+through the guarded proxy. The old asset has a `.png` filename but JPEG bytes;
+the downloader correctly produced `media.jpg` with the exact 47,960 bytes.
+SHA-256: `6c09b99393308a77601defe19ec031d28d0f30209e293282124b200a59a0e6e8`.
+Range `bytes=0-9` returned HTTP 206 and ten bytes; deleting the job revoked the
+attachment with HTTP 404. New preview artifacts use the correct `.jpg` suffix.
+This verifies the direct-image pipeline, not live Instagram/TikTok photo access.
+
+Final local gates for this revision passed: ESLint, strict TypeScript, eight unit
+checks and twenty-two Chromium tests (eleven scenarios on desktop/mobile) against
+the production standalone build. The icon dependency is pinned and imports only
+used modules. See the redesign PR for checks on the exact committed head.

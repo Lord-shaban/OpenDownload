@@ -4,7 +4,8 @@ The M0–M4 implementation baseline has passed its documented development gates.
 [GitHub milestones](https://github.com/Lord-shaban/OpenDownload/milestones) and
 the [issue index](GITHUB_ISSUES.md) track accepted work and remaining delivery
 changes; [VERIFICATION.md](VERIFICATION.md) records evidence and release limits.
-No versioned release has been published. M5 is in progress.
+No versioned release has been published. M5 tracks gallery integration;
+M6 tracks the requested workspace redesign.
 
 ## M0 — Foundation
 
@@ -43,6 +44,16 @@ process-group tests; dependency audit; explicit unsupported extractor evidence.
   evidence: [source review and contract tests](GALLERY_EVALUATION.md) completed.
   Integration is deferred; #13 remains open for authorized live fixtures and
   challenge-stop evidence. Existing gallery ZIP processing remains bounded.
+
+## M6 — Workspace refinement
+
+Replace the previous rail layout with a centered, restrained glass workspace,
+calm neutral/violet theme tokens and the `OpenDownload.` wordmark. Deliberate paste
+starts analysis; real choices appear as needed. Include a compact supported-sites
+disclosure, automatic download navigation, polished motion and useful keyboard focus.
+Persist light/dark preferences and retain Arabic/RTL, actual format choices and
+explicit fixture labels. Gate: production browser tests, desktop/mobile visual
+review and all required GitHub checks. See issue [#20](https://github.com/Lord-shaban/OpenDownload/issues/20).
 
 Long-term ideas and cost evaluations live in PRODUCT.md. Milestones describe work,
 not delivery-date promises. No release tag before its gates pass.

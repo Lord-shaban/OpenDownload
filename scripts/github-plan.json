@@ -18,7 +18,8 @@
     {"title": "M2 — Durable downloads", "description": "SQLite queue, cancellation, temporary storage, expiry and range streaming."},
     {"title": "M3 — Workspace experience", "description": "Responsive accessible paste-to-download experience and honest states."},
     {"title": "M4 — Self-hosted pre-release", "description": "Container isolation, operations, CI and real authorized extraction evidence."},
-    {"title": "M5 — Broader media coverage", "description": "Evaluate and implement public image/gallery coverage and locale groundwork."}
+    {"title": "M5 — Broader media coverage", "description": "Evaluate and implement public image/gallery coverage and locale groundwork."},
+    {"title": "M6 — Workspace refinement", "description": "Subtle glass redesign, clearer download flows, wordmark identity, persistent themes and accessible Arabic/mobile verification."}
   ],
   "issues": [
     {"key":"OD-001","title":"Document research, product boundary and architecture","milestone":0,"area":"docs","acceptance":["Compare primary upstream projects and record dated sources.","Record decisions for router, SQLite, queue, cache and local storage.","Document access policy and architectural tradeoffs as ADRs."]},
@@ -35,7 +36,7 @@
     {"key":"OD-012","title":"Complete pre-release verification gates","milestone":4,"area":"infra","acceptance":["Run deterministic browser flow against Go fixture engine.","Test real authorized media extraction separately from fixtures.","Verify Linux process cancellation and direct network isolation.","Audit dependencies and record all unrun gates before a release tag."]},
     {"key":"OD-013","title":"Evaluate a dedicated public gallery adapter","milestone":5,"area":"api","acceptance":["Research gallery-dl public-only behavior without cookies or access bypass.","Create authorized Instagram/TikTok photo fixtures and capability coverage matrix.","Keep all outbound requests under the same proxy and item/byte limits.","Implement only if user value justifies the maintenance cost."]},
     {"key":"OD-014","title":"Prepare locale and RTL support","milestone":5,"area":"web","acceptance":["Externalize product messages.","Keep URL/file/codec fields bidi-safe.","Verify Arabic layout, labels and keyboard order."]},
-    {"key":"OD-015","title":"Enforce the protected-branch delivery workflow","milestone":0,"area":"infra","acceptance":["Require pull requests and GitHub Actions checks on main, including administrators.","Disallow force pushes and deletion; squash merges and delete merged branches.","Keep repository policy versioned and verify the live GitHub settings.","Replace stale issue and verification status with linked evidence; deliver this change through a pull request."]}
+    {"key":"OD-015","title":"Enforce the protected-branch delivery workflow","milestone":0,"area":"infra","acceptance":["Require pull requests and GitHub Actions checks on main, including administrators.","Disallow force pushes and deletion; squash merges and delete merged branches.","Keep repository policy versioned and verify the live GitHub settings.","Replace stale issue and verification status with linked evidence; deliver this change through a pull request."]},
+    {"key":"OD-016","title":"Redesign the media workspace with subtle glass and clearer flows","milestone":6,"area":"web","acceptance":["Replace the existing rail/editorial layout with a new responsive workspace and glass design system.","Use the wordmark OpenDownload. without a logo icon; update app identity assets.","Make link → format → processing → save clear, with useful focus and status feedback.","Keep real format choices, existing access boundaries and explicit fixture labels.","Preserve English/Arabic, RTL, keyboard use, reduced motion and readable light/dark themes.","Record desktop/mobile visual evidence and pass production browser/CI gates.","Include a compact supported-sites disclosure with honest availability and gallery limits."]}
   ]
 }
-

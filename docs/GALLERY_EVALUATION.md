@@ -39,7 +39,7 @@ documented product gap.
 
 | Path                       | Evidence                                                          | Live platform status                              |
 | -------------------------- | ----------------------------------------------------------------- | ------------------------------------------------- |
-| Direct images              | Existing safe HTTP/MIME/byte tests                                | Live image smoke not run                          |
+| Direct images              | Safe HTTP/MIME/byte tests plus exact bytes, range and delete smoke | Owned public JPEG passed; see VERIFICATION.md     |
 | Image-only entries → ZIP   | Generated PNGs and archive content tests                          | Depends on entries actually returned by yt-dlp    |
 | Instagram-labeled contract | Original synthetic JSON, normalized choices and hidden asset URLs | No captured platform response or live photo smoke |
 | TikTok-labeled contract    | Original synthetic JSON, normalized choices and hidden asset URLs | No captured platform response or live photo smoke |
