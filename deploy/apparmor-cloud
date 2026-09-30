@@ -1,0 +1,6 @@
+# Local Docker / CI namespace compatibility profile, not a production LSM sandbox.
+# AppArmor 4 on Ubuntu requires explicit userns permission even for unconfined apps.
+abi <abi/4.0>,
+profile opendownload-cloud flags=(unconfined) {
+  userns,
+}

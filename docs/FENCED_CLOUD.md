@@ -56,6 +56,8 @@ sample does not establish throughput at arbitrary public traffic levels.
 ## Local Linux verification
 
 ```sh
+# Ubuntu with AppArmor 4: explicitly allow this container's nested namespaces.
+sudo apparmor_parser -r deploy/apparmor-cloud
 docker compose -f compose.fenced.yaml up --build -d --wait
 ```
 
@@ -64,6 +66,12 @@ unprivileged namespaces in the Docker seccomp/AppArmor settings. The outer user
 is still non-root. A production runtime must provide its own suitable sandbox
 and allow namespace creation; startup refuses unsupported runtimes. Never use
 `--privileged`, host networking or disable the namespace check to get it running.
+
+The named AppArmor profile is a local/CI compatibility profile with `userns`
+permission; it is not a full filesystem or syscall sandbox. It applies only to
+this container and does not disable Ubuntu's system-wide namespace restrictions.
+See [Ubuntu's AppArmor namespace guidance](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/).
+On other Linux distributions, use the runtime's equivalent namespace permission.
 
 CI builds the actual image and runs `scripts/cloud-check.py`: real owned test
 video, MP3 conversion, exact video bytes, private target refusal, denied direct

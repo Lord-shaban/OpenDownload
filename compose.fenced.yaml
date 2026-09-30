@@ -15,7 +15,11 @@ services:
     # Nested unprivileged namespaces need a runtime profile that permits unshare.
     # These Docker settings are for local verification, not a privileged container.
     security_opt:
-      ["no-new-privileges:true", "seccomp:unconfined", "apparmor:unconfined"]
+      [
+        "no-new-privileges:true",
+        "seccomp:unconfined",
+        "apparmor:opendownload-cloud",
+      ]
     mem_limit: 512m
     cpus: 0.5
     pids_limit: 96
