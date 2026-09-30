@@ -80,6 +80,7 @@ jobs:
         env:
           OD_TEST_MEDIA_REF: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
+          python3 scripts/test-youtube-runtime.py
           sudo apparmor_parser -r deploy/apparmor-cloud
           docker build -f deploy/Dockerfile.cloud -t opendownload-cloud:check .
           python3 scripts/cloud-check.py
