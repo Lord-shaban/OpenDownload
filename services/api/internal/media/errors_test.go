@@ -19,8 +19,11 @@ func TestExtractionFailureCategories(t *testing.T) {
 		{"upstream-403", "Unable to download video data: HTTP Error 403: Forbidden", ErrUpstreamForbidden},
 		{"rate-limit", "HTTP Error 429: Too Many Requests", ErrUpstreamRateLimit},
 		{"private", "This is a private video. Sign in if you've been granted access", ErrAccess},
+		{"vimeo-login", "The web client only works when logged-in. Use --cookies", ErrAccess},
 		{"drm", "This video is DRM-protected", ErrAccess},
 		{"unsupported", "Unsupported URL: https://example.com", ErrUnsupported},
+		{"tiktok-metadata", "ERROR: [TikTok] 7685569370377997588: Unable to extract webpage video data", ErrSourceMetadata},
+		{"invalid-response", "Failed to parse JSON: JSONDecodeError", ErrSourceMetadata},
 	} {
 		t.Run(item.name, func(t *testing.T) {
 			err := extractError(context.Background(), []byte(item.diagnostic+" https://cdn.example/video?token=secret"))

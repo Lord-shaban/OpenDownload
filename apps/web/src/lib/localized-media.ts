@@ -14,6 +14,7 @@ const codes: Record<string, MessageKey> = {
   upstream_rate_limited: "upstreamRateLimited",
   source_access_denied: "sourceAccessDenied",
   source_connection_failed: "sourceConnectionFailed",
+  source_metadata_unavailable: "sourceMetadataUnavailable",
   analysis_expired: "analysisExpired",
   file_too_large: "fileTooLarge",
   invalid_format: "invalidFormat",

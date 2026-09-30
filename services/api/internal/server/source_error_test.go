@@ -31,6 +31,7 @@ func TestAnalysisReturnsSafeDistinctFailureCodes(t *testing.T) {
 		{media.ErrUpstreamForbidden, 503, "upstream_forbidden"},
 		{media.ErrUpstreamRateLimit, 503, "upstream_rate_limited"},
 		{media.ErrSourceConnection, 503, "source_connection_failed"},
+		{media.ErrSourceMetadata, 503, "source_metadata_unavailable"},
 		{media.ErrAccess, 422, "source_access_denied"},
 	} {
 		t.Run(item.code, func(t *testing.T) {

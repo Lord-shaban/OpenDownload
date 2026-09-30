@@ -1,2 +1,6 @@
 # Engine upgrades require smoke tests and an image rebuild, never a live self-update.
-yt-dlp[default]==2026.8.19
+# The upstream-recommended nightly is pinned and verified through image CI.
+# curl-cffi is optional upstream, but needed by public platform extractors that
+# request browser-compatible TLS. It still uses the operator's guarded proxy.
+yt-dlp[default,curl-cffi]==2026.9.27.232945.dev0
+curl-cffi==0.16.3

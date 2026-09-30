@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 -m venv /opt/engine
 COPY services/api/requirements.txt /tmp/requirements.txt
 RUN /opt/engine/bin/pip install --no-cache-dir -r /tmp/requirements.txt && \
+    /opt/engine/bin/python -c "from yt_dlp import YoutubeDL; assert any(t.client == 'chrome' for t, _ in YoutubeDL({'quiet': True})._get_available_impersonate_targets()), 'Chrome TLS support is missing'" && \
     rm /tmp/requirements.txt && \
     groupadd --gid 10001 opendownload && \
     useradd --uid 10001 --gid 10001 --no-create-home opendownload && \

@@ -6,6 +6,20 @@ SoundCloud, and many other public sources, subject to platform changes, region,
 rate limits, and access policy. We do not certify every extractor or advertise
 successful downloads for untested URLs.
 
+The container installs pinned yt-dlp with its `curl-cffi` extra for extractors
+that request browser-compatible TLS. Image builds verify Chrome support exists;
+all resulting requests still pass through the guarded egress proxy. This adds
+transport compatibility and does not remove a platform's login, human
+verification, region or rate restrictions.
+
+On 2026-09-30, the reported YouTube URL `https://youtu.be/2cUkUbB3Gu4`
+downloaded through the local real API without authentication but required human
+verification from the blitz.cloud server. SoundCloud's public NASA Quindar sound
+and direct Blender/GitHub video sources analyzed successfully on that host.
+These outcomes describe the tested links, not platform-wide guarantees.
+Issue #27 tracks the reported cloud YouTube/TikTok failures and subsequent
+runtime/deployment verification.
+
 | Media     | Initial adapter                        | Scope                                                           |
 | --------- | -------------------------------------- | --------------------------------------------------------------- |
 | Video     | yt-dlp + FFmpeg local merge            | Actual offered qualities, compatible container; no DRM/live     |

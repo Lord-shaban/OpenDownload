@@ -99,11 +99,14 @@ func extractError(ctx context.Context, stderr []byte) error {
 	if strings.Contains(msg, "http error 403") || strings.Contains(msg, "403 forbidden") || strings.Contains(msg, "403: forbidden") {
 		return ErrUpstreamForbidden
 	}
-	if strings.Contains(msg, "sign in") || strings.Contains(msg, "log in") || strings.Contains(msg, "login") || strings.Contains(msg, "private video") || strings.Contains(msg, "drm") {
+	if strings.Contains(msg, "sign in") || strings.Contains(msg, "log in") || strings.Contains(msg, "login") || strings.Contains(msg, "logged-in") || strings.Contains(msg, "private video") || strings.Contains(msg, "drm") {
 		return ErrAccess
 	}
 	if strings.Contains(msg, "unsupported url") {
 		return ErrUnsupported
+	}
+	if strings.Contains(msg, "unable to extract") || strings.Contains(msg, "failed to parse json") || strings.Contains(msg, "jsondecodeerror") {
+		return ErrSourceMetadata
 	}
 	return errors.New("the source could not be processed; check the public link or try again later")
 }
