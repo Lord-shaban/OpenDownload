@@ -4,6 +4,9 @@ The initial deployment is a single host for an individual or trusted small group
 Do not run multiple APIs on one data directory or expose it as an anonymous public
 downloader without further abuse protection and stronger worker sandboxing.
 
+For a cloud demo that never extracts real media, see
+[the fixture-only preview deployment](PREVIEW_DEPLOYMENT.md).
+
 ## Configuration
 
 Native Go processes read environment variables. Compose reads `.env` and provides
