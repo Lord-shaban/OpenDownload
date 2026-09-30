@@ -28,19 +28,25 @@ COPY deploy/youtube-provider-package-lock.json ./package-lock.json
 RUN npm install -g npm@11.19.0 --no-audit --no-fund && npm ci --no-audit --no-fund && node node_modules/typescript/bin/tsc && npm prune --omit=dev --no-audit --no-fund && npm audit --omit=dev --audit-level=high
 
 FROM node:24-bookworm-slim AS runner
-RUN apt-get update && apt-get install -y --no-install-recommends tini python3 python3-venv ffmpeg ca-certificates util-linux iproute2 libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libjpeg62-turbo libgif7 librsvg2-2 && \
+RUN apt-get update && apt-get install -y --no-install-recommends tini python3 python3-venv ffmpeg ca-certificates util-linux iproute2 libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libjpeg62-turbo libgif7 librsvg2-2 chromium xvfb fonts-liberation && \
     rm -rf /var/lib/apt/lists/* && \
     groupadd --gid 10001 opendownload && \
     useradd --uid 10001 --gid 10001 --no-create-home opendownload && \
     python3 -m venv /opt/engine && \
     mkdir /data && chown 10001:10001 /data
 COPY services/api/requirements.txt /tmp/requirements.txt
+COPY deploy/youtube-browser-requirements.txt /tmp/youtube-browser-requirements.txt
+COPY scripts/audit-python-pins.py /tmp/audit-python-pins.py
 RUN /opt/engine/bin/pip install --no-cache-dir -r /tmp/requirements.txt && \
     /opt/engine/bin/python -c "from yt_dlp import YoutubeDL; assert any(t.client == 'chrome' for t, _ in YoutubeDL({'quiet': True})._get_available_impersonate_targets()), 'Chrome TLS support is missing'" && \
-    rm /tmp/requirements.txt
+    /opt/engine/bin/pip install --no-cache-dir -r /tmp/youtube-browser-requirements.txt && \
+    python3 /tmp/audit-python-pins.py /tmp/youtube-browser-requirements.txt && \
+    mkdir -p /opt/youtube-wpc-plugins/wpc/yt_dlp_plugins/extractor && \
+    cp /opt/engine/lib/python3.11/site-packages/yt_dlp_plugins/extractor/getpot_wpc.py /opt/youtube-wpc-plugins/wpc/yt_dlp_plugins/extractor/ && \
+    rm /tmp/requirements.txt /tmp/youtube-browser-requirements.txt /tmp/audit-python-pins.py
 WORKDIR /app
 ENV PATH="/opt/engine/bin:${PATH}"
-ENV OD_YTDLP=/usr/local/bin/opendownload-ytdlp
+ENV OD_YTDLP=/usr/local/bin/opendownload-ytdlp-wpc DISPLAY=:99
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000 HOME=/tmp
 COPY --from=api-builder /out/api /usr/local/bin/opendownload-api
 COPY --from=api-builder /out/cloud /usr/local/bin/opendownload-cloud
@@ -50,6 +56,8 @@ RUN mkdir -p /opt/youtube-plugins/bgutil/yt_dlp_plugins/extractor && \
     cp /opt/youtube-attestation/plugin/yt_dlp_plugins/extractor/getpot_bgutil.py /opt/youtube-attestation/plugin/yt_dlp_plugins/extractor/getpot_bgutil_script.py /opt/youtube-plugins/bgutil/yt_dlp_plugins/extractor/ && \
     test "$(node /opt/youtube-attestation/server/runtime/build/generate_once.js --version)" = "2.0.0"
 COPY --chmod=755 deploy/youtube-runtime.py /usr/local/bin/opendownload-ytdlp
+COPY --chmod=755 deploy/youtube-runtime.py /usr/local/bin/opendownload-ytdlp-wpc
+COPY --chmod=755 deploy/chromium-egress.py /usr/local/bin/opendownload-chromium
 COPY --from=web-builder --chown=10001:10001 /app/apps/web/.next/standalone ./
 COPY --from=web-builder --chown=10001:10001 /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=web-builder --chown=10001:10001 /app/apps/web/public ./apps/web/public

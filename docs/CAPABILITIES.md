@@ -27,6 +27,15 @@ waiting requests retain their original cancellation/timeout limits.
 Upstream refusals still stop the request. See THIRD_PARTY_NOTICES.md for the
 pinned source and license. Cloud verification of the reported URL is pending.
 
+The next cloud candidate uses the upstream WPC provider with Chromium on a
+private Xvfb display, to test the alternative of minting tokens in an actual
+anonymous web client. The existing user/network/PID fence remains mandatory;
+Chromium's inner setuid sandbox is unavailable under mapped UID 0. Browser
+localhost bypasses are disabled, the CDP socket stays loopback, and the parent
+cleans profiles when extraction stops. A private Linux container check verifies
+that Chromium cannot navigate directly to the API through localhost. This
+candidate is not yet proof that the reported YouTube URL works on the host.
+
 On 2026-09-30, the reported YouTube URL `https://youtu.be/2cUkUbB3Gu4`
 downloaded through the local real API without authentication but required human
 verification from the blitz.cloud server. SoundCloud's public NASA Quindar sound

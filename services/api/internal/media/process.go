@@ -36,7 +36,7 @@ func command(ctx context.Context, binary string, args ...string) *exec.Cmd {
 	cmd.WaitDelay = 3 * time.Second
 	configureProcess(cmd)
 	// No inherited browser/session credentials, proxy overrides or plugin paths.
-	allowed := []string{"PATH=", "SYSTEMROOT=", "WINDIR=", "TEMP=", "TMP=", "LANG=", "HOME="}
+	allowed := []string{"PATH=", "SYSTEMROOT=", "WINDIR=", "TEMP=", "TMP=", "LANG=", "HOME=", "DISPLAY="}
 	for _, entry := range os.Environ() {
 		for _, prefix := range allowed {
 			if strings.HasPrefix(strings.ToUpper(entry), prefix) {

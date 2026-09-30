@@ -83,6 +83,12 @@ public-key setting and restart after collecting the needed evidence. Decrypted
 diagnostics may contain signed media URLs/tokens and must not be posted in
 issues or stored in Git.
 
+Diagnostic mode enables bounded verbose extraction output (128 KiB capture,
+8 KiB encrypted tail); it is intended for short operator investigations. The
+cloud browser candidate uses one shared YouTube slot and a temporary guest
+profile per extraction. Test the exact deployment under its real memory/process
+limits before claiming browser-backed YouTube support.
+
 SIGTERM stops accepting new work, cancels active process groups, and waits for
 workers before closing SQLite. Expiry is visible in the UI. Access-denied,
 unsupported and resource-limit errors are user-actionable; do not endlessly retry.

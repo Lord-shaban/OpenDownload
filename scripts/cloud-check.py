@@ -71,7 +71,7 @@ try:
     docker("run", "--detach", "--name", name, "--publish", "127.0.0.1:3003:3000",
            "--user", "10001:10001", "--cap-drop", "ALL", "--read-only",
            "--security-opt", "no-new-privileges:true", "--security-opt", "seccomp:unconfined",
-           "--security-opt", "apparmor:opendownload-cloud", "--pids-limit", "96", "--memory", "512m",
+           "--security-opt", "apparmor:opendownload-cloud", "--pids-limit", "192", "--memory", "512m",
            "--tmpfs", "/tmp:size=64m,uid=10001,gid=10001", "--env", "OD_ORIGIN=" + base,
            "--env", "OD_FIXTURE_MODE=true", "--mount", "type=volume,src=" + volume + ",dst=/data",
            "opendownload-cloud:check")
@@ -80,9 +80,9 @@ try:
         assert b"OpenDownload" in response.read()
     check = """
 import http.client, socket
-c=http.client.HTTPConnection('worker',timeout=5)
+c=http.client.HTTPConnection('worker',timeout=35)
 c.sock=socket.socket(socket.AF_UNIX)
-c.sock.settimeout(5)
+c.sock.settimeout(35)
 c.sock.connect('/tmp/opendownload-cloud/check.sock')
 c.request('GET','/check')
 r=c.getresponse()

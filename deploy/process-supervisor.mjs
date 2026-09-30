@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 
-export async function startServers(env, webEnv) {
+export async function startServers(env, webEnv, background = []) {
   const children = new Set();
   let stopping = false;
   let exitCode = 0;
@@ -51,6 +51,7 @@ export async function startServers(env, webEnv) {
 
   process.on("SIGTERM", () => stop());
   process.on("SIGINT", () => stop());
+  for (const {command, args} of background) start(command, args, env);
   start("/usr/local/bin/opendownload-api", [], env);
 
   let ready = false;

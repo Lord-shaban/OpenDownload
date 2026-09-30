@@ -14,6 +14,30 @@ import (
 
 type assetTransport func(*http.Request) (*http.Response, error)
 
+func TestYouTubeScratchIsParentOwnedAndRemoved(t *testing.T) {
+	cmd := command(context.Background(), "unused")
+	cleanup, err := youtubeScratch(cmd, "https://youtu.be/example")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var dir string
+	for _, entry := range cmd.Env {
+		if strings.HasPrefix(entry, "TMPDIR=") {
+			dir = strings.TrimPrefix(entry, "TMPDIR=")
+		}
+	}
+	if dir == "" {
+		t.Fatal("child did not get private scratch")
+	}
+	if err := os.WriteFile(filepath.Join(dir, "browser-profile"), []byte("test-only"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	cleanup()
+	if _, err := os.Stat(dir); !os.IsNotExist(err) {
+		t.Fatal("browser profile survived parent cleanup")
+	}
+}
+
 func TestYouTubeExtractionSlotBoundsAnalysisAndDownload(t *testing.T) {
 	e, err := NewYTDLP("unused", "http://127.0.0.1:8090", 1024)
 	if err != nil {

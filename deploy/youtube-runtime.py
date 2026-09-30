@@ -20,23 +20,24 @@ def youtube_request(args):
         return False
 
 
-def attestation_args(args):
+def attestation_args(args, browser=False):
     # Only this image-owned plugin directory is added after --no-plugin-dirs.
     # Do not enable default/user plugin discovery or accept a token from visitors.
+    provider = ["--extractor-args", "youtubepot-wpc:browser_path=/usr/local/bin/opendownload-chromium"] if browser else ["--extractor-args", "youtubepot-bgutilscript:server_home=/opt/youtube-attestation/server/runtime"]
     return [*args[:-2],
-            "--plugin-dirs", "/opt/youtube-plugins",
+            "--plugin-dirs", "/opt/youtube-wpc-plugins" if browser else "/opt/youtube-plugins",
             "--impersonate", "chrome",
             "--extractor-args", "youtube:player_client=mweb;fetch_pot=always",
-            "--extractor-args", "youtubepot-bgutilscript:server_home=/opt/youtube-attestation/server/runtime",
+            *provider,
             *args[-2:]]
 
 
-def run(args, entrypoint):
+def run(args, entrypoint, browser=False):
     if not youtube_request(args):
         return entrypoint(args)
-    return entrypoint(attestation_args(args))
+    return entrypoint(attestation_args(args, browser))
 
 
 if __name__ == "__main__":
     import yt_dlp
-    run(sys.argv[1:], yt_dlp.main)
+    run(sys.argv[1:], yt_dlp.main, sys.argv[0].endswith("-wpc"))

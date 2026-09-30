@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -58,8 +59,7 @@ func (e *YTDLP) acquireYouTube(ctx context.Context, source string) (func(), erro
 		return nil, err
 	}
 	host := strings.ToLower(u.Hostname())
-	isYouTube := host == "youtu.be" || host == "youtube.com" || strings.HasSuffix(host, ".youtube.com") || host == "youtube-nocookie.com" || strings.HasSuffix(host, ".youtube-nocookie.com")
-	if !isYouTube || e.youtubeSlots == nil {
+	if !youtubeHost(host) || e.youtubeSlots == nil {
 		return func() {}, nil
 	}
 	select {
@@ -70,11 +70,52 @@ func (e *YTDLP) acquireYouTube(ctx context.Context, source string) (func(), erro
 	}
 }
 
+func youtubeHost(host string) bool {
+	return host == "youtu.be" || host == "youtube.com" || strings.HasSuffix(host, ".youtube.com") || host == "youtube-nocookie.com" || strings.HasSuffix(host, ".youtube-nocookie.com")
+}
+
+func youtubeScratch(cmd *exec.Cmd, source string) (func(), error) {
+	u, err := url.Parse(source)
+	if err != nil {
+		return nil, err
+	}
+	if !youtubeHost(strings.ToLower(u.Hostname())) {
+		return func() {}, nil
+	}
+	dir, err := os.MkdirTemp("", "od-youtube-")
+	if err != nil {
+		return nil, err
+	}
+	root, err := filepath.Abs(os.TempDir())
+	if err != nil {
+		return nil, err
+	}
+	rel, err := filepath.Rel(root, dir)
+	if err != nil || rel == "." || filepath.IsAbs(rel) || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return nil, errors.New("unsafe extractor scratch directory")
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+dir, "TEMP="+dir, "TMP="+dir)
+	// The parent cleans browser profiles even after the child group is killed.
+	return func() { _ = os.RemoveAll(dir) }, nil
+}
+
 func (e *YTDLP) common() []string {
 	// Include public web clients whose HLS/embed formats can differ from the
 	// engine defaults. Analysis and download must use the same client policy.
 	// These clients do not import accounts or override upstream access checks.
-	return []string{"--ignore-config", "--no-plugin-dirs", "--no-cache-dir", "--no-playlist", "--no-warnings", "--proxy", e.Proxy, "--socket-timeout", "15", "--retries", "2", "--fragment-retries", "2", "--concurrent-fragments", "1", "--hls-prefer-native", "--downloader", "dash:native", "--js-runtimes", "node", "--no-remote-components", "--extractor-args", "youtube:player_client=default,web_safari,web_embedded", "--postprocessor-args", "ffmpeg_i:-protocol_whitelist file,pipe"}
+	args := []string{"--ignore-config", "--no-plugin-dirs", "--no-cache-dir", "--no-playlist", "--no-warnings", "--proxy", e.Proxy, "--socket-timeout", "15", "--retries", "2", "--fragment-retries", "2", "--concurrent-fragments", "1", "--hls-prefer-native", "--downloader", "dash:native", "--js-runtimes", "node", "--no-remote-components", "--extractor-args", "youtube:player_client=default,web_safari,web_embedded", "--postprocessor-args", "ffmpeg_i:-protocol_whitelist file,pipe"}
+	if e.diagnosticKey != nil {
+		args = append(args, "--verbose")
+	}
+	return args
+}
+
+func (e *YTDLP) stderrBuffer() *boundedBuffer {
+	limit := 16 << 10
+	if e.diagnosticKey != nil {
+		limit = 128 << 10 // Verbose diagnostics stay bounded and encrypted.
+	}
+	return &boundedBuffer{limit: limit}
 }
 
 func (e *YTDLP) Analyze(ctx context.Context, source string) (Analysis, error) {
@@ -105,8 +146,13 @@ func (e *YTDLP) Analyze(ctx context.Context, source string) (Analysis, error) {
 	defer release()
 	args := append(e.common(), "--dump-single-json", "--skip-download", "--", source)
 	cmd := command(ctx, e.Binary, args...)
+	cleanup, err := youtubeScratch(cmd, source)
+	if err != nil {
+		return Analysis{}, err
+	}
+	defer cleanup()
 	out := &boundedBuffer{limit: 8 << 20}
-	stderr := &boundedBuffer{limit: 16 << 10}
+	stderr := e.stderrBuffer()
 	cmd.Stdout = out
 	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {
@@ -272,8 +318,13 @@ func (e *YTDLP) Download(ctx context.Context, a Analysis, opt Option, dir string
 	}
 	args = append(args, "--", a.URL)
 	cmd := command(ctx, e.Binary, args...)
+	cleanup, err := youtubeScratch(cmd, a.URL)
+	if err != nil {
+		return nil, err
+	}
+	defer cleanup()
 	cmd.Stdout = &progressWriter{update: update}
-	stderr := &boundedBuffer{limit: 16 << 10}
+	stderr := e.stderrBuffer()
 	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {
 		e.diagnose("download", stderr.Bytes())

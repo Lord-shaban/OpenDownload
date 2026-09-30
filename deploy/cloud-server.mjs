@@ -3,6 +3,7 @@ import { startServers } from "./process-supervisor.mjs";
 // Executed only after the cloud worker's namespace check has succeeded.
 const env = {
   ...process.env,
+  DISPLAY: ":99",
   OD_FIXTURE_MODE: "false",
   OD_PORT: "8080",
   OD_DATA_DIR: "/data",
@@ -22,4 +23,4 @@ await startServers(env, {
   ...process.env,
   HOSTNAME: "127.0.0.1",
   PORT: "3001",
-});
+}, [{command: "Xvfb", args: [":99", "-screen", "0", "1280x720x24", "-nolisten", "tcp"]}]);

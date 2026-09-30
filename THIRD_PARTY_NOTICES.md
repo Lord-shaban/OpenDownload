@@ -67,3 +67,12 @@ upstream application source is retained. Production dependency audit is a build
 gate.
 Dependency licenses remain with their packages. Preserve these files and source
 when redistributing this image.
+
+The cloud image additionally installs `yt-dlp-getpot-wpc` 1.1.2 and `nodriver`
+0.50.3 (MIT) from their pinned PyPI distributions. It loads only the WPC provider
+from `/opt/youtube-wpc-plugins`; the package source/license remain in the Python
+environment. Chromium and Xvfb use their distribution licenses, shipped by the
+Debian packages. `deploy/chromium-egress.py` restores site separation, restricts
+the debugging address, and forces page requests through the guarded proxy.
+Each extraction uses a new temporary guest profile; no workstation browser
+profiles or account cookies are imported.

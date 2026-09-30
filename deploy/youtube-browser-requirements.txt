@@ -1,0 +1,7 @@
+# Isolated anonymous Chromium PO provider. Keep its dependency set pinned.
+yt-dlp-getpot-wpc==1.1.2
+nodriver==0.50.3
+mss==10.2.0
+websockets==17.1
+deprecated==3.0.0
+wrapt==2.5.0

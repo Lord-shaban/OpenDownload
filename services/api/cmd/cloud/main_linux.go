@@ -287,6 +287,10 @@ func worker(ctx context.Context) error {
 				return
 			}
 		}
+		if err := browserEgressCheck(r.Context()); err != nil {
+			http.Error(w, "browser egress check failed", 500)
+			return
+		}
 		_, _ = fmt.Fprintln(w, "direct egress denied")
 	}), stop); err != nil {
 		return err
