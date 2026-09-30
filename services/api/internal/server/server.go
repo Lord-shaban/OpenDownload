@@ -240,6 +240,8 @@ func (s *Server) analyze(w http.ResponseWriter, r *http.Request) {
 			problem(w, 503, "upstream_rate_limited", media.ErrUpstreamRateLimit.Error())
 		case errors.Is(err, media.ErrSourceConnection):
 			problem(w, 503, "source_connection_failed", media.ErrSourceConnection.Error())
+		case errors.Is(err, media.ErrSourceMetadata):
+			problem(w, 503, "source_metadata_unavailable", media.ErrSourceMetadata.Error())
 		case errors.Is(err, media.ErrAccess):
 			problem(w, 422, "source_access_denied", media.ErrAccess.Error())
 		default:

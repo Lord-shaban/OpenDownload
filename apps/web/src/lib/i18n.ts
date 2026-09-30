@@ -330,6 +330,10 @@ export const messages = {
     "This server couldn't connect to the source. The problem is the server connection, not the shape of your link.",
     "تعذر اتصال خادم التنزيل بالمصدر. المشكلة في اتصال الخادم، وليست في شكل رابطك.",
   ],
+  sourceMetadataUnavailable: [
+    "The source didn't send downloadable media details to this server. Try again later.",
+    "المصدر لم يرسل بيانات الوسائط إلى خادم التنزيل. جرّب لاحقًا.",
+  ],
   analysisExpired: [
     "This analysis expired. Analyze the link again.",
     "انتهت صلاحية التحليل. حلّل الرابط مجددًا.",

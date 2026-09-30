@@ -57,6 +57,7 @@ describe("locale contracts", () => {
         ["upstream_rate_limited", "upstreamRateLimited"],
         ["source_access_denied", "sourceAccessDenied"],
         ["source_connection_failed", "sourceConnectionFailed"],
+        ["source_metadata_unavailable", "sourceMetadataUnavailable"],
       ] as const) {
         const message = errorMessage(new ApiError(code, "private diagnostic token=secret"), locale);
         expect(message).toBe(translate(locale, key));
