@@ -27,6 +27,7 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(result[-2:], args[-2:])
         self.assertEqual(result[result.index("--plugin-dirs") + 1], "/opt/youtube-plugins")
         self.assertNotIn("default", result)
+        self.assertEqual(result[result.index("--impersonate") + 1], "chrome")
         self.assertIn("youtube:player_client=mweb;fetch_pot=always", result)
 
     def test_other_platforms_keep_original_arguments(self):

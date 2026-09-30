@@ -19,6 +19,9 @@ tokens, solve interactive CAPTCHA, enable DRM, or guarantee that a server IP
 will be accepted. The Node provider runs only for YouTube inside the existing
 process/network fence, requires the guarded loopback proxy, and keeps tokens in
 memory for the extraction. There is no public token server or disk token cache.
+YouTube's web requests use the installed Chrome TLS transport through that same
+proxy. The provider's resolved dependencies are pinned with security fixes and
+audited during image builds.
 YouTube analysis and download share one extractor slot to bound Node memory;
 waiting requests retain their original cancellation/timeout limits.
 Upstream refusals still stop the request. See THIRD_PARTY_NOTICES.md for the

@@ -25,6 +25,7 @@ def attestation_args(args):
     # Do not enable default/user plugin discovery or accept a token from visitors.
     return [*args[:-2],
             "--plugin-dirs", "/opt/youtube-plugins",
+            "--impersonate", "chrome",
             "--extractor-args", "youtube:player_client=mweb;fetch_pot=always",
             "--extractor-args", "youtubepot-bgutilscript:server_home=/opt/youtube-attestation/server/runtime",
             *args[-2:]]

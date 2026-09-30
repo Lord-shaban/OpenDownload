@@ -56,10 +56,14 @@ are imported. No Cobalt artwork or source code was copied.
 The cloud image bundles [bgutil-ytdlp-pot-provider](https://github.com/Brainicism/bgutil-ytdlp-pot-provider)
 2.0.0, GPL-3.0-only, at upstream commit
 `37169ee2656e08c5c2e5dc9df4c598c0cb4c88a8`. Its complete downloaded source,
-LICENSE, pinned npm lock, and installed dependencies ship at
+LICENSE and installed dependencies ship at
 `/opt/youtube-attestation`. Only the base and script provider modules are loaded;
 the upstream HTTP provider is not enabled. `deploy/youtube-provider.mjs` invokes
 the upstream library in memory instead of the upstream disk-caching CLI. That
 entrypoint is GPL-3.0-only. The image build verifies the source archive checksum.
+The deployment replaces the npm lock with the reviewed
+`deploy/youtube-provider-package-lock.json` to apply dependency security fixes;
+upstream application source is retained. Production dependency audit is a build
+gate.
 Dependency licenses remain with their packages. Preserve these files and source
 when redistributing this image.
