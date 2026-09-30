@@ -73,6 +73,16 @@ mode and configured limits. Logs are JSON with request ID, method, route status
 and duration; no submitted URLs or raw extractor stderr. Use request IDs in bug
 reports. Reverse proxy logs must also avoid source URL/body logging.
 
+For a temporary operator investigation, `OD_DIAGNOSTIC_PUBLIC_KEY` accepts a
+base64 SPKI RSA public key (2048-4096 bits). Failed extractions then log an
+AES-256-GCM envelope with an RSA-OAEP-SHA256 wrapped key and the last 8 KiB of
+stderr. Both encryption layers use `OpenDownload diagnostic v1` as associated
+data/label. Keep the private key on the operator's device, never on the server;
+the visitor response remains canonical. This mode defaults off. Remove the
+public-key setting and restart after collecting the needed evidence. Decrypted
+diagnostics may contain signed media URLs/tokens and must not be posted in
+issues or stored in Git.
+
 SIGTERM stops accepting new work, cancels active process groups, and waits for
 workers before closing SQLite. Expiry is visible in the UI. Access-denied,
 unsupported and resource-limit errors are user-actionable; do not endlessly retry.

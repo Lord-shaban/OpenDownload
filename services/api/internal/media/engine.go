@@ -3,6 +3,7 @@ package media
 import (
 	"archive/zip"
 	"context"
+	"crypto/rsa"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,11 +21,12 @@ import (
 )
 
 type YTDLP struct {
-	Binary       string
-	Proxy        string
-	MaxBytes     int64
-	Client       *http.Client
-	youtubeSlots chan struct{}
+	Binary        string
+	Proxy         string
+	MaxBytes      int64
+	Client        *http.Client
+	youtubeSlots  chan struct{}
+	diagnosticKey *rsa.PublicKey
 }
 
 func NewYTDLP(binary, proxy string, max int64) (*YTDLP, error) {
@@ -39,7 +41,11 @@ func NewYTDLP(binary, proxy string, max int64) (*YTDLP, error) {
 		_, err := security.Parse(req.URL.String())
 		return err
 	}}
-	return &YTDLP{Binary: binary, Proxy: proxy, MaxBytes: max, Client: client, youtubeSlots: make(chan struct{}, 1)}, nil
+	key, err := diagnosticKey()
+	if err != nil {
+		return nil, err
+	}
+	return &YTDLP{Binary: binary, Proxy: proxy, MaxBytes: max, Client: client, youtubeSlots: make(chan struct{}, 1), diagnosticKey: key}, nil
 }
 
 // A YouTube extraction may start a Node attestation process. Share one slot
@@ -104,6 +110,7 @@ func (e *YTDLP) Analyze(ctx context.Context, source string) (Analysis, error) {
 	cmd.Stdout = out
 	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {
+		e.diagnose("analysis", stderr.Bytes())
 		return Analysis{}, extractError(ctx, stderr.Bytes())
 	}
 	var info RawInfo
@@ -269,6 +276,7 @@ func (e *YTDLP) Download(ctx context.Context, a Analysis, opt Option, dir string
 	stderr := &boundedBuffer{limit: 16 << 10}
 	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {
+		e.diagnose("download", stderr.Bytes())
 		return nil, extractError(ctx, stderr.Bytes())
 	}
 	update(Progress{Percent: 99, Phase: "processing"})
