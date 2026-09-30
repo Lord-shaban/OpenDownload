@@ -42,7 +42,10 @@ func NewYTDLP(binary, proxy string, max int64) (*YTDLP, error) {
 }
 
 func (e *YTDLP) common() []string {
-	return []string{"--ignore-config", "--no-plugin-dirs", "--no-cache-dir", "--no-playlist", "--no-warnings", "--proxy", e.Proxy, "--socket-timeout", "15", "--retries", "2", "--fragment-retries", "2", "--concurrent-fragments", "1", "--hls-prefer-native", "--downloader", "dash:native", "--js-runtimes", "node", "--no-remote-components", "--postprocessor-args", "ffmpeg_i:-protocol_whitelist file,pipe"}
+	// Include public web clients whose HLS/embed formats can differ from the
+	// engine defaults. Analysis and download must use the same client policy.
+	// These clients do not import accounts or override upstream access checks.
+	return []string{"--ignore-config", "--no-plugin-dirs", "--no-cache-dir", "--no-playlist", "--no-warnings", "--proxy", e.Proxy, "--socket-timeout", "15", "--retries", "2", "--fragment-retries", "2", "--concurrent-fragments", "1", "--hls-prefer-native", "--downloader", "dash:native", "--js-runtimes", "node", "--no-remote-components", "--extractor-args", "youtube:player_client=default,web_safari,web_embedded", "--postprocessor-args", "ffmpeg_i:-protocol_whitelist file,pipe"}
 }
 
 func (e *YTDLP) Analyze(ctx context.Context, source string) (Analysis, error) {
