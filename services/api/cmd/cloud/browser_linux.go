@@ -34,5 +34,30 @@ func browserEgressCheck(ctx context.Context) error {
 	if err != nil || !strings.Contains(string(output), "destination denied") || strings.Contains(string(output), "fixtureMode") {
 		return errors.New("browser must route localhost requests through the guarded proxy")
 	}
+	// Exercise the same headed driver used by WPC; a headless binary smoke alone
+	// does not prove that its CDP startup and private X display work.
+	const driverCheck = `import asyncio
+import nodriver
+async def check():
+    browser = await nodriver.start(browser_executable_path='/usr/local/bin/opendownload-chromium', headless=False)
+    try:
+        assert browser.info and browser.main_tab
+        print('browser-driver-ready')
+    finally:
+        browser.stop()
+asyncio.run(check())`
+	driver := exec.CommandContext(ctx, "/opt/engine/bin/python", "-c", driverCheck)
+	driver.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	driver.Cancel = func() error { return syscall.Kill(-driver.Process.Pid, syscall.SIGKILL) }
+	driver.WaitDelay = 3 * time.Second
+	defer func() {
+		if driver.Process != nil {
+			_ = syscall.Kill(-driver.Process.Pid, syscall.SIGKILL)
+		}
+	}()
+	driverOutput, err := driver.Output()
+	if err != nil || !strings.Contains(string(driverOutput), "browser-driver-ready") {
+		return errors.New("headed browser driver failed to connect inside the fence")
+	}
 	return nil
 }

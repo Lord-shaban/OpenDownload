@@ -37,13 +37,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends tini python3 py
 COPY services/api/requirements.txt /tmp/requirements.txt
 COPY deploy/youtube-browser-requirements.txt /tmp/youtube-browser-requirements.txt
 COPY scripts/audit-python-pins.py /tmp/audit-python-pins.py
+COPY scripts/patch-youtube-browser.py /tmp/patch-youtube-browser.py
 RUN /opt/engine/bin/pip install --no-cache-dir -r /tmp/requirements.txt && \
     /opt/engine/bin/python -c "from yt_dlp import YoutubeDL; assert any(t.client == 'chrome' for t, _ in YoutubeDL({'quiet': True})._get_available_impersonate_targets()), 'Chrome TLS support is missing'" && \
     /opt/engine/bin/pip install --no-cache-dir -r /tmp/youtube-browser-requirements.txt && \
     python3 /tmp/audit-python-pins.py /tmp/youtube-browser-requirements.txt && \
+    /opt/engine/bin/python /tmp/patch-youtube-browser.py && \
     mkdir -p /opt/youtube-wpc-plugins/wpc/yt_dlp_plugins/extractor && \
     cp /opt/engine/lib/python3.11/site-packages/yt_dlp_plugins/extractor/getpot_wpc.py /opt/youtube-wpc-plugins/wpc/yt_dlp_plugins/extractor/ && \
-    rm /tmp/requirements.txt /tmp/youtube-browser-requirements.txt /tmp/audit-python-pins.py
+    rm /tmp/requirements.txt /tmp/youtube-browser-requirements.txt /tmp/audit-python-pins.py /tmp/patch-youtube-browser.py
 WORKDIR /app
 ENV PATH="/opt/engine/bin:${PATH}"
 ENV OD_YTDLP=/usr/local/bin/opendownload-ytdlp-wpc DISPLAY=:99

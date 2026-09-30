@@ -76,3 +76,6 @@ Debian packages. `deploy/chromium-egress.py` restores site separation, restricts
 the debugging address, and forces page requests through the guarded proxy.
 Each extraction uses a new temporary guest profile; no workstation browser
 profiles or account cookies are imported.
+- The nodriver 0.50.3 installation in the cloud image has a reviewed local
+  patch (`scripts/patch-youtube-browser.py`) that allows 15 seconds for local
+  CDP startup on small CPUs and preserves bounded browser startup diagnostics.
