@@ -9,17 +9,19 @@ import (
 )
 
 type Config struct {
-	Port      string
-	Data      string
-	Origin    string
-	Proxy     string
-	Binary    string
-	Workers   int
-	Queue     int
-	MaxBytes  int64
-	Timeout   time.Duration
-	Retention time.Duration
-	Fixture   bool
+	Port           string
+	Data           string
+	Origin         string
+	Proxy          string
+	Binary         string
+	Workers        int
+	Queue          int
+	MaxBytes       int64
+	Timeout        time.Duration
+	Retention      time.Duration
+	Fixture        bool
+	ResolverSocket string
+	StorageBudget  int64
 }
 
 func ConfigFromEnv() (Config, error) {
@@ -36,6 +38,12 @@ func ConfigFromEnv() (Config, error) {
 		return c, err
 	}
 	c.MaxBytes = int64(b)
+	budget, err := number("OD_STORAGE_BUDGET", 0, 0, 10<<30)
+	if err != nil || budget != 0 && int64(budget) < c.MaxBytes {
+		return c, fmt.Errorf("OD_STORAGE_BUDGET must be zero or at least OD_MAX_BYTES, up to 10 GiB")
+	}
+	c.StorageBudget = int64(budget)
+	c.ResolverSocket = os.Getenv("OD_RESOLVER_SOCKET")
 	if c.Timeout, err = time.ParseDuration(value("OD_JOB_TIMEOUT", "15m")); err != nil || c.Timeout < time.Second || c.Timeout > time.Hour {
 		return c, fmt.Errorf("OD_JOB_TIMEOUT must be between 1s and 1h")
 	}

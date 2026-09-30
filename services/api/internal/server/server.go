@@ -63,7 +63,11 @@ type Server struct {
 }
 
 func New(config Config, manager *jobs.Manager) *Server {
-	return &Server{Config: config, Manager: manager, cache: map[string]cacheEntry{}, rates: map[string]rateEntry{}, analyses: make(chan struct{}, 4)}
+	s := &Server{Config: config, Manager: manager, cache: map[string]cacheEntry{}, rates: map[string]rateEntry{}, analyses: make(chan struct{}, 4)}
+	if config.ResolverSocket != "" {
+		s.Policy.Resolver = security.NewSocketResolver(config.ResolverSocket)
+	}
+	return s
 }
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
