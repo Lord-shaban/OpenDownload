@@ -49,7 +49,7 @@ func run() error {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	manager := &jobs.Manager{Store: store, Engine: engine, Root: filepath.Join(data, "files"), Workers: c.Workers, MaxBytes: c.MaxBytes, Timeout: c.Timeout}
+	manager := &jobs.Manager{Store: store, Engine: engine, Root: filepath.Join(data, "files"), Workers: c.Workers, MaxBytes: c.MaxBytes, Timeout: c.Timeout, StorageBudget: c.StorageBudget}
 	if err := manager.Start(ctx); err != nil {
 		return err
 	}

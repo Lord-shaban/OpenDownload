@@ -15,16 +15,19 @@ import (
 )
 
 type Manager struct {
-	Store    *Store
-	Engine   media.Engine
-	Root     string
-	Workers  int
-	MaxBytes int64
-	Timeout  time.Duration
-	mu       sync.Mutex
-	active   map[string]context.CancelFunc
-	wg       sync.WaitGroup
-	wake     chan struct{}
+	Store         *Store
+	Engine        media.Engine
+	Root          string
+	Workers       int
+	MaxBytes      int64
+	Timeout       time.Duration
+	StorageBudget int64
+	storageMu     sync.Mutex
+	reservedBytes int64
+	mu            sync.Mutex
+	active        map[string]context.CancelFunc
+	wg            sync.WaitGroup
+	wake          chan struct{}
 }
 
 func (m *Manager) Start(ctx context.Context) error {
@@ -103,6 +106,12 @@ func (m *Manager) worker(ctx context.Context) {
 	}
 }
 func (m *Manager) run(parent context.Context, j Job) {
+	release, err := m.reserveStorage()
+	if err != nil {
+		m.fail(j, "Temporary storage is full. Try again after older files expire.")
+		return
+	}
+	defer release()
 	ctx, cancel := context.WithTimeout(parent, m.Timeout)
 	defer cancel()
 	m.mu.Lock()

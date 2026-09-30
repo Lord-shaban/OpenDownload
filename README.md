@@ -64,6 +64,10 @@ reach the internet only through that proxy. The web service has a separate ingre
 network for its published port. See [self-hosting](docs/SELF_HOSTING.md)
 before changing network exposure.
 
+For a cloud runtime that supports nested unprivileged Linux namespaces, see the
+[single-container real download profile](docs/FENCED_CLOUD.md). It forces real
+extraction, keeps the guarded network boundary, and uses smaller public limits.
+
 ## Local development
 
 Prerequisites: Node.js 24, pnpm 11.25.0, Go 1.27.1+, Python 3.12+, yt-dlp, FFmpeg.

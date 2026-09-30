@@ -40,9 +40,20 @@ type RawInfo struct {
 	Availability string                   `json:"availability"`
 	Live         bool                     `json:"is_live"`
 	DRM          bool                     `json:"has_drm"`
+	DetectedDRM  bool                     `json:"_has_drm"`
 	Type         string                   `json:"_type"`
 	URL          string                   `json:"url"`
 	Ext          string                   `json:"ext"`
+	Direct       bool                     `json:"direct"`
+	FormatID     string                   `json:"format_id"`
+	Protocol     string                   `json:"protocol"`
+	VCodec       string                   `json:"vcodec"`
+	ACodec       string                   `json:"acodec"`
+	Height       int                      `json:"height"`
+	Width        int                      `json:"width"`
+	FPS          float64                  `json:"fps"`
+	Bytes        int64                    `json:"filesize"`
+	Approx       int64                    `json:"filesize_approx"`
 	Formats      []RawFormat              `json:"formats"`
 	Subtitles    map[string][]RawSubtitle `json:"subtitles"`
 	Automatic    map[string][]RawSubtitle `json:"automatic_captions"`
@@ -50,7 +61,7 @@ type RawInfo struct {
 }
 
 func restricted(raw RawInfo) bool {
-	return raw.DRM || raw.Live || raw.Availability != "" && raw.Availability != "public" && raw.Availability != "unlisted"
+	return raw.DRM || raw.DetectedDRM || raw.Live || raw.Availability != "" && raw.Availability != "public" && raw.Availability != "unlisted"
 }
 func Normalize(raw RawInfo, source string) (Analysis, error) {
 	if restricted(raw) {
@@ -79,6 +90,13 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 		a.Options = append(a.Options, Option{ID: "image", Kind: "image", Label: "Original image", Extension: raw.Ext, Detail: "Source file, unchanged", AssetURL: raw.URL})
 	}
 	formats := append([]RawFormat(nil), raw.Formats...)
+	// yt-dlp emits a single direct file's format at the top level, without a
+	// formats array. Preserve the reported selector; do not invent one.
+	if len(formats) == 0 && raw.Extractor == "Generic" && raw.Direct && raw.Type == "video" {
+		formats = append(formats, RawFormat{ID: raw.FormatID, Ext: raw.Ext, Protocol: raw.Protocol,
+			VCodec: raw.VCodec, ACodec: raw.ACodec, Height: raw.Height, Width: raw.Width,
+			FPS: raw.FPS, Bytes: raw.Bytes, Approx: raw.Approx, URL: raw.URL, DRM: raw.DRM})
+	}
 	sort.SliceStable(formats, func(i, j int) bool {
 		if formats[i].Height == formats[j].Height {
 			return formats[i].FPS > formats[j].FPS

@@ -1,11 +1,12 @@
-# Fixture-only preview. Real downloads require the isolated production Compose stack.
+# Real downloads with a required unprivileged user/network namespace. No isolation fallback.
 FROM golang:1.27.1-bookworm AS api-builder
 WORKDIR /build
 COPY services/api/go.mod services/api/go.sum ./
 RUN go mod download
 COPY services/api/ ./
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/api ./cmd/api && \
-    CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/egress ./cmd/egress
+    CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/egress ./cmd/egress && \
+    CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/cloud ./cmd/cloud
 
 FROM node:24-bookworm-slim AS web-builder
 RUN npm install -g pnpm@11.25.0
@@ -18,20 +19,25 @@ ENV NEXT_TELEMETRY_DISABLED=1 API_URL=http://127.0.0.1:8080
 RUN pnpm --filter web build
 
 FROM node:24-bookworm-slim AS runner
-RUN apt-get update && apt-get install -y --no-install-recommends tini && \
+RUN apt-get update && apt-get install -y --no-install-recommends tini python3 python3-venv ffmpeg ca-certificates util-linux iproute2 && \
     rm -rf /var/lib/apt/lists/* && \
     groupadd --gid 10001 opendownload && \
     useradd --uid 10001 --gid 10001 --no-create-home opendownload && \
+    python3 -m venv /opt/engine && \
     mkdir /data && chown 10001:10001 /data
+COPY services/api/requirements.txt /tmp/requirements.txt
+RUN /opt/engine/bin/pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
 WORKDIR /app
+ENV PATH="/opt/engine/bin:${PATH}"
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000 HOME=/tmp
 COPY --from=api-builder /out/api /usr/local/bin/opendownload-api
+COPY --from=api-builder /out/cloud /usr/local/bin/opendownload-cloud
 COPY --from=web-builder --chown=10001:10001 /app/apps/web/.next/standalone ./
 COPY --from=web-builder --chown=10001:10001 /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=web-builder --chown=10001:10001 /app/apps/web/public ./apps/web/public
-COPY deploy/preview-server.mjs deploy/process-supervisor.mjs ./deploy/
+COPY deploy/cloud-server.mjs deploy/process-supervisor.mjs ./deploy/
 USER 10001:10001
 VOLUME /data
 EXPOSE 3000
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["node", "deploy/preview-server.mjs"]
+CMD ["opendownload-cloud"]

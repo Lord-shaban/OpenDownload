@@ -76,6 +76,13 @@ jobs:
         run: |
           docker build -f deploy/Dockerfile.preview -t opendownload-preview:check .
           python3 scripts/preview-check.py
+      - name: Verify real downloads in the fenced cloud container
+        env:
+          OD_TEST_MEDIA_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sudo apparmor_parser -r deploy/apparmor-cloud
+          docker build -f deploy/Dockerfile.cloud -t opendownload-cloud:check .
+          python3 scripts/cloud-check.py
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
