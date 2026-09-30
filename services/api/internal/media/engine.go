@@ -20,10 +20,11 @@ import (
 )
 
 type YTDLP struct {
-	Binary   string
-	Proxy    string
-	MaxBytes int64
-	Client   *http.Client
+	Binary       string
+	Proxy        string
+	MaxBytes     int64
+	Client       *http.Client
+	youtubeSlots chan struct{}
 }
 
 func NewYTDLP(binary, proxy string, max int64) (*YTDLP, error) {
@@ -38,7 +39,29 @@ func NewYTDLP(binary, proxy string, max int64) (*YTDLP, error) {
 		_, err := security.Parse(req.URL.String())
 		return err
 	}}
-	return &YTDLP{Binary: binary, Proxy: proxy, MaxBytes: max, Client: client}, nil
+	return &YTDLP{Binary: binary, Proxy: proxy, MaxBytes: max, Client: client, youtubeSlots: make(chan struct{}, 1)}, nil
+}
+
+// A YouTube extraction may start a Node attestation process. Share one slot
+// between analysis and downloads so anonymous visitors cannot multiply those
+// processes beyond the small cloud worker's memory budget. Waiting is canceled
+// with the original request/job context.
+func (e *YTDLP) acquireYouTube(ctx context.Context, source string) (func(), error) {
+	u, err := url.Parse(source)
+	if err != nil {
+		return nil, err
+	}
+	host := strings.ToLower(u.Hostname())
+	isYouTube := host == "youtu.be" || host == "youtube.com" || strings.HasSuffix(host, ".youtube.com") || host == "youtube-nocookie.com" || strings.HasSuffix(host, ".youtube-nocookie.com")
+	if !isYouTube || e.youtubeSlots == nil {
+		return func() {}, nil
+	}
+	select {
+	case e.youtubeSlots <- struct{}{}:
+		return func() { <-e.youtubeSlots }, nil
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
 }
 
 func (e *YTDLP) common() []string {
@@ -69,6 +92,11 @@ func (e *YTDLP) Analyze(ctx context.Context, source string) (Analysis, error) {
 		}
 		return Analysis{Title: filepath.Base(u.Path), Platform: u.Hostname(), URL: source, Options: []Option{{ID: "image", Kind: "image", Label: "Original image", Extension: ext, Detail: "Original source file", Bytes: resp.ContentLength, AssetURL: source}}}, nil
 	}
+	release, err := e.acquireYouTube(ctx, source)
+	if err != nil {
+		return Analysis{}, err
+	}
+	defer release()
 	args := append(e.common(), "--dump-single-json", "--skip-download", "--", source)
 	cmd := command(ctx, e.Binary, args...)
 	out := &boundedBuffer{limit: 8 << 20}
@@ -211,6 +239,11 @@ func (e *YTDLP) Download(ctx context.Context, a Analysis, opt Option, dir string
 		}
 		return collectOutputs(dir, e.MaxBytes)
 	}
+	release, err := e.acquireYouTube(ctx, a.URL)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
 	args := append(e.common(), "--newline", "--no-simulate", "--progress", "--progress-template", "download:ODPROGRESS %(progress.downloaded_bytes)s %(progress.total_bytes)s %(progress.total_bytes_estimate)s", "--print", "after_move:ODFILE %(filepath)s", "--max-filesize", strconv.FormatInt(e.MaxBytes, 10), "--restrict-filenames", "--no-overwrites", "--no-mtime", "--paths", dir, "--output", "media.%(ext)s")
 	if opt.Kind == "subtitle" {
 		args = append(args, "--skip-download", "--sub-langs", opt.Language, "--sub-format", "vtt")

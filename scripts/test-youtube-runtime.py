@@ -1,7 +1,10 @@
 """Regression checks for the image-owned YouTube entrypoint; no network."""
 import importlib.util
 import pathlib
+import sys
 import unittest
+
+sys.dont_write_bytecode = True
 
 spec = importlib.util.spec_from_file_location("youtube_runtime", pathlib.Path(__file__).resolve().parents[1] / "deploy/youtube-runtime.py")
 runtime = importlib.util.module_from_spec(spec)

@@ -3,6 +3,7 @@ package media
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -12,6 +13,37 @@ import (
 )
 
 type assetTransport func(*http.Request) (*http.Response, error)
+
+func TestYouTubeExtractionSlotBoundsAnalysisAndDownload(t *testing.T) {
+	e, err := NewYTDLP("unused", "http://127.0.0.1:8090", 1024)
+	if err != nil {
+		t.Fatal(err)
+	}
+	release, err := e.acquireYouTube(context.Background(), "https://youtu.be/example")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A second YouTube call cannot acquire the occupied slot, and canceled
+	// waiters must leave it intact. Unrelated sources can still proceed.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := e.acquireYouTube(ctx, "https://www.youtube.com/watch?v=example"); !errors.Is(err, context.Canceled) {
+		t.Fatalf("occupied slot ignored cancellation: %v", err)
+	}
+	for _, source := range []string{"https://www.tiktok.com/video/example", "https://youtube.com.evil.example/example"} {
+		free, err := e.acquireYouTube(context.Background(), source)
+		if err != nil {
+			t.Fatal(err)
+		}
+		free()
+	}
+	release()
+	free, err := e.acquireYouTube(context.Background(), "https://m.youtube.com/watch?v=example")
+	if err != nil {
+		t.Fatal(err)
+	}
+	free()
+}
 
 func (f assetTransport) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
 func TestImagesRejectHTMLAndEnforceStreamLimit(t *testing.T) {
