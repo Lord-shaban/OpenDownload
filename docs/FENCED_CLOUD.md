@@ -14,6 +14,11 @@ identity, interfaces and a denied direct TCP connection. If namespace creation
 or real dependency readiness fails, the public listener stays closed. There is
 no fallback to fixture mode, a shared network or a privileged container.
 
+The PID namespace controls process IDs and descendant cleanup. Docker's existing
+`/proc` mount is retained to avoid remounting its masked paths; process metadata
+for other components in the outer container can remain visible there. This
+profile does not claim a private process-information filesystem for each job.
+
 Private Unix sockets in a mode-0700 directory carry:
 
 - Web ingress to Next.js; only port 3000 is published.
