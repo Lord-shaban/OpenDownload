@@ -112,8 +112,16 @@ print('Isolated worker denies direct internet and private proxy destinations.')
         with call(path) as response:
             data = response.read(1048577)
             assert len(data) <= 1048576 and "attachment" in response.headers["Content-Disposition"]
-        probe = json.loads(subprocess.check_output(["docker", "exec", "-i", name, "ffprobe", "-v", "error",
-            "-show_streams", "-show_format", "-of", "json", "-i", "pipe:0"], input=data))
+        # MP3 duration needs seekable input; a pipe does not report it reliably.
+        probe_code = """
+import subprocess, sys, tempfile
+with tempfile.NamedTemporaryFile() as file:
+    file.write(sys.stdin.buffer.read())
+    file.flush()
+    sys.stdout.buffer.write(subprocess.check_output(['ffprobe','-v','error',
+        '-show_streams','-show_format','-of','json',file.name]))
+"""
+        probe = json.loads(subprocess.check_output(["docker", "exec", "-i", name, "python3", "-c", probe_code], input=data))
         kinds = [s["codec_type"] for s in probe["streams"]]
         assert option["kind"] in kinds and float(probe["format"]["duration"]) > 1.5, probe
         if option["kind"] == "video":
