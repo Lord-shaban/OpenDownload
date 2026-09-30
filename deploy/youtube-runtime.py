@@ -1,8 +1,6 @@
 #!/opt/engine/bin/python
 """Pinned anonymous YouTube attestation, inside the existing extractor fence."""
-import os
 import sys
-import tempfile
 from urllib.parse import urlsplit
 
 YOUTUBE_HOSTS = frozenset((
@@ -28,26 +26,14 @@ def attestation_args(args):
     return [*args[:-2],
             "--plugin-dirs", "/opt/youtube-plugins",
             "--extractor-args", "youtube:player_client=mweb;fetch_pot=always",
-            "--extractor-args", "youtubepot-bgutilscript:server_home=/opt/youtube-attestation/server",
+            "--extractor-args", "youtubepot-bgutilscript:server_home=/opt/youtube-attestation/server/runtime",
             *args[-2:]]
 
 
 def run(args, entrypoint):
     if not youtube_request(args):
         return entrypoint(args)
-    # The provider's cache is separate from yt-dlp's --no-cache-dir. Bound its
-    # lifetime to one extraction; remove it on success, refusal, and cancellation
-    # that unwinds the interpreter. Container /tmp also bounds crash leftovers.
-    previous = os.environ.get("XDG_CACHE_HOME")
-    with tempfile.TemporaryDirectory(prefix="od-youtube-") as cache:
-        os.environ["XDG_CACHE_HOME"] = cache
-        try:
-            return entrypoint(attestation_args(args))
-        finally:
-            if previous is None:
-                os.environ.pop("XDG_CACHE_HOME", None)
-            else:
-                os.environ["XDG_CACHE_HOME"] = previous
+    return entrypoint(attestation_args(args))
 
 
 if __name__ == "__main__":

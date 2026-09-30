@@ -1,6 +1,5 @@
 """Regression checks for the image-owned YouTube entrypoint; no network."""
 import importlib.util
-import os
 import pathlib
 import unittest
 
@@ -26,23 +25,6 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(result[result.index("--plugin-dirs") + 1], "/opt/youtube-plugins")
         self.assertNotIn("default", result)
         self.assertIn("youtube:player_client=mweb;fetch_pot=always", result)
-
-    def test_provider_cache_removed_after_failure(self):
-        previous = os.environ.get("XDG_CACHE_HOME")
-        caches = []
-
-        def fail(args):
-            cache = pathlib.Path(os.environ["XDG_CACHE_HOME"])
-            self.assertTrue(cache.is_dir())
-            (cache / "test-token").write_text("test-only", encoding="utf8")
-            caches.append(cache)
-            raise SystemExit(1)
-
-        with self.assertRaises(SystemExit):
-            runtime.run(["--", "https://youtu.be/abc"], fail)
-        self.assertEqual(os.environ.get("XDG_CACHE_HOME"), previous)
-        self.assertEqual(len(caches), 1)
-        self.assertFalse(caches[0].exists())
 
     def test_other_platforms_keep_original_arguments(self):
         args = ["--no-plugin-dirs", "--", "https://www.tiktok.com/video/abc"]

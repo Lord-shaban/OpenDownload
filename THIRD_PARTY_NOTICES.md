@@ -50,3 +50,16 @@ Core workspace controls use `@phosphor-icons/react` 2.1.10, from the official
 Phosphor Icons. MIT; the full license is included in standalone/container assets
 at `apps/web/public/licenses/PhosphorIcons-MIT.txt`. Only individual icon modules
 are imported. No Cobalt artwork or source code was copied.
+
+## Anonymous YouTube attestation in the cloud image
+
+The cloud image bundles [bgutil-ytdlp-pot-provider](https://github.com/Brainicism/bgutil-ytdlp-pot-provider)
+2.0.0, GPL-3.0-only, at upstream commit
+`37169ee2656e08c5c2e5dc9df4c598c0cb4c88a8`. Its complete downloaded source,
+LICENSE, pinned npm lock, and installed dependencies ship at
+`/opt/youtube-attestation`. Only the base and script provider modules are loaded;
+the upstream HTTP provider is not enabled. `deploy/youtube-provider.mjs` invokes
+the upstream library in memory instead of the upstream disk-caching CLI. That
+entrypoint is GPL-3.0-only. The image build verifies the source archive checksum.
+Dependency licenses remain with their packages. Preserve these files and source
+when redistributing this image.

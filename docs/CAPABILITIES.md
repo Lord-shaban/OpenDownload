@@ -12,6 +12,16 @@ all resulting requests still pass through the guarded egress proxy. This adds
 transport compatibility and does not remove a platform's login, human
 verification, region or rate restrictions.
 
+The cloud image also includes a pinned, image-owned anonymous YouTube PO token
+provider for the public mobile web client. It supplies the platform's requested
+player/media attestation; it does not import a visitor's account, cookies or
+tokens, solve interactive CAPTCHA, enable DRM, or guarantee that a server IP
+will be accepted. The Node provider runs only for YouTube inside the existing
+process/network fence, requires the guarded loopback proxy, and keeps tokens in
+memory for the extraction. There is no public token server or disk token cache.
+Upstream refusals still stop the request. See THIRD_PARTY_NOTICES.md for the
+pinned source and license. Cloud verification of the reported URL is pending.
+
 On 2026-09-30, the reported YouTube URL `https://youtu.be/2cUkUbB3Gu4`
 downloaded through the local real API without authentication but required human
 verification from the blitz.cloud server. SoundCloud's public NASA Quindar sound

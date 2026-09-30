@@ -43,9 +43,10 @@ ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000 HOM
 COPY --from=api-builder /out/api /usr/local/bin/opendownload-api
 COPY --from=api-builder /out/cloud /usr/local/bin/opendownload-cloud
 COPY --from=youtube-attestation /opt/youtube-attestation /opt/youtube-attestation
+COPY deploy/youtube-provider.mjs /opt/youtube-attestation/server/runtime/build/generate_once.js
 RUN mkdir -p /opt/youtube-plugins/bgutil/yt_dlp_plugins/extractor && \
     cp /opt/youtube-attestation/plugin/yt_dlp_plugins/extractor/getpot_bgutil.py /opt/youtube-attestation/plugin/yt_dlp_plugins/extractor/getpot_bgutil_script.py /opt/youtube-plugins/bgutil/yt_dlp_plugins/extractor/ && \
-    node /opt/youtube-attestation/server/build/generate_once.js --version
+    test "$(node /opt/youtube-attestation/server/runtime/build/generate_once.js --version)" = "2.0.0"
 COPY --chmod=755 deploy/youtube-runtime.py /usr/local/bin/opendownload-ytdlp
 COPY --from=web-builder --chown=10001:10001 /app/apps/web/.next/standalone ./
 COPY --from=web-builder --chown=10001:10001 /app/apps/web/.next/static ./apps/web/.next/static
