@@ -16,6 +16,15 @@ describe("locale contracts", () => {
   });
   it("translates known and unknown API errors without exposing raw exceptions", () => {
     expect(
+      errorMessage(
+        new ApiError("analysis_expired", "backend diagnostic"),
+        "en",
+      ),
+    ).toBe(translate("en", "analysisExpired"));
+    expect(
+      errorMessage(new ApiError("future_error", "internal secret"), "en"),
+    ).toBe(translate("en", "requestFailed"));
+    expect(
       errorMessage(new ApiError("analysis_expired", "English message"), "ar"),
     ).toBe(translate("ar", "analysisExpired"));
     expect(

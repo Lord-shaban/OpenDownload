@@ -1,77 +1,93 @@
-# OpenDownload workspace — final product override
+# OpenDownload workspace — minimal glass
 
-This page overrides the generated MASTER.md recommendations for the app.
-UI UX Pro Max's flat design, restrained motion and progress guidance apply. Its
-marketing hero/video layout and orange/teal palette do not fit this utility.
+This page overrides the generated MASTER.md. UI UX Pro Max's Glassmorphism style
+lookup informed material fallbacks and contrast checks. The user refined the
+brief on 2026-09-29: fewer words, a calmer palette, better icons/type/motion and
+an experience as direct as [cobalt.tools](https://cobalt.tools/).
 
-## Identity
+## Identity and composition
 
-Quiet, precise, useful. An editorial utility workspace with generous breathing
-room, thin rules, warm white canvas, dark olive text and one evergreen action color.
-No decorative gradients, glass panels, fake metrics, testimonials or landing-page
-sections. Make the URL action the first useful element.
+The logo is **OpenDownload.**, with one colored period and no pictogram. Keep it
+LTR in both locales. A quiet header contains the wordmark, language, theme and
+Help. Two small tabs switch between New download and Downloads. The main surface
+is a single centered link field with a Paste button. No marketing headline,
+visible stepper, platform inventory or repeated instructions.
+
+Analysis results appear only when needed. Display the real media title, available
+media types and actual quality/container/size choices. Codec details remain in
+radio labels for assistive technology. Keep explanatory detail in Help, not the
+main flow. Downloads only appear in the Downloads view.
 
 ## Tokens
 
-| Token          | Light   | Dark    |
-| -------------- | ------- | ------- |
-| Canvas         | #f6f7f3 | #121711 |
-| Surface        | #ffffff | #1a2119 |
-| Text           | #202b22 | #eef2eb |
-| Secondary text | #59655b | #a7b3a6 |
-| Border         | #dce3d9 | #354132 |
-| Primary        | #28613e | #a2d4a5 |
-| Primary text   | #ffffff | #142719 |
-| Subtle primary | #eaf1e7 | #253826 |
-| Error          | #a52b2b | #ffa6a6 |
-| Focus          | #337348 | #b8dfad |
+| Token | Light | Dark |
+| --- | --- | --- |
+| Canvas | #f4f4f6 | #141418 |
+| Solid surface | #fdfdfe | #222228 |
+| Text | #26272d | #ededf1 |
+| Secondary text | #656570 | #a5a4b0 |
+| Primary | #5b57c9 | #b6afff |
+| Primary text | #ffffff | #25213e |
+| Secondary | #eae9f7 | #34313f |
+| Secondary text on tint | #514ca6 | #c8c1ff |
+| Border | #d6d6df | #41414c |
+| Focus | #6963dc | #b6afff |
+| Error | #af3650 | #f4a0af |
+| Success | #2e7060 | #95cfb7 |
 
-Typography: locally bundled Geist Sans (body/display) and Geist Mono (technical
-metadata). Body 16/24; secondary 13/20; title clamp(32, 4vw, 48)/1.12, -0.045em.
-Tabular numerals for progress. Never fetch fonts from Google at page load.
+Glass: white at 68% light / rgb(36,36,43) at 76% dark; blur 16px, a fine edge and
+soft shadow. One faint violet halo provides depth. Use glass on the composer,
+results and job list; the header and navigation have no glass boxes. Solid cards
+are the fallback for unsupported blur and reduced transparency. No animated
+filters or decorative continuous motion.
 
-Spacing: 4, 8, 12, 16, 24, 32, 48, 64. Desktop rail 230, main content max 1000.
-Radius: controls 8, cards 14, pills 999. One subtle raised form shadow.
+Geist Sans for English and the wordmark, Geist Mono for technical values. IBM
+Plex Sans Arabic 400/500/600 is bundled locally as WOFF2, with its OFL. Arabic
+body line-height 1.6; no decorative tracking. Input 17px desktop / 16px mobile;
+controls 14px, captions 12px, brand 20/23px (18px on narrow phones).
 
-## Layout
+Shell max 1040px; tool max 620px. Desktop gutters 32px, mobile 20px (14px below
+360px). Panel radius 22px, actions 14–16px. All interactive targets at least 44px;
+primary actions 48px. On mobile the download action spans the panel width.
 
-Desktop: left utility rail with brand, workspace/downloads/help, and self-host info.
-Main header with source status and theme switch. Central URL form and horizontal
-source chips. Below: stable media selection panel or helpful first-use steps.
-Completed/active jobs use compact rows; empty state is purposeful, not fake data.
+## Interaction contract
 
-Mobile: header replaces rail; 16–20px margins; navigation has text labels; input
-and submit stack; quality cards remain large targets; no horizontal overflow.
-Test 375, 768, 1024, 1440. Respect safe-area insets.
+- Clicking Paste or pasting a complete valid URL initiates analysis immediately.
+  This is a deliberate paste action; typing never makes background requests.
+  Enter/the arrow submits typed links. Clipboard denial gives keyboard recovery
+  and focuses the input. Each replacement cancels the previous analysis.
+- Loading shows a small skeleton and one short status. Cancellation stays visible.
+  Results focus their region, with a useful format already selected. Download
+  remains a deliberate action; no fabricated presets or automatic queued files.
+- Creating a job opens Downloads and focuses the main region. Actual progress,
+  retries, failures, expiry and Save to device remain visible. New download and
+  the slash shortcut return focus to the link field.
+- English/Arabic and theme preferences persist without storing URLs. Render both
+  on the server. URL/file/codec fields remain bidi-safe and URLs stay LTR.
+- Messages are short, calm and original: “One moment. Finding your formats…”,
+  “Your file is ready”, “ملفك في الطريق…”. Errors include a useful next action.
+  Access boundaries and fixture identity always remain explicit where relevant.
 
-## States and interactions
+## Motion and icons
 
-Detect locally as URL changes; display a factual source hint. Explicit Analyze
-avoids sending pasted data without intent. Errors sit next to the form. A canceled
-analysis aborts the request. Metadata reveal uses 180ms fade/6px translation;
-format selection updates immediately with clear selected state. Queue status has
-unknown-progress handling, separate processing phase and explicit cancellation.
-Show expiry beside completed files and surface storage deletion.
+Phosphor Icons 2.1.10 supplies the core controls, with duotone media/clipboard/theme
+icons and plain action arrows/checks. Import individual CSR modules to avoid
+loading the entire catalog. shadcn primitives retain their small utility icons.
 
-Motion: hover colors 140ms, panel enter 200ms, progress interpolation 220ms.
-Animate transform/opacity, not layout. No infinite decorative effects. Disable
-motion under prefers-reduced-motion. No mandatory motion library.
+Panel/view entrance: opacity and 8px translate over 340ms using
+cubic-bezier(0.16,1,0.3,1). Selected check: 220ms; tab marker: 240ms; pressed controls
+scale to 0.97; progress interpolates over 360ms. Dialog/overlay entrance uses
+260/180ms. No animation changes actual progress or delays a request. Reduced
+motion disables all transitions/animations. Skeleton bars stay static.
 
-Accessibility: native forms and labelled controls, 44px targets, visible 2px focus,
-screen-reader status announcements only on meaningful changes, keyboard dialogs,
-errors with recovery actions, selected states shown with text/icons as well as color.
-Contrast/reflow checks required; do not claim WCAG certification.
+## Verification
 
-## Arabic and direction
+Review English/Arabic, both themes, 320–1440px reflow, short landscape dialogs,
+keyboard focus and local fonts. Production browser gates cover clipboard/native
+paste, denied clipboard recovery, typed Enter, preference persistence and the
+complete analysis/download/save/delete flow. Calculate contrast on composed
+surfaces. This is a development review, not WCAG certification.
 
-English and Arabic are selectable in the header. The preference persists in a
-language-only cookie and sets the initial document language/direction on reload.
-Use local Noto Sans Arabic for Arabic body/headings, normal letter spacing and
-1.7 body line height; small Arabic captions have a 12px minimum. Keep the Latin
-brand in Geist. The rail moves to the right using logical spacing/borders.
-
-URLs stay LTR. Isolate titles, platform names, filenames and codec/quality values
-with `bdi`/explicit direction; use Unicode isolation only where accessibility
-labels cannot contain markup. Mirror directional arrows, not media icons.
-Dialogs scroll within the viewport. Verify Arabic keyboard selection, focus
-restoration, short landscape viewports, light/dark themes and 375–1440px reflow.
+The supported-sites disclosure sits below Paste, collapsed by default. It lists
+extractor source hints with monochrome icons, direct public links and a short
+availability/photo-gallery limitation. It is keyboard operable as native details.

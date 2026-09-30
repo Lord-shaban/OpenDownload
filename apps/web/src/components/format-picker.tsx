@@ -1,14 +1,12 @@
 "use client";
 import Image from "next/image";
-import {
-  Check,
-  Film,
-  Headphones,
-  ImageIcon,
-  Subtitles,
-  ArrowDownToLine,
-  Clock3,
-} from "lucide-react";
+import { CheckIcon as Check } from "@phosphor-icons/react/dist/csr/Check";
+import { FilmStripIcon as Film } from "@phosphor-icons/react/dist/csr/FilmStrip";
+import { HeadphonesIcon as Headphones } from "@phosphor-icons/react/dist/csr/Headphones";
+import { ImagesIcon as ImageIcon } from "@phosphor-icons/react/dist/csr/Images";
+import { SubtitlesIcon as Subtitles } from "@phosphor-icons/react/dist/csr/Subtitles";
+import { DownloadSimpleIcon as ArrowDownToLine } from "@phosphor-icons/react/dist/csr/DownloadSimple";
+import { ClockIcon as Clock3 } from "@phosphor-icons/react/dist/csr/Clock";
 import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { type Analysis, type Option } from "@/lib/api";
@@ -43,15 +41,21 @@ export function FormatPicker({
     analysis.options.some((option) => option.kind === kind.id),
   );
   const current = selected?.kind || available[0]?.id;
+  const PreviewIcon = available[0]?.icon || Film;
   return (
     <section
       aria-label={t("availableMedia")}
-      className="panel-enter overflow-hidden rounded-2xl border bg-card"
+      className="panel-enter glass-panel format-panel"
     >
-      <div className="flex gap-5 border-b p-5 sm:p-6">
-        <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary sm:size-24">
+      <div className="media-summary">
+        <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary sm:size-16">
           {fixture || !analysis.hasThumbnail ? (
-            <Film size={32} className="text-primary" aria-hidden="true" />
+            <PreviewIcon
+              weight="duotone"
+              size={24}
+              className="text-primary"
+              aria-hidden="true"
+            />
           ) : (
             <Image
               src={`/api/v1/analyses/${analysis.id}/thumbnail`}
@@ -74,10 +78,10 @@ export function FormatPicker({
               <bdi>{displayText(analysis.platform)}</bdi>
             )}
           </div>
-          <h2 className="text-lg leading-snug font-medium tracking-tight sm:text-xl">
+          <h2 className="text-base leading-snug font-medium tracking-tight">
             <bdi>{displayText(analysis.title)}</bdi>
           </h2>
-          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             <bdi>{displayText(analysis.creator)}</bdi>
             {analysis.duration > 0 ? (
               <span className="inline-flex items-center gap-1.5">
@@ -90,7 +94,7 @@ export function FormatPicker({
       </div>
       <div className="p-5 sm:p-6">
         <div
-          className="mb-5 flex flex-wrap gap-1 rounded-lg bg-muted p-1"
+          className="media-tabs mb-5 flex flex-wrap gap-1 p-1"
           role="group"
           aria-label={t("mediaType")}
         >
@@ -105,9 +109,9 @@ export function FormatPicker({
                 if (first) onSelect(first);
               }}
               aria-pressed={current === kind.id}
-              className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium ${current === kind.id ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[10px] px-3 text-sm font-medium ${current === kind.id ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
-              <kind.icon size={16} aria-hidden="true" />
+              <kind.icon weight="duotone" size={16} aria-hidden="true" />
               {t(kind.label)}
             </button>
           ))}
@@ -123,18 +127,17 @@ export function FormatPicker({
                     ? t("captionLanguage")
                     : t("imageFormat")}
             </span>
-            <span className="font-normal">{t("fromSource")}</span>
           </legend>
           <div className="grid gap-2 sm:grid-cols-2">
             {analysis.options
               .filter((option) => option.kind === current)
-              .map((option, index) => {
+              .map((option) => {
                 const checked = selected?.id === option.id;
                 const tooLarge = (option.bytes || 0) > maxBytes;
                 return (
                   <label
                     key={option.id}
-                    className={`relative flex min-h-[78px] cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${checked ? "border-primary bg-secondary" : "hover:border-primary/40"} ${tooLarge ? "opacity-50" : ""}`}
+                    className={`format-option relative flex min-h-[64px] cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${checked ? "border-primary bg-secondary" : "hover:border-primary/40"} ${tooLarge ? "opacity-50" : ""}`}
                   >
                     <input
                       className="sr-only"
@@ -148,16 +151,12 @@ export function FormatPicker({
                     <span className="min-w-0 flex-1">
                       <span className="flex flex-wrap items-center gap-2 text-sm font-semibold">
                         <bdi>{mediaLabel(option.label, locale)}</bdi>
-                        {index === 0 && current === "video" ? (
-                          <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium tracking-wide text-primary">
-                            {t("bestAvailable")}
-                          </span>
-                        ) : null}
                       </span>
-                      <span className="mt-1 block text-[11px] text-muted-foreground">
+                      <span className="sr-only">
                         <bdi>{mediaDetail(option.detail, locale)}</bdi>
                       </span>
-                      <span className="mt-1 block font-mono text-[10px] text-muted-foreground">
+                      <span className="mt-2 block font-mono text-xs text-muted-foreground">
+                        <bdi>{option.extension.toUpperCase()}</bdi> ·{" "}
                         {tooLarge
                           ? t("exceedsLimit")
                           : formatBytes(option.bytes)}
@@ -166,7 +165,13 @@ export function FormatPicker({
                     <span
                       className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${checked ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
                     >
-                      {checked ? <Check size={12} aria-hidden="true" /> : null}
+                      {checked ? (
+                        <Check
+                          size={12}
+                          className="selection-check"
+                          aria-hidden="true"
+                        />
+                      ) : null}
                     </span>
                   </label>
                 );
@@ -174,10 +179,12 @@ export function FormatPicker({
           </div>
         </fieldset>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t bg-muted/30 px-5 py-4 sm:px-6">
-        <p className="max-w-[260px] text-xs leading-relaxed text-muted-foreground">
-          {fixture ? t("testFileExplanation") : t("temporaryExplanation")}
-        </p>
+      <div className="format-footer">
+        {fixture ? (
+          <p className="max-w-[260px] text-xs leading-relaxed text-muted-foreground">
+            {t("testFileExplanation")}
+          </p>
+        ) : null}
         <Button
           className="min-h-11 gap-2 px-5"
           onClick={onQueue}

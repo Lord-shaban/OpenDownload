@@ -1,4 +1,9 @@
 import { Workspace } from "@/components/workspace";
-export default function Page() {
-  return <Workspace />;
+import { cookies } from "next/headers";
+export default async function Page() {
+  return (
+    <Workspace
+      initialDark={(await cookies()).get("od_theme")?.value === "dark"}
+    />
+  );
 }

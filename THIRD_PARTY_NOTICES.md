@@ -11,7 +11,8 @@ official [shadcn registry](https://ui.shadcn.com), downloaded on 2026-09-29.
 CLI installation failed in the workstation package-manager environment; only
 used components were copied through `scripts/sync-shadcn.py`. Imports and control
 target sizes, controlled dialog focus restoration, translated labels, logical
-placement and bounded dialog height were adapted. shadcn is licensed under MIT:
+placement, bounded dialog height and semantic destructive theme colors were
+adapted. shadcn is licensed under MIT:
 
 Copyright (c) 2023 shadcn
 
@@ -33,14 +34,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Noto Sans Arabic
+## IBM Plex Sans Arabic
 
-Unmodified variable font from the official
-[Google Fonts repository](https://github.com/google/fonts/tree/main/ofl/notosansarabic),
-retrieved on 2026-09-29. Font Git blob: `f1d01edce4ebaedcbe9a06fc75fec07b304ec3df`;
-license Git blob: `14c589f6384505ede3f8e52627d397513af3662d`.
+Unmodified Regular, Medium and SemiBold WOFF2 files from the official
+[IBM Plex repository](https://github.com/IBM/plex/tree/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-sans-arabic),
+retrieved on 2026-09-29 at commit `763c36ef9117782905ae010056dfbe8fd2653a25`.
+Copyright © 2017 IBM Corp. with Reserved Font Name "Plex".
+Licensed under SIL Open Font License 1.1. The full license ships in standalone/
+container assets at `apps/web/public/licenses/IBMPlexSansArabic-OFL.txt`.
 
-Copyright 2022 The Noto Project Authors (https://github.com/notofonts/arabic).
-Licensed under SIL Open Font License 1.1. The full license accompanies the font at
-`apps/web/src/app/fonts/OFL.txt` and is included in standalone/container assets at
-`apps/web/public/licenses/NotoSansArabic-OFL.txt`.
+## Phosphor Icons
+
+Core workspace controls use `@phosphor-icons/react` 2.1.10, from the official
+[Phosphor repository](https://github.com/phosphor-icons/react). Copyright (c) 2020
+Phosphor Icons. MIT; the full license is included in standalone/container assets
+at `apps/web/public/licenses/PhosphorIcons-MIT.txt`. Only individual icon modules
+are imported. No Cobalt artwork or source code was copied.

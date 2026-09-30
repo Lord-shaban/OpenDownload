@@ -1,18 +1,16 @@
 "use client";
-import {
-  Check,
-  CircleAlert,
-  Clock3,
-  Download,
-  Film,
-  Headphones,
-  ImageIcon,
-  LoaderCircle,
-  RotateCcw,
-  Subtitles,
-  Trash2,
-  X,
-} from "lucide-react";
+import { CheckIcon as Check } from "@phosphor-icons/react/dist/csr/Check";
+import { WarningCircleIcon as CircleAlert } from "@phosphor-icons/react/dist/csr/WarningCircle";
+import { ClockIcon as Clock3 } from "@phosphor-icons/react/dist/csr/Clock";
+import { DownloadSimpleIcon as Download } from "@phosphor-icons/react/dist/csr/DownloadSimple";
+import { FilmStripIcon as Film } from "@phosphor-icons/react/dist/csr/FilmStrip";
+import { HeadphonesIcon as Headphones } from "@phosphor-icons/react/dist/csr/Headphones";
+import { ImagesIcon as ImageIcon } from "@phosphor-icons/react/dist/csr/Images";
+import { CircleNotchIcon as LoaderCircle } from "@phosphor-icons/react/dist/csr/CircleNotch";
+import { ArrowCounterClockwiseIcon as RotateCcw } from "@phosphor-icons/react/dist/csr/ArrowCounterClockwise";
+import { SubtitlesIcon as Subtitles } from "@phosphor-icons/react/dist/csr/Subtitles";
+import { TrashIcon as Trash2 } from "@phosphor-icons/react/dist/csr/Trash";
+import { XIcon as X } from "@phosphor-icons/react/dist/csr/X";
 import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { type Job } from "@/lib/api";
@@ -42,7 +40,7 @@ export function JobList({
   const formatBytes = (value?: number) => bytes(value, locale);
   if (jobs.length === 0)
     return (
-      <div className="rounded-2xl border border-dashed bg-card/50 px-6 py-14 text-center">
+      <div className="glass-panel px-6 py-10 text-center">
         <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
           <Download size={22} aria-hidden="true" />
         </span>
@@ -53,10 +51,7 @@ export function JobList({
       </div>
     );
   return (
-    <ul
-      className="divide-y overflow-hidden rounded-2xl border bg-card"
-      aria-label={t("downloadJobs")}
-    >
+    <ul className="glass-panel overflow-hidden" aria-label={t("downloadJobs")}>
       {jobs.map((job) => {
         const Icon = mediaIcons[job.kind] || Film;
         const active = job.state === "queued" || job.state === "processing";
@@ -76,12 +71,12 @@ export function JobList({
                   ? t("canceled")
                   : t("inQueue");
         return (
-          <li key={job.id} className="p-4 sm:p-5">
+          <li key={job.id} className="job-card p-4 sm:p-5">
             <div className="flex items-start gap-3 sm:gap-4">
               <span
                 className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${job.state === "complete" ? "bg-secondary text-primary" : "bg-muted text-muted-foreground"}`}
               >
-                <Icon size={20} aria-hidden="true" />
+                <Icon weight="duotone" size={20} aria-hidden="true" />
               </span>
               <div className="min-w-0 flex-1">
                 <h3
@@ -90,7 +85,7 @@ export function JobList({
                 >
                   <bdi>{displayText(job.title)}</bdi>
                 </h3>
-                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                   <span>
                     {fixture ? (
                       t("testFixture")
@@ -118,7 +113,7 @@ export function JobList({
                   ) : null}
                 </div>
                 <div
-                  className={`mt-2 flex flex-wrap items-center gap-1.5 text-xs ${job.state === "failed" ? "text-destructive" : job.state === "complete" ? "text-primary" : "text-muted-foreground"}`}
+                  className={`mt-2 flex flex-wrap items-center gap-1.5 text-xs ${job.state === "failed" ? "text-destructive" : job.state === "complete" ? "text-success" : "text-muted-foreground"}`}
                 >
                   {job.state === "complete" ? (
                     <Check size={13} aria-hidden="true" />
@@ -135,7 +130,7 @@ export function JobList({
                   ) : null}
                   <span>{expired ? t("expired") : stateText}</span>
                   {job.state === "complete" && !expired ? (
-                    <span className="ms-2 text-[10px] text-muted-foreground">
+                    <span className="ms-2 text-xs text-muted-foreground">
                       {expiryLabel(job.expiresAt, now, locale)}
                     </span>
                   ) : null}
@@ -166,7 +161,7 @@ export function JobList({
                 ) : null}
                 {job.error ? (
                   <p className="mt-2 text-xs leading-5 text-destructive">
-                    {locale === "ar" ? t("jobFailure") : job.error}
+                    {t("jobFailure")}
                   </p>
                 ) : null}
               </div>

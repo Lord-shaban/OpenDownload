@@ -1,5 +1,6 @@
 "use client";
-import { ArrowUpRight, LockKeyhole } from "lucide-react";
+import { ArrowUpRightIcon as ArrowUpRight } from "@phosphor-icons/react/dist/csr/ArrowUpRight";
+import { LockKeyIcon as LockKeyhole } from "@phosphor-icons/react/dist/csr/LockKey";
 import { useLocale } from "@/components/locale-provider";
 import {
   Dialog,
@@ -40,7 +41,7 @@ export function HelpDialog({
           </div>
           <div className="rounded-xl bg-secondary p-4">
             <h3 className="flex items-center gap-2 font-medium text-primary">
-              <LockKeyhole size={16} aria-hidden="true" />
+              <LockKeyhole weight="duotone" size={16} aria-hidden="true" />
               {t("accessBoundary")}
             </h3>
             <p className="mt-2 text-xs leading-5 text-muted-foreground">

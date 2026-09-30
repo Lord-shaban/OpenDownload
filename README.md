@@ -3,7 +3,7 @@
 **A quieter way to save media.**
 
 [![CI](https://github.com/Lord-shaban/OpenDownload/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Lord-shaban/OpenDownload/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-28613e)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-505bd4)](LICENSE)
 
 Paste a public link. See what is actually available. Choose a format. Save it.
 
@@ -22,23 +22,32 @@ Development follows the [roadmap](docs/ROADMAP.md) and
 research are recorded in the repository. See [verification](docs/VERIFICATION.md)
 for the checks actually completed; planned checks are not claimed as passing.
 
-The M0–M4 development baseline has passed Linux CI, ten browser integration tests,
-Docker egress checks and a separate real MP4/MP3 smoke. English and Arabic/RTL are
-available; M5 still tracks gallery evaluation. No versioned release or published
-container image exists yet.
+The development baseline has passed Linux CI, Docker egress checks and a separate
+real MP4/MP3 smoke. The redesigned workspace passes twenty-two production browser
+tests on desktop/mobile, with English, Arabic/RTL and persistent light/dark themes.
+An owned public JPEG also passed a real download/range/delete smoke. M5 still
+tracks gallery integration. No versioned release or published container image
+exists yet.
 Changes follow a [protected-branch PR workflow](docs/GITHUB_WORKFLOW.md).
 
-![OpenDownload workspace development preview](docs/assets/workspace.png)
+![OpenDownload glass workspace, English light theme](docs/assets/workspace-glass-en-light.jpg)
+
+[Arabic dark preview](docs/assets/workspace-glass-ar-dark.jpg) ·
+[Arabic mobile preview](docs/assets/workspace-glass-ar-mobile.jpg) ·
+[Supported sites on mobile](docs/assets/workspace-glass-sites-mobile.jpg)
 
 ## Focus
 
-- Detect the source while you type; analyze only when you ask.
+- Paste to analyze immediately, or type a link and press Enter.
+- Choose a real format and download in a minimal glass workspace.
+- Open a compact supported-sites list when you need it.
 - Select source video qualities or audio conversion, thumbnails, and subtitles.
 - Queue processing, inspect progress, cancel, retry, and stream the saved file.
 - Keep jobs across restarts. Interruptions become explicit failures you can retry.
 - Keep files temporarily with a visible expiry; delete them on request.
 - Respect public access boundaries and retain embedded watermarks.
 - Switch between English and Arabic, with keyboard access and RTL layout.
+- Keep your light/dark theme on reload; respect reduced motion and transparency.
 - Support public direct images and extractor-provided image collections; see
   [capabilities](docs/CAPABILITIES.md) for the limits of image extraction.
 
