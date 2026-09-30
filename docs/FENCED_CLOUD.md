@@ -95,9 +95,16 @@ must not be passed into this container.
 
 The Free account inspected on 2026-09-30 provides five apps, 512 MB reserved
 memory and 10 GB storage, with one background part. This profile uses one web
-part. The provider's sandbox allowed a preliminary user/network namespace probe;
-the complete image still requires deployment verification before being called
-live. Free apps sleep after two hours without visitors and wake on the next
+part. The complete image was deployed and verified on 2026-09-30 at
+[opendownload.lord.blitz.cloud](https://opendownload.lord.blitz.cloud/), initially
+at commit `da66d4e276f92c79937b58ba2992424c4e59aec2`. Its readiness endpoint
+reported real mode, FFmpeg and yt-dlp available. The owned two-second sample
+produced a byte-identical 25,532-byte MP4 and a decodable 50,302-byte MP3.
+Live checks also verified cancellation, owner isolation, HTTP ranges, private
+target refusal and expired media returning 404 after the 15-minute retention.
+An image downloaded through the Arabic UI survived a deployment restart.
+Issue #22 records subsequent deployment commits and verification evidence.
+Free apps sleep after two hours without visitors and wake on the next
 visit. Free stored files do not receive the Pro nightly file backup. No paid
 plan, keep-awake option, trial or custom-domain purchase is required.
 
