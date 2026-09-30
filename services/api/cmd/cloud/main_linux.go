@@ -287,7 +287,7 @@ func worker(ctx context.Context) error {
 				return
 			}
 		}
-		if err := browserEgressCheck(r.Context()); err != nil {
+		if err := browserEgressCheck(ctx); err != nil {
 			http.Error(w, "browser egress check failed", 500)
 			return
 		}
