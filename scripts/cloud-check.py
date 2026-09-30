@@ -71,7 +71,7 @@ try:
     docker("run", "--detach", "--name", name, "--publish", "127.0.0.1:3003:3000",
            "--user", "10001:10001", "--cap-drop", "ALL", "--read-only",
            "--security-opt", "no-new-privileges:true", "--security-opt", "seccomp:unconfined",
-           "--security-opt", "apparmor:opendownload-cloud", "--pids-limit", "192", "--memory", "512m",
+           "--security-opt", "apparmor:opendownload-cloud", "--pids-limit", "192", "--memory", "512m", "--cpus", "0.5",
            "--tmpfs", "/tmp:size=64m,uid=10001,gid=10001", "--env", "OD_ORIGIN=" + base,
            "--env", "OD_FIXTURE_MODE=true", "--mount", "type=volume,src=" + volume + ",dst=/data",
            "opendownload-cloud:check")
