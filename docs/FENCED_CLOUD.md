@@ -8,7 +8,8 @@ fixture-only preview are separate profiles.
 
 `deploy/Dockerfile.cloud` runs the outer supervisor as UID/GID 10001. It starts
 the API, Next.js, yt-dlp and FFmpeg inside an unprivileged Linux user/network
-namespace with only loopback and no external route. Startup checks the namespace
+namespace with only loopback and no external route, plus a PID namespace to
+clean up descendants if the worker dies. Startup checks the namespace
 identity, interfaces and a denied direct TCP connection. If namespace creation
 or real dependency readiness fails, the public listener stays closed. There is
 no fallback to fixture mode, a shared network or a privileged container.
@@ -23,7 +24,8 @@ Private Unix sockets in a mode-0700 directory carry:
 - A private isolation diagnostic used by container checks; it is not web routed.
 
 The process supervisor terminates API/web when either fails. Process groups
-handle normal cancellation and shutdown. This shares a container and filesystem
+handle normal cancellation and shutdown; broker/bridge failures stop the profile.
+This shares a container and filesystem
 between application components; it does not claim a separate VM per download or
 protection from a complete application/container compromise. Do not mount host
 credentials, Docker sockets or unrelated data. See [THREAT_MODEL.md](THREAT_MODEL.md).

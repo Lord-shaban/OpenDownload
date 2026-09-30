@@ -127,7 +127,7 @@ print('Isolated worker denies direct internet and private proxy destinations.')
         api("/jobs/" + job_id, method="DELETE")
         refused(path)
     # Removing namespace tooling must fail closed before any public listener.
-    failed = docker("run", "--detach", "--name", name + "-failure", "--env", "PATH=/missing",
+    failed = docker("run", "--detach", "--name", name + "-failure", "--entrypoint", "/usr/local/bin/opendownload-cloud", "--env", "PATH=/missing",
                     "opendownload-cloud:check")
     assert docker("wait", failed) == "1"
     logs = docker("logs", failed)

@@ -70,7 +70,7 @@ func listen(network, address string) (net.Listener, error) {
 }
 
 // Bound connection count, lifetime and shutdown for both TCP/Unix bridges.
-func bridge(ctx context.Context, network, address, targetNetwork, target string) (net.Listener, error) {
+func bridge(ctx context.Context, network, address, targetNetwork, target string, stop context.CancelFunc) (net.Listener, error) {
 	l, err := listen(network, address)
 	if err != nil {
 		return nil, err
@@ -81,6 +81,10 @@ func bridge(ctx context.Context, network, address, targetNetwork, target string)
 		for {
 			client, err := l.Accept()
 			if err != nil {
+				if ctx.Err() == nil {
+					slog.Error("cloud bridge stopped", "address", address, "error", err)
+					stop()
+				}
 				return
 			}
 			select {
@@ -122,7 +126,7 @@ func bridge(ctx context.Context, network, address, targetNetwork, target string)
 	return l, nil
 }
 
-func serveSocket(ctx context.Context, name string, handler http.Handler) error {
+func serveSocket(ctx context.Context, name string, handler http.Handler, stop context.CancelFunc) error {
 	l, err := listen("unix", filepath.Join(socketDir, name))
 	if err != nil {
 		return err
@@ -132,7 +136,7 @@ func serveSocket(ctx context.Context, name string, handler http.Handler) error {
 	go func() {
 		if err := s.Serve(l); err != nil && !errors.Is(err, http.ErrServerClosed) && ctx.Err() == nil {
 			slog.Error("cloud socket stopped", "socket", name, "error", err)
-			// The caller's worker checks broker availability and never falls back.
+			stop()
 		}
 	}()
 	return nil
@@ -181,10 +185,10 @@ func host(ctx context.Context) error {
 	if err := os.MkdirAll(socketDir, 0700); err != nil {
 		return err
 	}
-	if err := serveSocket(ctx, "egress.sock", security.NewProxy(security.Policy{})); err != nil {
+	if err := serveSocket(ctx, "egress.sock", security.NewProxy(security.Policy{}), stop); err != nil {
 		return err
 	}
-	if err := serveSocket(ctx, "resolver.sock", security.ResolverHandler(security.Policy{})); err != nil {
+	if err := serveSocket(ctx, "resolver.sock", security.ResolverHandler(security.Policy{}), stop); err != nil {
 		return err
 	}
 	before, err := namespace()
@@ -192,7 +196,7 @@ func host(ctx context.Context) error {
 		return err
 	}
 	// No fallback to a shared network, host networking, or privileged mode.
-	cmd := exec.Command("unshare", "--user", "--map-root-user", "--net", "--", "sh", "-c", "ip link set lo up && exec /usr/local/bin/opendownload-cloud worker")
+	cmd := exec.Command("unshare", "--user", "--map-root-user", "--net", "--pid", "--fork", "--mount-proc", "--kill-child=SIGTERM", "--", "sh", "-c", "ip link set lo up && exec /usr/local/bin/opendownload-cloud worker")
 	cmd.Env = append(os.Environ(), "OD_CLOUD_HOST_NS="+before)
 	return managed(ctx, cmd, func(done <-chan struct{}) error {
 		client := &http.Client{Timeout: 2 * time.Second, Transport: &http.Transport{DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
@@ -217,7 +221,7 @@ func host(ctx context.Context) error {
 				decodeErr := json.NewDecoder(io.LimitReader(resp.Body, 16384)).Decode(&status)
 				_ = resp.Body.Close()
 				if resp.StatusCode == 200 && decodeErr == nil && status.Ready && !status.FixtureMode && status.Dependencies["ytDlp"] && status.Dependencies["ffmpeg"] {
-					_, err = bridge(ctx, "tcp", "0.0.0.0:3000", "unix", filepath.Join(socketDir, "web.sock"))
+					_, err = bridge(ctx, "tcp", "0.0.0.0:3000", "unix", filepath.Join(socketDir, "web.sock"), stop)
 					if err == nil {
 						slog.Info("real cloud downloads ready", "port", 3000)
 					}
@@ -279,13 +283,13 @@ func worker(ctx context.Context) error {
 			}
 		}
 		_, _ = fmt.Fprintln(w, "direct egress denied")
-	})); err != nil {
+	}), stop); err != nil {
 		return err
 	}
-	if _, err := bridge(ctx, "tcp", "127.0.0.1:8090", "unix", filepath.Join(socketDir, "egress.sock")); err != nil {
+	if _, err := bridge(ctx, "tcp", "127.0.0.1:8090", "unix", filepath.Join(socketDir, "egress.sock"), stop); err != nil {
 		return err
 	}
-	if _, err := bridge(ctx, "unix", filepath.Join(socketDir, "web.sock"), "tcp", "127.0.0.1:3001"); err != nil {
+	if _, err := bridge(ctx, "unix", filepath.Join(socketDir, "web.sock"), "tcp", "127.0.0.1:3001", stop); err != nil {
 		return err
 	}
 	return managed(ctx, exec.Command("node", "deploy/cloud-server.mjs"), nil)

@@ -37,3 +37,13 @@ redirect to private target, direct extractor egress denial, cancellation of
 FFmpeg descendants, disk pressure, and concurrent delete/serve behavior.
 See verification for which checks have actually run. Container configuration
 alone is not evidence of successful isolation.
+
+The [single-container cloud profile](FENCED_CLOUD.md) instead places the API,
+web and extraction tools inside an unprivileged user/network/PID namespace.
+Only loopback is configured. Ingress, guarded proxy traffic and validated DNS
+cross private Unix sockets; the proxy is not published. Unsupported namespace
+runtimes fail closed before opening the public port. Components share a
+filesystem and one runtime sandbox; this is not per-job VM isolation. The cloud
+media admission budget and watchdog do not replace a disk quota or public
+traffic monitoring. See its container check and live evidence before treating
+a provider's preliminary namespace probe as deployment verification.

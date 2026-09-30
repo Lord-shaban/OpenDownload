@@ -29,7 +29,7 @@ func TestBridgeStreamsAndClosesOnCancellation(t *testing.T) {
 		defer c.Close()
 		_, _ = io.Copy(c, c)
 	}()
-	listener, err := bridge(ctx, "tcp", "127.0.0.1:0", "unix", target)
+	listener, err := bridge(ctx, "tcp", "127.0.0.1:0", "unix", target, cancel)
 	if err != nil {
 		t.Fatal(err)
 	}
