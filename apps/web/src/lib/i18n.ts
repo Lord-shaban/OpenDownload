@@ -310,6 +310,26 @@ export const messages = {
     "Couldn't reach public media here. Check the post link or try again later.",
     "لم نصل إلى وسائط عامة هنا. جرّب رابط المنشور نفسه أو حاول لاحقًا.",
   ],
+  platformVerificationRequired: [
+    "The source platform asks this server to verify it's human. Your link may be public, but downloading it here is currently unavailable.",
+    "المنصة تطلب من خادم التنزيل تحققًا بشريًا. رابطك قد يكون عامًا، لكن تنزيله من هذا الخادم غير متاح حاليًا.",
+  ],
+  upstreamForbidden: [
+    "The source platform refused this server's request. Your link may still be public.",
+    "المنصة رفضت طلب خادم التنزيل. هذا لا يعني أن رابطك خاص.",
+  ],
+  upstreamRateLimited: [
+    "The source platform paused requests from this server. Try again later.",
+    "المنصة أوقفت طلبات هذا الخادم مؤقتًا. حاول لاحقًا.",
+  ],
+  sourceAccessDenied: [
+    "This media requires sign-in or has an access restriction. Use publicly accessible media.",
+    "هذه الوسائط تتطلب تسجيل دخول أو عليها قيود وصول. استخدم وسائط متاحة للعامة.",
+  ],
+  sourceConnectionFailed: [
+    "This server couldn't connect to the source. The problem is the server connection, not the shape of your link.",
+    "تعذر اتصال خادم التنزيل بالمصدر. المشكلة في اتصال الخادم، وليست في شكل رابطك.",
+  ],
   analysisExpired: [
     "This analysis expired. Analyze the link again.",
     "انتهت صلاحية التحليل. حلّل الرابط مجددًا.",

@@ -49,6 +49,22 @@ describe("locale contracts", () => {
       ),
     ).toBe("الوقت المتبقي: 1 د");
   });
+  it("distinguishes server refusals from restricted content in both languages", () => {
+    for (const locale of ["ar", "en"] as const) {
+      for (const [code, key] of [
+        ["platform_verification_required", "platformVerificationRequired"],
+        ["upstream_forbidden", "upstreamForbidden"],
+        ["upstream_rate_limited", "upstreamRateLimited"],
+        ["source_access_denied", "sourceAccessDenied"],
+        ["source_connection_failed", "sourceConnectionFailed"],
+      ] as const) {
+        const message = errorMessage(new ApiError(code, "private diagnostic token=secret"), locale);
+        expect(message).toBe(translate(locale, key));
+        expect(message).not.toContain("secret");
+        expect(message).not.toBe(translate(locale, "sourceUnavailable"));
+      }
+    }
+  });
   it("rejects raw and encoded bidi controls without rejecting Arabic URLs", () => {
     for (const control of ["\u202e", "\u2066", "\u200f", "\u061c"]) {
       expect(

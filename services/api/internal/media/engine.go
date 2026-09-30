@@ -87,7 +87,19 @@ func extractError(ctx context.Context, stderr []byte) error {
 		return errors.New("analysis or processing was canceled or timed out")
 	}
 	msg := strings.ToLower(string(stderr))
-	if strings.Contains(msg, "sign in") || strings.Contains(msg, "login") || strings.Contains(msg, "private") || strings.Contains(msg, "drm") || strings.Contains(msg, "403") || strings.Contains(msg, "bot") {
+	if strings.Contains(msg, "tunnel connection failed") || strings.Contains(msg, "unable to connect to proxy") {
+		return ErrSourceConnection
+	}
+	if strings.Contains(msg, "not a bot") || strings.Contains(msg, "verify you are human") {
+		return ErrPlatformVerification
+	}
+	if strings.Contains(msg, "http error 429") || strings.Contains(msg, "too many requests") {
+		return ErrUpstreamRateLimit
+	}
+	if strings.Contains(msg, "http error 403") || strings.Contains(msg, "403 forbidden") || strings.Contains(msg, "403: forbidden") {
+		return ErrUpstreamForbidden
+	}
+	if strings.Contains(msg, "sign in") || strings.Contains(msg, "log in") || strings.Contains(msg, "login") || strings.Contains(msg, "private video") || strings.Contains(msg, "drm") {
 		return ErrAccess
 	}
 	if strings.Contains(msg, "unsupported url") {
