@@ -231,7 +231,20 @@ func (s *Server) analyze(w http.ResponseWriter, r *http.Request) {
 			problem(w, 504, "analysis_timeout", "Analysis took too long or was canceled. Try a shorter public link.")
 			return
 		}
-		problem(w, 422, "source_unavailable", err.Error())
+		switch {
+		case errors.Is(err, media.ErrPlatformVerification):
+			problem(w, 503, "platform_verification_required", media.ErrPlatformVerification.Error())
+		case errors.Is(err, media.ErrUpstreamForbidden):
+			problem(w, 503, "upstream_forbidden", media.ErrUpstreamForbidden.Error())
+		case errors.Is(err, media.ErrUpstreamRateLimit):
+			problem(w, 503, "upstream_rate_limited", media.ErrUpstreamRateLimit.Error())
+		case errors.Is(err, media.ErrSourceConnection):
+			problem(w, 503, "source_connection_failed", media.ErrSourceConnection.Error())
+		case errors.Is(err, media.ErrAccess):
+			problem(w, 422, "source_access_denied", media.ErrAccess.Error())
+		default:
+			problem(w, 422, "source_unavailable", err.Error())
+		}
 		return
 	}
 	a.ID = jobs.ID()
