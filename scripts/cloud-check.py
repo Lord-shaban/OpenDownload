@@ -27,9 +27,12 @@ def call(path, body=None, method=None, opener=client, headers=None):
 
 
 def api(path, body=None, method=None):
-    with call("/api/v1" + path, body, method) as response:
-        data = response.read()
-        return json.loads(data) if data else None
+    try:
+        with call("/api/v1" + path, body, method) as response:
+            data = response.read()
+            return json.loads(data) if data else None
+    except urllib.error.HTTPError as error:
+        raise AssertionError(f"API {path} failed: {error.code} {error.read(2048).decode()}") from error
 
 
 def ready():
