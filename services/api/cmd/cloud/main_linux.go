@@ -249,8 +249,11 @@ func isolation() error {
 		return errors.New("worker PID namespace was not changed")
 	}
 	interfaces, err := net.Interfaces()
-	if err != nil || len(interfaces) != 1 || interfaces[0].Flags&net.FlagLoopback == 0 {
-		return errors.New("worker must have only the loopback interface")
+	if err != nil {
+		return errors.New("worker interfaces could not be inspected")
+	}
+	if err := isolatedInterfaces(interfaces, func(iface net.Interface) ([]net.Addr, error) { return iface.Addrs() }); err != nil {
+		return err
 	}
 	conn, err := net.DialTimeout("tcp", "1.1.1.1:443", time.Second)
 	if err == nil {
