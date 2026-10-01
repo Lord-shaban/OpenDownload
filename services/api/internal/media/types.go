@@ -2,6 +2,7 @@ package media
 
 import (
 	"context"
+	"time"
 )
 
 type Option struct {
@@ -31,6 +32,10 @@ type Analysis struct {
 	Thumbnail    string   `json:"-"`
 	HasThumbnail bool     `json:"hasThumbnail"`
 	Owner        string   `json:"-"`
+	// Server-owned, short-lived metadata; never serialized or accepted from clients.
+	extractorSnapshot []byte
+	snapshotSource    string
+	snapshotExpires   time.Time
 }
 
 type Progress struct {

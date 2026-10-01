@@ -2,6 +2,7 @@ package media
 
 import (
 	"archive/zip"
+	"bytes"
 	"context"
 	"crypto/rsa"
 	"encoding/json"
@@ -28,6 +29,8 @@ type YTDLP struct {
 	Client        *http.Client
 	youtubeSlots  chan struct{}
 	diagnosticKey *rsa.PublicKey
+	snapshotMu    sync.Mutex
+	snapshots     []youtubeSnapshot
 }
 
 func NewYTDLP(binary, proxy string, max int64) (*YTDLP, error) {
@@ -144,6 +147,12 @@ func (e *YTDLP) Analyze(ctx context.Context, source string) (Analysis, error) {
 		return Analysis{}, err
 	}
 	defer release()
+	if err := ctx.Err(); err != nil {
+		return Analysis{}, err
+	}
+	if a, ok := e.cachedYouTubeSnapshot(source); ok {
+		return a, nil
+	}
 	args := append(e.common(), "--dump-single-json", "--skip-download", "--", source)
 	cmd := command(ctx, e.Binary, args...)
 	cleanup, err := youtubeScratch(cmd, source)
@@ -163,7 +172,16 @@ func (e *YTDLP) Analyze(ctx context.Context, source string) (Analysis, error) {
 	if json.Unmarshal(out.Bytes(), &info) != nil {
 		return Analysis{}, errors.New("the extractor returned invalid metadata")
 	}
-	return Normalize(info, source)
+	a, err := Normalize(info, source)
+	if err == nil && youtubeHost(strings.ToLower(u.Hostname())) && info.Extractor == "Youtube" {
+		if snapshot := makeYouTubeSnapshot(out.Bytes(), info, a); snapshot != nil {
+			a.extractorSnapshot = snapshot
+			a.snapshotSource = source
+			a.snapshotExpires = time.Now().Add(2 * time.Minute)
+			e.rememberYouTubeSnapshot(source, a)
+		}
+	}
+	return a, err
 }
 
 func extractError(ctx context.Context, stderr []byte) error {
@@ -316,8 +334,18 @@ func (e *YTDLP) Download(ctx context.Context, a Analysis, opt Option, dir string
 			args = append(args, "--merge-output-format", opt.Extension)
 		}
 	}
-	args = append(args, "--", a.URL)
+	useSnapshot := snapshotSupports(a, opt)
+	if useSnapshot {
+		// Read metadata on stdin; no token file, browser restart or implicit URL
+		// re-extraction. Expired/refused media still fails through the guarded proxy.
+		args = append(args, "--load-info-json", "-", "--impersonate", "chrome")
+	} else {
+		args = append(args, "--", a.URL)
+	}
 	cmd := command(ctx, e.Binary, args...)
+	if useSnapshot {
+		cmd.Stdin = bytes.NewReader(a.extractorSnapshot)
+	}
 	cleanup, err := youtubeScratch(cmd, a.URL)
 	if err != nil {
 		return nil, err

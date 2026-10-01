@@ -90,7 +90,28 @@ assert r.status==200, r.read()
 assert b'direct egress denied' in r.read()
 print('Isolated worker denies direct internet and private proxy destinations.')
 """
+    reaping = """
+import pathlib, time
+deadline=time.monotonic()+5
+while True:
+    zombies=[]
+    for file in pathlib.Path('/proc').glob('[0-9]*/stat'):
+        try:
+            text=file.read_text()
+            comm=text.split('(',1)[1].rsplit(')',1)[0]
+            state=text.rsplit(')',1)[1].split()[0]
+            if state=='Z' and comm in ('chromium','chrome_crashpad'):
+                zombies.append(comm)
+        except (OSError, IndexError):
+            continue
+    if not zombies:
+        break
+    assert time.monotonic()<deadline, 'Browser zombies were not reaped inside the PID namespace'
+    time.sleep(0.1)
+print('Browser descendants were reaped inside the PID namespace.')
+"""
     docker("exec", name, "python3", "-c", check)
+    docker("exec", name, "python3", "-c", reaping)
     ports = json.loads(docker("inspect", "--format", "{{json .HostConfig.PortBindings}}", name))
     assert set(ports) == {"3000/tcp"}, ports
     assert docker("exec", name, "id", "-u") == "10001"
@@ -132,6 +153,7 @@ with tempfile.NamedTemporaryFile() as file:
     docker("start", name)
     ready()
     docker("exec", name, "python3", "-c", check)
+    docker("exec", name, "python3", "-c", reaping)
     for job_id, path, expected in saved:
         with call(path) as response:
             assert response.read() == expected, "Media or owner access did not survive restart"

@@ -36,6 +36,15 @@ cleans profiles when extraction stops. A private Linux container check verifies
 that Chromium cannot navigate directly to the API through localhost. This
 candidate is not yet proof that the reported YouTube URL works on the host.
 
+Successful YouTube HTTP-format analysis is reused for two minutes in a bounded
+in-memory snapshot cache (32 entries, at most 256 KiB each). Selected formats
+are loaded through yt-dlp's stdin, without another browser launch or metadata
+request. Only explicit media fields and non-credential headers are retained;
+signed URLs never appear in API responses or a token file. Unsupported protocols
+and subtitles keep their existing flow. Expired or refused media is not silently
+re-extracted from the snapshot. This reduces repeated extraction; it does not
+override upstream verification or rate limits.
+
 On 2026-09-30, the reported YouTube URL `https://youtu.be/2cUkUbB3Gu4`
 downloaded through the local real API without authentication but required human
 verification from the blitz.cloud server. SoundCloud's public NASA Quindar sound

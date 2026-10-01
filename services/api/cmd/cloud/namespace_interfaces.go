@@ -8,7 +8,7 @@ import (
 // Linux can create these fallback tunnel devices in a fresh network namespace
 // when their kernel modules are loaded. Accept only inert defaults; never an
 // active interface, address, unknown device or failure to inspect the namespace.
-// The caller still requires a changed network namespace, PID 1 and denied egress.
+// The caller still requires changed network/PID namespaces and denied egress.
 func isolatedInterfaces(interfaces []net.Interface, addresses func(net.Interface) ([]net.Addr, error)) error {
 	loopbacks := 0
 	for _, iface := range interfaces {

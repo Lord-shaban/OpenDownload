@@ -197,8 +197,9 @@ func host(ctx context.Context) error {
 	}
 	// No fallback to a shared network, host networking, or privileged mode.
 	// Keep Docker's existing /proc mount: its masked paths make a nested proc
-	// mount unavailable on ordinary engines. PID isolation still reaps children.
-	cmd := exec.Command("unshare", "--user", "--map-root-user", "--net", "--pid", "--fork", "--kill-child=SIGTERM", "--", "sh", "-c", "ip link set lo up && exec /usr/local/bin/opendownload-cloud worker")
+	// mount unavailable on ordinary engines. Tini must be PID 1 inside this new
+	// namespace too: the outer init cannot reap orphaned Chromium descendants here.
+	cmd := exec.Command("unshare", "--user", "--map-root-user", "--net", "--pid", "--fork", "--kill-child=SIGTERM", "--", "/usr/bin/tini", "--", "sh", "-c", "ip link set lo up && exec /usr/local/bin/opendownload-cloud worker")
 	cmd.Env = append(os.Environ(), "OD_CLOUD_HOST_NS="+before)
 	return managed(ctx, cmd, func(done <-chan struct{}) error {
 		client := &http.Client{Timeout: 2 * time.Second, Transport: &http.Transport{DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
@@ -245,7 +246,8 @@ func isolation() error {
 	if err != nil || current == os.Getenv("OD_CLOUD_HOST_NS") || os.Getenv("OD_CLOUD_HOST_NS") == "" {
 		return errors.New("worker network namespace was not changed")
 	}
-	if os.Getpid() != 1 {
+	// Tini is namespace PID 1; its shell execs the worker without changing PID 2.
+	if os.Getpid() != 2 || os.Getppid() != 1 {
 		return errors.New("worker PID namespace was not changed")
 	}
 	interfaces, err := net.Interfaces()

@@ -8,12 +8,16 @@ fixture-only preview are separate profiles.
 
 `deploy/Dockerfile.cloud` runs the outer supervisor as UID/GID 10001. It starts
 the API, Next.js, yt-dlp and FFmpeg inside an unprivileged Linux user/network
-namespace with only loopback and no external route, plus a PID namespace to
+namespace with only loopback active and no external route, plus a PID namespace to
 clean up descendants if the worker dies. Startup checks the namespace
 identity, interfaces and a denied direct TCP connection. If namespace creation
 or real dependency readiness fails, the public listener stays closed. There is
 no fallback to fixture mode, a shared network or a privileged container.
 
+Inactive, unaddressed Linux fallback devices `tunl0`, `sit0` and `ip6tnl0` are
+permitted; every other extra interface or inspection failure is rejected.
+Tini runs as PID 1 inside the worker namespace and reaps orphaned browser
+descendants. The worker must be its direct child, PID 2.
 The PID namespace controls process IDs and descendant cleanup. Docker's existing
 `/proc` mount is retained to avoid remounting its masked paths; process metadata
 for other components in the outer container can remain visible there. This
