@@ -56,6 +56,26 @@ assert importlib.metadata.version("yt-dlp-getpot-wpc") == "1.1.2"
 wpc = pathlib.Path(importlib.metadata.distribution("yt-dlp-getpot-wpc").locate_file(
     "yt_dlp_plugins/extractor/getpot_wpc.py"))
 text = wpc.read_text(encoding="utf8")
+mint_begin = text.index("async def mint_po_token(")
+mint_end = text.index("async def launch_browser(config):", mint_begin)
+mint_original = text[mint_begin:mint_end]
+assert hashlib.sha256(mint_original.encode()).hexdigest() == "b927ca298b3c4949ef35bbe3c285d06991ae914c5ab0814778596d367815829d", "Pinned WPC mint changed; review the patch."
+mint_patched = mint_original.replace("async def mint_po_token(", "async def _mint_po_token(", 1)
+mint_patched = mint_patched.replace("    webpo_client_path = await get_webpo_client_path(tab, logger)",
+    '    logger.debug("Guest attestation stage: client-lookup")\n    webpo_client_path = await get_webpo_client_path(tab, logger)', 1)
+mint_patched = mint_patched.replace("        po_token = await tab.evaluate(mint_po_token_code, await_promise=True)",
+    '        logger.debug("Guest attestation stage: mint-request")\n        po_token = await tab.evaluate(mint_po_token_code, await_promise=True)', 1)
+mint_patched += '''async def mint_po_token(tab, logger, content_binding, mint_cold_start_token=False, mint_error_token=False):
+    from opendownload_browser_session import mint_token
+    try:
+        return await mint_token(_mint_po_token, tab=tab, logger=logger, content_binding=content_binding,
+            mint_cold_start_token=mint_cold_start_token, mint_error_token=mint_error_token)
+    except asyncio.TimeoutError as error:
+        raise PoTokenProviderError('guest attestation timed out') from error
+
+
+'''
+text = text[:mint_begin] + mint_patched + text[mint_end:]
 begin = text.index("async def launch_browser(config):")
 end = text.index("@register_provider", begin)
 original = text[begin:end]

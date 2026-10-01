@@ -22,6 +22,21 @@ session_spec.loader.exec_module(session)
 
 
 class SessionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_attestation_promise_deadline_cancels_pending_work(self):
+        canceled = []
+        messages = []
+
+        async def pending(**_):
+            try:
+                await asyncio.Event().wait()
+            finally:
+                canceled.append(True)
+
+        with self.assertRaises(asyncio.TimeoutError):
+            await session.mint_token(pending, logger=SimpleNamespace(debug=messages.append), timeout=0.05)
+        self.assertEqual(canceled, [True])
+        self.assertEqual(messages, ["Guest attestation deadline reached"])
+
     async def test_preserves_only_bounded_chromium_startup_failure(self):
         for message, expected in (
             ("Chromium startup failed: " + "x" * 5000, 4096),

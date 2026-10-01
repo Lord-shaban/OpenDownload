@@ -200,7 +200,17 @@ func (s *Server) analyze(w http.ResponseWriter, r *http.Request) {
 		problem(w, 400, "invalid_request", "Enter one public URL.")
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), 45*time.Second)
+	budget := 45 * time.Second
+	if u, err := security.Parse(input.URL); err == nil {
+		switch strings.ToLower(u.Hostname()) {
+		case "youtu.be", "www.youtu.be", "youtube.com", "www.youtube.com", "m.youtube.com", "music.youtube.com", "youtube-nocookie.com", "www.youtube-nocookie.com":
+			// A fresh anonymous browser and bounded player/GVS attestation
+			// need more time than a normal metadata request. Caller cancellation
+			// and the existing analysis/YouTube concurrency ceilings still apply.
+			budget = 90 * time.Second
+		}
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), budget)
 	defer cancel()
 	var normalized string
 	if s.Config.Fixture {
