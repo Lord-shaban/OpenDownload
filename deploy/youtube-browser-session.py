@@ -34,6 +34,13 @@ async def launch_browser(config, start, cdp, logger, url="https://www.youtube.co
         # Emit only a fixed stage and exception class, never cookies, page data,
         # tokens or URLs. The extractor's optional diagnostics remain encrypted.
         logger.debug(f"Guest browser failed at {stage}: {type(error).__name__}")
+        if stage == "browser-start" and isinstance(error, RuntimeError):
+            startup_error = str(error)
+            if startup_error.startswith("Chromium startup failed: "):
+                # The pinned nodriver patch supplies at most 4096 bytes from
+                # Chromium startup, before any page is opened. Provider debug
+                # output is enabled only for encrypted operator diagnostics.
+                logger.debug(startup_error[:4096])
         if browser is not None:
             try:
                 browser.stop()

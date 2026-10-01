@@ -22,6 +22,24 @@ session_spec.loader.exec_module(session)
 
 
 class SessionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_preserves_only_bounded_chromium_startup_failure(self):
+        for message, expected in (
+            ("Chromium startup failed: " + "x" * 5000, 4096),
+            ("other exception content", None),
+        ):
+            stages = []
+
+            async def start(**_):
+                raise RuntimeError(message)
+
+            with self.assertRaises(RuntimeError):
+                await session.launch_browser(None, start, None, SimpleNamespace(debug=stages.append))
+            self.assertIn("Guest browser failed at browser-start: RuntimeError", stages)
+            if expected is None:
+                self.assertNotIn(message, stages)
+            else:
+                self.assertEqual(stages[-1], message[:expected])
+
     async def test_deadline_covers_cookie_clear_after_driver_start(self):
         stages = []
         stopped = []
