@@ -10,6 +10,9 @@ jobs:
   verified:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+      - name: Verify release metadata
+        run: python3 scripts/release-check.py
       - name: Require successful CI for this commit
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -22,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        component: [api, web, egress]
+        component: [api, web, egress, cloud]
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v3
@@ -42,3 +45,41 @@ jobs:
           tags: ${{ steps.prefix.outputs.name }}-${{ matrix.component }}:${{ github.ref_name }}
           provenance: true
           sbom: true
+          labels: |
+            org.opencontainers.image.title=OpenDownload ${{ matrix.component }}
+            org.opencontainers.image.version=${{ github.ref_name }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.licenses=MIT
+  pull-and-verify:
+    needs: images
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull and run the published Compose images
+        run: |
+          export OD_IMAGE_PREFIX="ghcr.io/${GITHUB_REPOSITORY,,}"
+          export OD_IMAGE_TAG="$GITHUB_REF_NAME"
+          docker compose -f compose.yaml -f compose.release.yaml pull
+          OD_FIXTURE_MODE=true docker compose -f compose.yaml -f compose.release.yaml up --no-build -d --wait
+          python3 scripts/container-check.py
+      - name: Compose diagnostics
+        if: failure()
+        run: docker compose logs --tail=80
+      - name: Stop Compose before the real cloud check
+        if: always()
+        run: docker compose down -v
+      - name: Pull and verify real media in the published cloud image
+        env:
+          OD_TEST_MEDIA_REF: ${{ github.sha }}
+        run: |
+          export OD_CLOUD_IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}-cloud:$GITHUB_REF_NAME"
+          docker pull "$OD_CLOUD_IMAGE"
+          sudo apparmor_parser -r deploy/apparmor-cloud
+          python3 scripts/cloud-check.py

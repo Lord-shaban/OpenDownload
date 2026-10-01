@@ -4,7 +4,6 @@ export function displayText(value: string) {
   return value.replace(/[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/gu, "");
 }
 export const sources = [
-  "YouTube",
   "Instagram",
   "TikTok",
   "X / Twitter",

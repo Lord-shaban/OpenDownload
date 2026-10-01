@@ -35,7 +35,11 @@ folder after deployment. The free plan can sleep; file backups require separate
 arrangements. CI builds this image and verifies the fixture flow, persistence
 through restart, and shutdown.
 
-## Full deployment status
+## Historical deployment attempts
+
+The public site now runs the [real fenced cloud profile](FENCED_CLOUD.md), not
+this preview. The preview remains an explicitly labeled demonstration for
+development and testing. The observations below describe the earlier attempt.
 
 The 2026-09-30 attempt to deploy the existing production layout on blitz.cloud
 Free was rejected because it has two background parts; the account permits one.
@@ -43,7 +47,7 @@ A web + fixture API attempt built, but the platform did not resolve the Compose
 hostname `api` (`getaddrinfo ENOTFOUND api`). This dedicated image fixes the preview
 without removing the real extractor's network boundary.
 
-The full deployment remains tracked in [issue #22](https://github.com/Lord-shaban/OpenDownload/issues/22).
+The completed real deployment is recorded in [issue #22](https://github.com/Lord-shaban/OpenDownload/issues/22).
 Hosting terms can change; consult [blitz.cloud's terms](https://blitz.cloud/terms/)
 and [limits](https://blitz.cloud/docs/limits/). This preview does not establish
 production compatibility or availability guarantees.

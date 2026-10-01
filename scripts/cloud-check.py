@@ -12,6 +12,7 @@ import urllib.request
 base = "http://127.0.0.1:3003"
 name = "opendownload-cloud-check"
 volume = name + "-data"
+image = os.environ.get("OD_CLOUD_IMAGE", "opendownload-cloud:check")
 client = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
 
 
@@ -41,6 +42,7 @@ def ready():
         try:
             status = api("/status")
             assert status["ready"] and not status["fixtureMode"], status
+            assert status["version"] == pathlib.Path("VERSION").read_text().strip(), status
             assert all(status["dependencies"].values()), status
             assert status["limits"]["maxBytes"] == 134217728, status
             return
@@ -74,8 +76,14 @@ try:
            "--security-opt", "apparmor:opendownload-cloud", "--pids-limit", "96", "--memory", "512m",
            "--tmpfs", "/tmp:size=64m,uid=10001,gid=10001", "--env", "OD_ORIGIN=" + base,
            "--env", "OD_FIXTURE_MODE=true", "--mount", "type=volume,src=" + volume + ",dst=/data",
-           "opendownload-cloud:check")
+           image)
     ready()
+    try:
+        api("/analyze", {"url": "https://youtu.be/2cUkUbB3Gu4"})
+    except AssertionError as error:
+        assert "422" in str(error) and "youtube_unavailable" in str(error), error
+    else:
+        raise AssertionError("Release image accepted excluded YouTube source")
     with call("/") as response:
         assert b"OpenDownload" in response.read()
     check = """
@@ -139,7 +147,7 @@ with tempfile.NamedTemporaryFile() as file:
         refused(path)
     # Removing namespace tooling must fail closed before any public listener.
     failed = docker("run", "--detach", "--name", name + "-failure", "--entrypoint", "/usr/local/bin/opendownload-cloud", "--env", "PATH=/missing",
-                    "opendownload-cloud:check")
+                    image)
     assert docker("wait", failed) == "1"
     logs = docker("logs", failed)
     assert "real cloud downloads ready" not in logs

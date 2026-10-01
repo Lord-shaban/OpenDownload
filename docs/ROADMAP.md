@@ -1,11 +1,31 @@
 # Roadmap
 
-The M0–M4 implementation baseline has passed its documented development gates.
+## First release — v0.1.0
+
+The 0.1 phase completes M0–M4, the locale/RTL portion of M5, M6 workspace
+refinement and M7 public real-download deployment. Release delivery is recorded
+in [issue #36](https://github.com/Lord-shaban/OpenDownload/issues/36), the
+[release notes](releases/0.1.0.md) and [verification](VERIFICATION.md).
+YouTube is explicitly excluded; the API and interface enforce that boundary.
+
+### Deferred beyond 0.1
+
+- YouTube cloud extraction: [#27](https://github.com/Lord-shaban/OpenDownload/issues/27).
+  Investigation retained; experimental PR #30 is not merged.
+- Dedicated public social photo-gallery adapter:
+  [#13](https://github.com/Lord-shaban/OpenDownload/issues/13).
+  Evaluation completed; integration and authorized live fixtures remain future work.
+- Distributed workers, object storage, bulk/playlist processing and preferences
+  remain product ideas, not missing 0.1 delivery gates.
+
+## Implementation milestones
+
+The M0–M4 implementation baseline passed its documented development gates.
 [GitHub milestones](https://github.com/Lord-shaban/OpenDownload/milestones) and
 the [issue index](GITHUB_ISSUES.md) track accepted work and remaining delivery
 changes; [VERIFICATION.md](VERIFICATION.md) records evidence and release limits.
-No versioned release has been published. M5 tracks gallery integration;
-M6 tracks the requested workspace redesign.
+M5 retains deferred gallery integration; its locale work is accepted.
+M6 and M7 are accepted. A closed release scope does not mark future features solved.
 
 ## M0 — Foundation
 

@@ -1,20 +1,28 @@
 # GitHub issue index
 
-| Key | Issue | Scope |
-|---|---|---|
-| OD-001 | [#1](https://github.com/Lord-shaban/OpenDownload/issues/1) | Document research, product boundary and architecture |
-| OD-002 | [#2](https://github.com/Lord-shaban/OpenDownload/issues/2) | Establish design system and contributor foundation |
-| OD-003 | [#3](https://github.com/Lord-shaban/OpenDownload/issues/3) | Enforce URL and outbound network security |
-| OD-004 | [#4](https://github.com/Lord-shaban/OpenDownload/issues/4) | Normalize metadata and actual format options |
-| OD-005 | [#5](https://github.com/Lord-shaban/OpenDownload/issues/5) | Bound analysis and scope sessions |
-| OD-006 | [#6](https://github.com/Lord-shaban/OpenDownload/issues/6) | Persist and recover the bounded job queue |
-| OD-007 | [#7](https://github.com/Lord-shaban/OpenDownload/issues/7) | Manage worker progress, cancellation and retries |
-| OD-008 | [#8](https://github.com/Lord-shaban/OpenDownload/issues/8) | Implement safe storage, expiry and file serving |
-| OD-009 | [#9](https://github.com/Lord-shaban/OpenDownload/issues/9) | Build the paste, analyze and selection experience |
-| OD-010 | [#10](https://github.com/Lord-shaban/OpenDownload/issues/10) | Build responsive jobs and download interactions |
-| OD-011 | [#11](https://github.com/Lord-shaban/OpenDownload/issues/11) | Add hardened Docker topology and operations |
-| OD-012 | [#12](https://github.com/Lord-shaban/OpenDownload/issues/12) | Complete pre-release verification gates |
-| OD-013 | [#13](https://github.com/Lord-shaban/OpenDownload/issues/13) | Evaluate a dedicated public gallery adapter |
-| OD-014 | [#14](https://github.com/Lord-shaban/OpenDownload/issues/14) | Prepare locale and RTL support |
-| OD-015 | [#15](https://github.com/Lord-shaban/OpenDownload/issues/15) | Enforce the protected-branch delivery workflow |
-| OD-016 | [#20](https://github.com/Lord-shaban/OpenDownload/issues/20) | Redesign the media workspace with subtle glass and clearer flows |
+| Key    | Issue                                                        | Scope                                                                    |
+| ------ | ------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| OD-001 | [#1](https://github.com/Lord-shaban/OpenDownload/issues/1)   | Document research, product boundary and architecture                     |
+| OD-002 | [#2](https://github.com/Lord-shaban/OpenDownload/issues/2)   | Establish design system and contributor foundation                       |
+| OD-003 | [#3](https://github.com/Lord-shaban/OpenDownload/issues/3)   | Enforce URL and outbound network security                                |
+| OD-004 | [#4](https://github.com/Lord-shaban/OpenDownload/issues/4)   | Normalize metadata and actual format options                             |
+| OD-005 | [#5](https://github.com/Lord-shaban/OpenDownload/issues/5)   | Bound analysis and scope sessions                                        |
+| OD-006 | [#6](https://github.com/Lord-shaban/OpenDownload/issues/6)   | Persist and recover the bounded job queue                                |
+| OD-007 | [#7](https://github.com/Lord-shaban/OpenDownload/issues/7)   | Manage worker progress, cancellation and retries                         |
+| OD-008 | [#8](https://github.com/Lord-shaban/OpenDownload/issues/8)   | Implement safe storage, expiry and file serving                          |
+| OD-009 | [#9](https://github.com/Lord-shaban/OpenDownload/issues/9)   | Build the paste, analyze and selection experience                        |
+| OD-010 | [#10](https://github.com/Lord-shaban/OpenDownload/issues/10) | Build responsive jobs and download interactions                          |
+| OD-011 | [#11](https://github.com/Lord-shaban/OpenDownload/issues/11) | Add hardened Docker topology and operations                              |
+| OD-012 | [#12](https://github.com/Lord-shaban/OpenDownload/issues/12) | Complete pre-release verification gates                                  |
+| OD-013 | [#13](https://github.com/Lord-shaban/OpenDownload/issues/13) | Evaluate a dedicated public gallery adapter                              |
+| OD-014 | [#14](https://github.com/Lord-shaban/OpenDownload/issues/14) | Prepare locale and RTL support                                           |
+| OD-015 | [#15](https://github.com/Lord-shaban/OpenDownload/issues/15) | Enforce the protected-branch delivery workflow                           |
+| OD-016 | [#20](https://github.com/Lord-shaban/OpenDownload/issues/20) | Redesign the media workspace with subtle glass and clearer flows         |
+| OD-022 | [#22](https://github.com/Lord-shaban/OpenDownload/issues/22) | Accepted free public cloud deployment                                    |
+| OD-023 | [#23](https://github.com/Lord-shaban/OpenDownload/issues/23) | Fixture-only preview profile                                             |
+| OD-025 | [#25](https://github.com/Lord-shaban/OpenDownload/issues/25) | Accepted fenced real-download cloud profile                              |
+| OD-027 | [#27](https://github.com/Lord-shaban/OpenDownload/issues/27) | YouTube cloud investigation, deferred beyond 0.1; TikTok sample verified |
+| OD-036 | [#36](https://github.com/Lord-shaban/OpenDownload/issues/36) | Finalize and publish v0.1.0 without YouTube                              |
+
+M0–M4, M6 and M7 are accepted. M5 gallery integration (#13) remains open for
+future work. The 0.1 release milestone closes only after its actual delivery gates.

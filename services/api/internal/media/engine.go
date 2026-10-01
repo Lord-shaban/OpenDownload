@@ -46,6 +46,9 @@ func (e *YTDLP) common() []string {
 }
 
 func (e *YTDLP) Analyze(ctx context.Context, source string) (Analysis, error) {
+	if YouTubeSource(source) {
+		return Analysis{}, ErrYouTubeUnavailable
+	}
 	u, err := security.Parse(source)
 	if err != nil {
 		return Analysis{}, err
@@ -152,6 +155,9 @@ func (p *progressWriter) Write(data []byte) (int, error) {
 }
 
 func (e *YTDLP) Download(ctx context.Context, a Analysis, opt Option, dir string, update func(Progress)) ([]Output, error) {
+	if YouTubeSource(a.URL) || strings.EqualFold(a.Platform, "Youtube") {
+		return nil, ErrYouTubeUnavailable
+	}
 	if opt.AssetURL != "" {
 		return e.downloadImage(ctx, opt.AssetURL, dir, "media", update)
 	}

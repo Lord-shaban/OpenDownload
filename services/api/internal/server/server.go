@@ -159,7 +159,7 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 	_, ytErr := exec.LookPath(s.Config.Binary)
 	_, ffErr := exec.LookPath("ffmpeg")
 	ready := s.Config.Fixture || ytErr == nil && ffErr == nil
-	writeJSON(w, 200, map[string]any{"ready": ready, "fixtureMode": s.Config.Fixture, "version": "0.1.0-dev", "limits": map[string]any{"workers": s.Config.Workers, "queue": s.Config.Queue, "maxBytes": s.Config.MaxBytes, "retentionSeconds": int(s.Config.Retention.Seconds())}, "dependencies": map[string]bool{"ytDlp": ytErr == nil, "ffmpeg": ffErr == nil}})
+	writeJSON(w, 200, map[string]any{"ready": ready, "fixtureMode": s.Config.Fixture, "version": "0.1.0", "limits": map[string]any{"workers": s.Config.Workers, "queue": s.Config.Queue, "maxBytes": s.Config.MaxBytes, "retentionSeconds": int(s.Config.Retention.Seconds())}, "dependencies": map[string]bool{"ytDlp": ytErr == nil, "ffmpeg": ffErr == nil}})
 }
 func decode(w http.ResponseWriter, r *http.Request, target any) error {
 	r.Body = http.MaxBytesReader(w, r.Body, 8192)
@@ -200,6 +200,10 @@ func (s *Server) analyze(w http.ResponseWriter, r *http.Request) {
 		problem(w, 400, "invalid_request", "Enter one public URL.")
 		return
 	}
+	if u, err := security.Parse(input.URL); err == nil && media.YouTubeSource(u.String()) {
+		problem(w, 422, "youtube_unavailable", media.ErrYouTubeUnavailable.Error())
+		return
+	}
 	ctx, cancel := context.WithTimeout(r.Context(), 45*time.Second)
 	defer cancel()
 	var normalized string
@@ -232,6 +236,8 @@ func (s *Server) analyze(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		switch {
+		case errors.Is(err, media.ErrYouTubeUnavailable):
+			problem(w, 422, "youtube_unavailable", media.ErrYouTubeUnavailable.Error())
 		case errors.Is(err, media.ErrPlatformVerification):
 			problem(w, 503, "platform_verification_required", media.ErrPlatformVerification.Error())
 		case errors.Is(err, media.ErrUpstreamForbidden):

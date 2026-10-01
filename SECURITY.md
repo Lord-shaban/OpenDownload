@@ -1,6 +1,9 @@
 # Security policy
 
-OpenDownload is pre-release. Only the latest development revision receives fixes.
+OpenDownload 0.1 is the first supported release line. Fixes are delivered in the
+latest 0.1.x patch release; update to that patch before reporting a known issue.
+Development branches and experimental YouTube code are not supported releases.
+No independent security audit or production certification is claimed.
 
 Report vulnerabilities privately using GitHub's **Report a vulnerability** flow;
 private vulnerability reporting is enabled in this repository. If unavailable,

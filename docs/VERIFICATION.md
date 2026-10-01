@@ -1,5 +1,39 @@
 # Verification record
 
+## Release 0.1.0 — 2026-10-01
+
+The release excludes YouTube by explicit product decision. No YouTube cloud
+download or experiment is counted as a passing release check. Dedicated social
+photo-gallery extraction is also deferred. The version policy is enforced in
+both real and fixture API analysis, real processing and metadata normalization;
+English/Arabic desktop/mobile checks cover its message and recovery.
+
+The exact merged/tagged commit, required CI, uploaded-image pull/runtime results,
+public package access, live version/real-mode status and permitted media files
+are recorded in [release issue #36](https://github.com/Lord-shaban/OpenDownload/issues/36)
+and the [GitHub release](https://github.com/Lord-shaban/OpenDownload/releases/tag/v0.1.0).
+The release process requires these gates; authored workflows do not count as results.
+
+Earlier real cloud samples include TikTok (2,178,061-byte MP4, audio/video,
+30.600 s), SoundCloud (296,596-byte M4A, 24.288 s) and the owned video/MP3/image
+checks documented in [FENCED_CLOUD.md](FENCED_CLOUD.md). They establish only those
+sources. No universal extractor uptime, load capacity or independent security
+audit is claimed. See [capabilities](CAPABILITIES.md).
+
+## Historical development evidence
+
+The release candidate passed all Go package tests/vet on Windows, ESLint, strict
+TypeScript, nine unit tests and 26 production Chromium tests (desktop/mobile,
+English/Arabic). These include explicit YouTube rejection and recovery to a
+supported fixture link. The actual [Arabic](assets/release-0.1-sites-ar-mobile.png)
+and [English](assets/release-0.1-sites-en-mobile.png) mobile screenshots are labeled
+fixture previews, not real extraction evidence. Linux race/container checks and
+final release delivery are recorded separately in issue #36.
+
+The remaining dated entries describe earlier development baselines. Statements
+about unpublished images or missing release tags below are historical, not the
+current release status.
+
 Date: 2026-09-29. Verified implementation baseline: [`76100e1`](https://github.com/Lord-shaban/OpenDownload/commit/76100e1).
 The complete [Linux CI run](https://github.com/Lord-shaban/OpenDownload/actions/runs/36584693905)
 passed all three jobs: `go`, `web`, and `integration`.

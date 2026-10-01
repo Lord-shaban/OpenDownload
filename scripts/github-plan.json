@@ -10,33 +10,287 @@
     "priority:normal": "8b947e",
     "status:triage": "d4d9d0",
     "enhancement": "6f8d7a",
-    "bug": "c74343"
+    "bug": "c74343",
+    "status:deferred": "8b947e"
   },
   "milestones": [
-    {"title": "M0 — Foundation", "description": "Product, research, architecture, design system, contributor setup and GitHub planning."},
-    {"title": "M1 — Safe analysis", "description": "Guarded egress, public URL policy, safe metadata and capability-driven options."},
-    {"title": "M2 — Durable downloads", "description": "SQLite queue, cancellation, temporary storage, expiry and range streaming."},
-    {"title": "M3 — Workspace experience", "description": "Responsive accessible paste-to-download experience and honest states."},
-    {"title": "M4 — Self-hosted pre-release", "description": "Container isolation, operations, CI and real authorized extraction evidence."},
-    {"title": "M5 — Broader media coverage", "description": "Evaluate and implement public image/gallery coverage and locale groundwork."},
-    {"title": "M6 — Workspace refinement", "description": "Subtle glass redesign, clearer download flows, wordmark identity, persistent themes and accessible Arabic/mobile verification."}
+    {
+      "title": "M0 — Foundation",
+      "description": "Product, research, architecture, design system, contributor setup and GitHub planning."
+    },
+    {
+      "title": "M1 — Safe analysis",
+      "description": "Guarded egress, public URL policy, safe metadata and capability-driven options."
+    },
+    {
+      "title": "M2 — Durable downloads",
+      "description": "SQLite queue, cancellation, temporary storage, expiry and range streaming."
+    },
+    {
+      "title": "M3 — Workspace experience",
+      "description": "Responsive accessible paste-to-download experience and honest states."
+    },
+    {
+      "title": "M4 — Self-hosted pre-release",
+      "description": "Container isolation, operations, CI and real authorized extraction evidence."
+    },
+    {
+      "title": "M5 — Broader media coverage",
+      "description": "Evaluate and implement public image/gallery coverage and locale groundwork."
+    },
+    {
+      "title": "M6 — Workspace refinement",
+      "description": "Subtle glass redesign, clearer download flows, wordmark identity, persistent themes and accessible Arabic/mobile verification."
+    },
+    {
+      "title": "M7 — Online deployment",
+      "description": "Deploy a verified OpenDownload instance with persistent job state, enforced extractor network isolation, HTTPS, and an explicit hosting budget. Free cloud hosting without a payment card is the current constraint."
+    },
+    {
+      "title": "v0.1.0 — First release",
+      "description": "Complete the verified first release without YouTube: scope policy, consistent documentation, reviewed delivery, published and tested container images, and public real downloads."
+    }
   ],
   "issues": [
-    {"key":"OD-001","title":"Document research, product boundary and architecture","milestone":0,"area":"docs","acceptance":["Compare primary upstream projects and record dated sources.","Record decisions for router, SQLite, queue, cache and local storage.","Document access policy and architectural tradeoffs as ADRs."]},
-    {"key":"OD-002","title":"Establish design system and contributor foundation","milestone":0,"area":"docs","acceptance":["Install/use UI UX Pro Max before UI implementation.","Document reusable tokens, responsive layout, accessibility and state transitions.","Add license, contributor/security policies, templates, CI and testing standards."]},
-    {"key":"OD-003","title":"Enforce URL and outbound network security","milestone":1,"area":"security","acceptance":["Reject unsafe schemes, credentials, ports and special-use addresses.","Validate all resolved addresses and pin public destination at dial time.","Test IPv4, IPv6, mixed DNS and rebinding protections.","Prevent direct extractor egress in the supported Docker topology."]},
-    {"key":"OD-004","title":"Normalize metadata and actual format options","milestone":1,"area":"api","acceptance":["Expose only safe title, source and format metadata; omit signed URLs.","Derive video/audio/subtitle/thumbnail options from real metadata.","Reject DRM/live/auth-required results and unsafe format IDs.","Support safe direct images and bounded extractor image entries; document gaps."]},
-    {"key":"OD-005","title":"Bound analysis and scope sessions","milestone":1,"area":"api","acceptance":["Limit concurrent analysis, request rates, cache count and TTL.","Scope tokens to random HttpOnly sessions stored as hashes.","Cancel/deadline extraction and limit captured subprocess output.","Enforce mutation origin and JSON payload limits."]},
-    {"key":"OD-006","title":"Persist and recover the bounded job queue","milestone":2,"area":"api","acceptance":["Persist jobs before acknowledging creation.","Claim work atomically and enforce global/per-owner capacity.","Restore queued jobs and explicitly fail interrupted processing after restart.","Test owner access and terminal transition races."]},
-    {"key":"OD-007","title":"Manage worker progress, cancellation and retries","milestone":2,"area":"api","acceptance":["Use bounded workers and job deadlines.","Persist throttled progress without leaking raw extractor output.","Cancellation stops process descendants on Linux and releases capacity.","Retry creates a new job with safe options and fresh extraction."]},
-    {"key":"OD-008","title":"Implement safe storage, expiry and file serving","milestone":2,"area":"security","acceptance":["Use generated job directories and fixed output templates.","Reject traversal, symlinks, unsafe extensions and oversized output.","Serve owner-scoped attachments with byte ranges and no buffering.","Clean expired, canceled and interrupted scratch files."]},
-    {"key":"OD-009","title":"Build the paste, analyze and selection experience","milestone":3,"area":"web","acceptance":["Detect source locally and analyze only on explicit submission.","Render actual capability choices with clear quality/container labels.","Cover loading, cancel, invalid URL and upstream rejection states.","Support keyboard navigation and accessible status/error feedback."]},
-    {"key":"OD-010","title":"Build responsive jobs and download interactions","milestone":3,"area":"web","acceptance":["Show durable job list with progress, cancel, retry, save and expiry.","Pause status polling in hidden tabs and recover transient connection loss.","Verify desktop/mobile reflow and reduced motion.","Use a visibly labeled deterministic fixture walkthrough without fake downloads."]},
-    {"key":"OD-011","title":"Add hardened Docker topology and operations","milestone":4,"area":"infra","acceptance":["Provide non-root, resource-bounded, read-only containers.","Extractor egress is fenced through the guarded proxy; no published proxy/API port.","Document config, health, shutdown, backup, quotas and public hosting requirements.","Build all images in CI and add gated image publication workflows."]},
-    {"key":"OD-012","title":"Complete pre-release verification gates","milestone":4,"area":"infra","acceptance":["Run deterministic browser flow against Go fixture engine.","Test real authorized media extraction separately from fixtures.","Verify Linux process cancellation and direct network isolation.","Audit dependencies and record all unrun gates before a release tag."]},
-    {"key":"OD-013","title":"Evaluate a dedicated public gallery adapter","milestone":5,"area":"api","acceptance":["Research gallery-dl public-only behavior without cookies or access bypass.","Create authorized Instagram/TikTok photo fixtures and capability coverage matrix.","Keep all outbound requests under the same proxy and item/byte limits.","Implement only if user value justifies the maintenance cost."]},
-    {"key":"OD-014","title":"Prepare locale and RTL support","milestone":5,"area":"web","acceptance":["Externalize product messages.","Keep URL/file/codec fields bidi-safe.","Verify Arabic layout, labels and keyboard order."]},
-    {"key":"OD-015","title":"Enforce the protected-branch delivery workflow","milestone":0,"area":"infra","acceptance":["Require pull requests and GitHub Actions checks on main, including administrators.","Disallow force pushes and deletion; squash merges and delete merged branches.","Keep repository policy versioned and verify the live GitHub settings.","Replace stale issue and verification status with linked evidence; deliver this change through a pull request."]},
-    {"key":"OD-016","title":"Redesign the media workspace with subtle glass and clearer flows","milestone":6,"area":"web","acceptance":["Replace the existing rail/editorial layout with a new responsive workspace and glass design system.","Use the wordmark OpenDownload. without a logo icon; update app identity assets.","Make link → format → processing → save clear, with useful focus and status feedback.","Keep real format choices, existing access boundaries and explicit fixture labels.","Preserve English/Arabic, RTL, keyboard use, reduced motion and readable light/dark themes.","Record desktop/mobile visual evidence and pass production browser/CI gates.","Include a compact supported-sites disclosure with honest availability and gallery limits."]}
+    {
+      "key": "OD-001",
+      "title": "Document research, product boundary and architecture",
+      "milestone": 0,
+      "area": "docs",
+      "acceptance": [
+        "Compare primary upstream projects and record dated sources.",
+        "Record decisions for router, SQLite, queue, cache and local storage.",
+        "Document access policy and architectural tradeoffs as ADRs."
+      ]
+    },
+    {
+      "key": "OD-002",
+      "title": "Establish design system and contributor foundation",
+      "milestone": 0,
+      "area": "docs",
+      "acceptance": [
+        "Install/use UI UX Pro Max before UI implementation.",
+        "Document reusable tokens, responsive layout, accessibility and state transitions.",
+        "Add license, contributor/security policies, templates, CI and testing standards."
+      ]
+    },
+    {
+      "key": "OD-003",
+      "title": "Enforce URL and outbound network security",
+      "milestone": 1,
+      "area": "security",
+      "acceptance": [
+        "Reject unsafe schemes, credentials, ports and special-use addresses.",
+        "Validate all resolved addresses and pin public destination at dial time.",
+        "Test IPv4, IPv6, mixed DNS and rebinding protections.",
+        "Prevent direct extractor egress in the supported Docker topology."
+      ]
+    },
+    {
+      "key": "OD-004",
+      "title": "Normalize metadata and actual format options",
+      "milestone": 1,
+      "area": "api",
+      "acceptance": [
+        "Expose only safe title, source and format metadata; omit signed URLs.",
+        "Derive video/audio/subtitle/thumbnail options from real metadata.",
+        "Reject DRM/live/auth-required results and unsafe format IDs.",
+        "Support safe direct images and bounded extractor image entries; document gaps."
+      ]
+    },
+    {
+      "key": "OD-005",
+      "title": "Bound analysis and scope sessions",
+      "milestone": 1,
+      "area": "api",
+      "acceptance": [
+        "Limit concurrent analysis, request rates, cache count and TTL.",
+        "Scope tokens to random HttpOnly sessions stored as hashes.",
+        "Cancel/deadline extraction and limit captured subprocess output.",
+        "Enforce mutation origin and JSON payload limits."
+      ]
+    },
+    {
+      "key": "OD-006",
+      "title": "Persist and recover the bounded job queue",
+      "milestone": 2,
+      "area": "api",
+      "acceptance": [
+        "Persist jobs before acknowledging creation.",
+        "Claim work atomically and enforce global/per-owner capacity.",
+        "Restore queued jobs and explicitly fail interrupted processing after restart.",
+        "Test owner access and terminal transition races."
+      ]
+    },
+    {
+      "key": "OD-007",
+      "title": "Manage worker progress, cancellation and retries",
+      "milestone": 2,
+      "area": "api",
+      "acceptance": [
+        "Use bounded workers and job deadlines.",
+        "Persist throttled progress without leaking raw extractor output.",
+        "Cancellation stops process descendants on Linux and releases capacity.",
+        "Retry creates a new job with safe options and fresh extraction."
+      ]
+    },
+    {
+      "key": "OD-008",
+      "title": "Implement safe storage, expiry and file serving",
+      "milestone": 2,
+      "area": "security",
+      "acceptance": [
+        "Use generated job directories and fixed output templates.",
+        "Reject traversal, symlinks, unsafe extensions and oversized output.",
+        "Serve owner-scoped attachments with byte ranges and no buffering.",
+        "Clean expired, canceled and interrupted scratch files."
+      ]
+    },
+    {
+      "key": "OD-009",
+      "title": "Build the paste, analyze and selection experience",
+      "milestone": 3,
+      "area": "web",
+      "acceptance": [
+        "Detect source locally and analyze only on explicit submission.",
+        "Render actual capability choices with clear quality/container labels.",
+        "Cover loading, cancel, invalid URL and upstream rejection states.",
+        "Support keyboard navigation and accessible status/error feedback."
+      ]
+    },
+    {
+      "key": "OD-010",
+      "title": "Build responsive jobs and download interactions",
+      "milestone": 3,
+      "area": "web",
+      "acceptance": [
+        "Show durable job list with progress, cancel, retry, save and expiry.",
+        "Pause status polling in hidden tabs and recover transient connection loss.",
+        "Verify desktop/mobile reflow and reduced motion.",
+        "Use a visibly labeled deterministic fixture walkthrough without fake downloads."
+      ]
+    },
+    {
+      "key": "OD-011",
+      "title": "Add hardened Docker topology and operations",
+      "milestone": 4,
+      "area": "infra",
+      "acceptance": [
+        "Provide non-root, resource-bounded, read-only containers.",
+        "Extractor egress is fenced through the guarded proxy; no published proxy/API port.",
+        "Document config, health, shutdown, backup, quotas and public hosting requirements.",
+        "Build all images in CI and add gated image publication workflows."
+      ]
+    },
+    {
+      "key": "OD-012",
+      "title": "Complete pre-release verification gates",
+      "milestone": 4,
+      "area": "infra",
+      "acceptance": [
+        "Run deterministic browser flow against Go fixture engine.",
+        "Test real authorized media extraction separately from fixtures.",
+        "Verify Linux process cancellation and direct network isolation.",
+        "Audit dependencies and record all unrun gates before a release tag."
+      ]
+    },
+    {
+      "key": "OD-013",
+      "title": "Evaluate a dedicated public gallery adapter",
+      "milestone": 5,
+      "area": "api",
+      "acceptance": [
+        "Research gallery-dl public-only behavior without cookies or access bypass.",
+        "Create authorized Instagram/TikTok photo fixtures and capability coverage matrix.",
+        "Keep all outbound requests under the same proxy and item/byte limits.",
+        "Implement only if user value justifies the maintenance cost."
+      ]
+    },
+    {
+      "key": "OD-014",
+      "title": "Prepare locale and RTL support",
+      "milestone": 5,
+      "area": "web",
+      "acceptance": [
+        "Externalize product messages.",
+        "Keep URL/file/codec fields bidi-safe.",
+        "Verify Arabic layout, labels and keyboard order."
+      ]
+    },
+    {
+      "key": "OD-015",
+      "title": "Enforce the protected-branch delivery workflow",
+      "milestone": 0,
+      "area": "infra",
+      "acceptance": [
+        "Require pull requests and GitHub Actions checks on main, including administrators.",
+        "Disallow force pushes and deletion; squash merges and delete merged branches.",
+        "Keep repository policy versioned and verify the live GitHub settings.",
+        "Replace stale issue and verification status with linked evidence; deliver this change through a pull request."
+      ]
+    },
+    {
+      "key": "OD-016",
+      "title": "Redesign the media workspace with subtle glass and clearer flows",
+      "milestone": 6,
+      "area": "web",
+      "acceptance": [
+        "Replace the existing rail/editorial layout with a new responsive workspace and glass design system.",
+        "Use the wordmark OpenDownload. without a logo icon; update app identity assets.",
+        "Make link → format → processing → save clear, with useful focus and status feedback.",
+        "Keep real format choices, existing access boundaries and explicit fixture labels.",
+        "Preserve English/Arabic, RTL, keyboard use, reduced motion and readable light/dark themes.",
+        "Record desktop/mobile visual evidence and pass production browser/CI gates.",
+        "Include a compact supported-sites disclosure with honest availability and gallery limits."
+      ]
+    },
+    {
+      "key": "OD-022",
+      "title": "Deploy and verify OpenDownload on free cloud hosting",
+      "milestone": 7,
+      "area": "infra",
+      "acceptance": [
+        "Verify HTTPS, persistence, readiness and real permitted media with explicit free-host limits."
+      ]
+    },
+    {
+      "key": "OD-023",
+      "title": "Add a fixture-only cloud preview container",
+      "milestone": 7,
+      "area": "infra",
+      "acceptance": [
+        "Force labeled fixture mode; verify restart persistence and shutdown."
+      ]
+    },
+    {
+      "key": "OD-025",
+      "title": "Enable public real downloads in a fenced cloud container",
+      "milestone": 7,
+      "area": "infra",
+      "acceptance": [
+        "Require isolated networking and real dependencies; verify actual owned video/MP3 and owner-scoped files."
+      ]
+    },
+    {
+      "key": "OD-027",
+      "title": "YouTube cloud downloads deferred beyond v0.1",
+      "milestone": 7,
+      "area": "api",
+      "acceptance": [
+        "Future work only: actual cloud media from the reported YouTube URL, without access bypass; retain honest investigation evidence."
+      ]
+    },
+    {
+      "key": "OD-036",
+      "title": "Finalize and publish OpenDownload v0.1.0 without YouTube",
+      "milestone": 8,
+      "area": "infra",
+      "acceptance": [
+        "Enforce the release platform boundary and align versions, docs and support policy.",
+        "Pass required exact-head CI and normal protected PR review.",
+        "Publish versioned images, pull and run them, and confirm public access.",
+        "Verify public release deployment and real non-YouTube media, publish release notes and close the milestone only after delivery."
+      ]
+    }
   ]
 }

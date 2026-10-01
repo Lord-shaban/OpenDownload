@@ -1,6 +1,8 @@
 # Real downloads in a single cloud container
 
 This profile serves anonymous users and always runs the real extraction engine.
+Release 0.1 excludes YouTube. It returns a clear policy message before extraction;
+no experimental Chromium or YouTube token provider is included in release images.
 The original three-container [Compose deployment](SELF_HOSTING.md) and the
 fixture-only preview are separate profiles.
 
@@ -60,6 +62,10 @@ sample does not establish throughput at arbitrary public traffic levels.
 
 ## Local Linux verification
 
+The versioned image is `ghcr.io/lord-shaban/opendownload-cloud:v0.1.0`.
+Its release publication checks pull and exercise the uploaded image;
+[issue #36](https://github.com/Lord-shaban/OpenDownload/issues/36) records results.
+
 ```sh
 # Ubuntu with AppArmor 4: explicitly allow this container's nested namespaces.
 sudo apparmor_parser -r deploy/apparmor-cloud
@@ -112,6 +118,11 @@ References: [runtime sandbox](https://blitz.cloud/docs/deploy-docker-image/),
 [limits](https://blitz.cloud/docs/limits/).
 
 ## Rollback and operations
+
+The live first-release identity is confirmed through `/api/v1/status` (`version`
+must be `0.1.0`, `fixtureMode` false) and actual non-YouTube media downloads.
+Deployment follows accepted `main`; unmerged experiment branches are not release
+sources. Temporary diagnostics are removed before final verification.
 
 Deploy only a commit with successful required GitHub Actions checks. Record the
 live commit, real media results and restart evidence in issue #22. To roll back,

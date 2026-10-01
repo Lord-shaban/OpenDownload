@@ -1,0 +1,8 @@
+# Pull verified versioned images; use together with compose.yaml and --no-build.
+services:
+  web:
+    image: ${OD_IMAGE_PREFIX:-ghcr.io/lord-shaban/opendownload}-web:${OD_IMAGE_TAG:-v0.1.0}
+  api:
+    image: ${OD_IMAGE_PREFIX:-ghcr.io/lord-shaban/opendownload}-api:${OD_IMAGE_TAG:-v0.1.0}
+  egress:
+    image: ${OD_IMAGE_PREFIX:-ghcr.io/lord-shaban/opendownload}-egress:${OD_IMAGE_TAG:-v0.1.0}

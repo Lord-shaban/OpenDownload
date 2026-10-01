@@ -64,9 +64,11 @@ are not fabricated. OD-015 establishes this enforced workflow for subsequent wor
 
 Release tags use SemVer. Before tagging, require successful CI on the exact
 commit and review [VERIFICATION.md](VERIFICATION.md), capability gaps and operations
-guidance. The image publication workflow checks for successful CI before pushing
-versioned API/web/egress images with provenance and SBOM. The first publication
-still needs a registry pull/run smoke test before a release is called verified.
+guidance. The image publication workflow checks release metadata and successful
+CI before pushing versioned API/web/egress/cloud images with provenance and SBOM.
+It then pulls and runs the uploaded Compose and real cloud images. Public package
+access and live deployment checks are separate release gates. See
+[RELEASING.md](RELEASING.md) and [release issue #36](https://github.com/Lord-shaban/OpenDownload/issues/36).
 
 Report vulnerabilities with GitHub's enabled private reporting flow. Dependabot
 proposes dependency changes through PRs; those changes follow the same gates.
