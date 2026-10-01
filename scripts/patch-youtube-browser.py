@@ -1,5 +1,6 @@
 """Apply a small reviewed startup patch to pinned nodriver 0.50.3."""
 import importlib.metadata
+import hashlib
 import pathlib
 
 assert importlib.metadata.version("nodriver") == "0.50.3"
@@ -49,3 +50,27 @@ for old, new in replacements.items():
     text = text.replace(old, new)
 compile(text, str(source), "exec")
 source.write_text(text, encoding="utf8")
+
+# Bound WPC's entire launch, not just nodriver's version endpoint polling.
+assert importlib.metadata.version("yt-dlp-getpot-wpc") == "1.1.2"
+wpc = pathlib.Path(importlib.metadata.distribution("yt-dlp-getpot-wpc").locate_file(
+    "yt_dlp_plugins/extractor/getpot_wpc.py"))
+text = wpc.read_text(encoding="utf8")
+begin = text.index("async def launch_browser(config):")
+end = text.index("@register_provider", begin)
+original = text[begin:end]
+assert hashlib.sha256(original.encode()).hexdigest() == "7f3ffb5743ffcee1df238eca5e34a9f72a3adbc77de771dbd11f8ecdf39b86b8", "Pinned WPC launch changed; review the patch."
+text = text[:begin] + '''async def launch_browser(config, logger):
+    from opendownload_browser_session import launch_browser as launch_session
+    try:
+        return await launch_session(config, start, nodriver.cdp, logger)
+    except Exception as e:
+        raise PoTokenProviderError(f'guest browser launch failed: {type(e).__name__}') from e
+
+
+''' + text[end:]
+old = "launch_browser(browser_config)"
+assert text.count(old) == 1, "Pinned WPC call changed; review the patch."
+text = text.replace(old, "launch_browser(browser_config, self.logger)")
+compile(text, str(wpc), "exec")
+wpc.write_text(text, encoding="utf8")

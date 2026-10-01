@@ -38,6 +38,7 @@ COPY services/api/requirements.txt /tmp/requirements.txt
 COPY deploy/youtube-browser-requirements.txt /tmp/youtube-browser-requirements.txt
 COPY scripts/audit-python-pins.py /tmp/audit-python-pins.py
 COPY scripts/patch-youtube-browser.py /tmp/patch-youtube-browser.py
+COPY deploy/youtube-browser-session.py /opt/engine/lib/python3.11/site-packages/opendownload_browser_session.py
 RUN /opt/engine/bin/pip install --no-cache-dir -r /tmp/requirements.txt && \
     /opt/engine/bin/python -c "from yt_dlp import YoutubeDL; assert any(t.client == 'chrome' for t, _ in YoutubeDL({'quiet': True})._get_available_impersonate_targets()), 'Chrome TLS support is missing'" && \
     /opt/engine/bin/pip install --no-cache-dir -r /tmp/youtube-browser-requirements.txt && \

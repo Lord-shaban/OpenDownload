@@ -80,9 +80,9 @@ try:
         assert b"OpenDownload" in response.read()
     check = """
 import http.client, socket
-c=http.client.HTTPConnection('worker',timeout=35)
+c=http.client.HTTPConnection('worker',timeout=50)
 c.sock=socket.socket(socket.AF_UNIX)
-c.sock.settimeout(35)
+c.sock.settimeout(50)
 c.sock.connect('/tmp/opendownload-cloud/check.sock')
 c.request('GET','/check')
 r=c.getresponse()

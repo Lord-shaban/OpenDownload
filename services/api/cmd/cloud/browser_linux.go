@@ -24,7 +24,7 @@ func browserEgressCheck(ctx context.Context) error {
 		return err
 	}
 	defer os.RemoveAll(dir)
-	ctx, cancel := context.WithTimeout(ctx, 25*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 40*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, binary, "--headless=new", "--user-data-dir="+dir, "--dump-dom", "http://127.0.0.1:8080/api/v1/status")
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
@@ -36,12 +36,17 @@ func browserEgressCheck(ctx context.Context) error {
 	}
 	// Exercise the same headed driver used by WPC; a headless binary smoke alone
 	// does not prove that its CDP startup and private X display work.
-	const driverCheck = `import asyncio
+	const driverCheck = `import asyncio, logging
 import nodriver
+from opendownload_browser_session import launch_browser
 async def check():
-    browser = await nodriver.start(browser_executable_path='/usr/local/bin/opendownload-chromium', headless=False)
+    config = nodriver.Config(browser_executable_path='/usr/local/bin/opendownload-chromium', headless=False)
+    browser = await launch_browser(config, nodriver.start, nodriver.cdp, logging.getLogger('check'),
+        url='http://127.0.0.1:8080/api/v1/status')
     try:
         assert browser.info and browser.main_tab
+        content = await asyncio.wait_for(browser.main_tab.get_content(), 3)
+        assert 'destination denied' in content and 'fixtureMode' not in content
         print('browser-driver-ready')
     finally:
         browser.stop()
@@ -57,7 +62,7 @@ asyncio.run(check())`
 	}()
 	driverOutput, err := driver.Output()
 	if err != nil || !strings.Contains(string(driverOutput), "browser-driver-ready") {
-		return errors.New("headed browser driver failed to connect inside the fence")
+		return errors.New("headed guest browser session failed inside the fence")
 	}
 	return nil
 }

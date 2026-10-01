@@ -1,7 +1,9 @@
 """Regression checks for the image-owned YouTube entrypoint; no network."""
 import importlib.util
+import asyncio
 import pathlib
 import sys
+from types import SimpleNamespace
 import unittest
 
 sys.dont_write_bytecode = True
@@ -13,6 +15,61 @@ spec.loader.exec_module(runtime)
 browser_spec = importlib.util.spec_from_file_location("chromium_egress", pathlib.Path(__file__).resolve().parents[1] / "deploy/chromium-egress.py")
 chromium = importlib.util.module_from_spec(browser_spec)
 browser_spec.loader.exec_module(chromium)
+
+session_spec = importlib.util.spec_from_file_location("youtube_browser_session", pathlib.Path(__file__).resolve().parents[1] / "deploy/youtube-browser-session.py")
+session = importlib.util.module_from_spec(session_spec)
+session_spec.loader.exec_module(session)
+
+
+class SessionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_deadline_covers_cookie_clear_after_driver_start(self):
+        stages = []
+        stopped = []
+        cookie_started = asyncio.Event()
+
+        async def window():
+            return 1, None
+
+        async def send(_):
+            return None
+
+        async def clear():
+            cookie_started.set()
+            await asyncio.Event().wait()
+
+        browser = SimpleNamespace(main_tab=SimpleNamespace(get_window=window, send=send),
+            cookies=SimpleNamespace(clear=clear), stop=lambda: stopped.append(True))
+
+        async def start(**_):
+            return browser
+
+        cdp = SimpleNamespace(browser=SimpleNamespace(set_window_bounds=lambda **_: None,
+            Bounds=lambda **_: None, WindowState=SimpleNamespace(MINIMIZED="minimized")))
+        with self.assertRaises(asyncio.TimeoutError):
+            await session.launch_browser(None, start, cdp, SimpleNamespace(debug=stages.append), timeout=0.1)
+        self.assertTrue(cookie_started.is_set())
+        self.assertEqual(stopped, [True])
+        self.assertEqual(stages[-1], "Guest browser failed at guest-cookie-clear: TimeoutError")
+
+    async def test_request_cancellation_closes_launched_browser(self):
+        started = asyncio.Event()
+        stopped = []
+
+        async def window():
+            started.set()
+            await asyncio.Event().wait()
+
+        browser = SimpleNamespace(main_tab=SimpleNamespace(get_window=window), stop=lambda: stopped.append(True))
+
+        async def start(**_):
+            return browser
+
+        task = asyncio.create_task(session.launch_browser(None, start, None, SimpleNamespace(debug=lambda _: None)))
+        await asyncio.wait_for(started.wait(), 1)
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        self.assertEqual(stopped, [True])
 
 
 class RuntimeTests(unittest.TestCase):
