@@ -11,7 +11,7 @@ async def mint_token(mint, *args, timeout=30, **kwargs):
         raise
 
 
-async def launch_browser(config, start, cdp, logger, url="https://www.youtube.com?themeRefresh=1", timeout=30):
+async def launch_browser(config, start, cdp, logger, url="https://www.youtube.com?themeRefresh=1", timeout=40):
     browser = None
     stage = "browser-start"
 

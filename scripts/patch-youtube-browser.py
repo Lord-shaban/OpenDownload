@@ -17,8 +17,8 @@ replacements = {
                 await asyncio.sleep(0.5)
             else:
                 break
-""": """        startup_deadline = asyncio.get_running_loop().time() + 15
-        for _ in range(30):
+""": """        startup_deadline = asyncio.get_running_loop().time() + 35
+        for _ in range(70):
             remaining = startup_deadline - asyncio.get_running_loop().time()
             if remaining <= 0:
                 break
@@ -40,7 +40,7 @@ replacements = {
                 try:
                     startup_error = await asyncio.wait_for(process.stderr.read(4096), 0.2)
                     if startup_error:
-                        raise RuntimeError('Chromium startup failed: ' + startup_error.decode('utf8', errors='replace'))
+                        raise RuntimeError('Chromium startup failed: exit=' + str(process.returncode) + '; ' + startup_error.decode('utf8', errors='replace'))
                 except asyncio.TimeoutError:
                     pass
             raise Exception(""",

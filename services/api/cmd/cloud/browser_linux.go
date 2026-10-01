@@ -24,7 +24,7 @@ func browserEgressCheck(ctx context.Context) error {
 		return err
 	}
 	defer os.RemoveAll(dir)
-	ctx, cancel := context.WithTimeout(ctx, 40*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, binary, "--headless=new", "--user-data-dir="+dir, "--dump-dom", "http://127.0.0.1:8080/api/v1/status")
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
