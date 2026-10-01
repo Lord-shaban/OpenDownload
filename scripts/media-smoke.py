@@ -2,9 +2,11 @@
 import argparse
 import http.cookiejar
 import json
+import os
 import pathlib
 import subprocess
 import time
+import urllib.error
 import urllib.request
 
 parser = argparse.ArgumentParser()
@@ -14,14 +16,24 @@ parser.add_argument("--source", default="https://download.blender.org/durian/tra
 parser.add_argument("--ffprobe", default="ffprobe")
 parser.add_argument("--output", default=".data/smoke")
 args = parser.parse_args()
-opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+handlers = [urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())]
+access_user = os.environ.get("OD_SMOKE_USER")
+access_password = os.environ.get("OD_SMOKE_PASSWORD")
+if access_user or access_password:
+    if not access_user or not access_password:
+        parser.error("Set both OD_SMOKE_USER and OD_SMOKE_PASSWORD for protected hosting.")
+    passwords = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+    passwords.add_password(None, args.base_url, access_user, access_password)
+    handlers.append(urllib.request.HTTPBasicAuthHandler(passwords))
+opener = urllib.request.build_opener(*handlers)
 
-def api(path, body=None):
-    request = urllib.request.Request(args.base_url + "/api/v1" + path,
+def api(path, body=None, method=None):
+    request = urllib.request.Request(args.base_url + "/api/v1" + path, method=method,
         data=None if body is None else json.dumps(body).encode(),
         headers={"Origin": args.origin, "Content-Type": "application/json"})
     with opener.open(request, timeout=50) as response:
-        return json.load(response)
+        data = response.read()
+        return json.loads(data) if data else None
 
 status = api("/status")
 assert status["ready"] and not status["fixtureMode"], "Real media tools must be enabled."
@@ -52,4 +64,10 @@ for option in (next(o for o in analysis["options"] if o["kind"] == "video"),
     assert option["kind"] in kinds, kinds
     assert float(probe["format"]["duration"]) > 1, "Invalid media duration."
     print(json.dumps({"selection": option["id"], "bytes": total, "streams": kinds, "duration": probe["format"]["duration"]}))
-print("Real video, audio conversion and range streaming passed.")
+    api("/jobs/" + job["id"], method="DELETE")
+    try:
+        with opener.open(endpoint, timeout=10):
+            raise AssertionError("Deleted job attachment is still accessible.")
+    except urllib.error.HTTPError as error:
+        assert error.code == 404, error.code
+print("Real video, audio conversion, range streaming and deletion passed.")

@@ -28,6 +28,9 @@ Reviewers check correctness, resource bounds, cancellation, access boundaries,
 accessibility, and behavior on mobile. Dependencies must explain their cost and
 purpose. Breaking API changes require explicit migration notes.
 
-Until releases exist, main is the development branch. Release tags follow SemVer.
-Do not call an unverified pre-release production-ready. Governance is initially
+`main` carries reviewed development; install a release tag for a fixed baseline.
+Release tags follow SemVer. The first release line is 0.1.x; YouTube and dedicated
+photo-gallery extraction remain outside its scope. See `docs/RELEASING.md` for
+the exact-commit CI, image publication and live verification gates.
+Do not call an unverified build production-ready. Governance is initially
 maintainer-led; substantive decisions are captured as ADRs.

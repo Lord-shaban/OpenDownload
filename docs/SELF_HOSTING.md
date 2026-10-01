@@ -6,6 +6,22 @@ downloader without further abuse protection and stronger worker sandboxing.
 
 For a cloud demo that never extracts real media, see
 [the fixture-only preview deployment](PREVIEW_DEPLOYMENT.md).
+The bounded real public instance uses [the fenced cloud profile](FENCED_CLOUD.md).
+YouTube is deliberately unavailable in all v0.1 deployment profiles.
+
+## Install a fixed release
+
+Check out `v0.1.0`, copy `.env.example` to `.env`, then run:
+
+```sh
+docker compose -f compose.yaml -f compose.release.yaml pull
+docker compose -f compose.yaml -f compose.release.yaml up --no-build -d --wait
+```
+
+The overlay selects versioned API/web/egress images while keeping the original
+network fence, resource bounds and data volume. To update, review the next
+release's notes, change `OD_IMAGE_TAG`, pull, and start with the same files and
+`--no-build`. Do not use `down -v` during an upgrade or rollback.
 
 ## Configuration
 
@@ -13,20 +29,20 @@ Native Go processes read environment variables. Compose reads `.env` and provide
 explicit values to containers. The web app uses server-only `API_URL`; no backend
 key is sent to the browser.
 
-| Variable | Default | Purpose |
-|---|---|---|
-| OD_PORT | 8080 | API port |
-| OD_DATA_DIR | .data | SQLite and generated per-job files |
-| OD_EGRESS_PROXY | http://127.0.0.1:8090 | Mandatory proxy for real media extraction |
-| OD_ORIGIN | http://localhost:3000 | Exact permitted browser origin |
-| OD_WORKERS | 2 | Concurrent processing jobs (1–8) |
-| OD_QUEUE_LIMIT | 20 | Global active+queued job limit |
-| OD_MAX_BYTES | 536870912 | Maximum scratch/output bytes per job (512 MiB) |
-| OD_JOB_TIMEOUT | 15m | Wall-clock processing deadline |
-| OD_RETENTION | 1h | Job/file retention from creation |
-| OD_FIXTURE_MODE | false | Explicit test engine, visibly labeled in UI |
-| OD_YTDLP | yt-dlp | Operator-controlled executable path |
-| API_URL | http://127.0.0.1:8080 | Next.js same-origin API rewrite destination |
+| Variable        | Default               | Purpose                                        |
+| --------------- | --------------------- | ---------------------------------------------- |
+| OD_PORT         | 8080                  | API port                                       |
+| OD_DATA_DIR     | .data                 | SQLite and generated per-job files             |
+| OD_EGRESS_PROXY | http://127.0.0.1:8090 | Mandatory proxy for real media extraction      |
+| OD_ORIGIN       | http://localhost:3000 | Exact permitted browser origin                 |
+| OD_WORKERS      | 2                     | Concurrent processing jobs (1–8)               |
+| OD_QUEUE_LIMIT  | 20                    | Global active+queued job limit                 |
+| OD_MAX_BYTES    | 536870912             | Maximum scratch/output bytes per job (512 MiB) |
+| OD_JOB_TIMEOUT  | 15m                   | Wall-clock processing deadline                 |
+| OD_RETENTION    | 1h                    | Job/file retention from creation               |
+| OD_FIXTURE_MODE | false                 | Explicit test engine, visibly labeled in UI    |
+| OD_YTDLP        | yt-dlp                | Operator-controlled executable path            |
+| API_URL         | http://127.0.0.1:8080 | Next.js same-origin API rewrite destination    |
 
 ## Storage and cleanup
 
@@ -55,8 +71,8 @@ Do not add another external network to API, host-network it, or bypass the proxy
 Trusted native development lacks a network fence; environment proxies are not an
 isolation boundary. No cookies, credentials, proxies from users or arbitrary flags.
 Update the pinned yt-dlp and distribution-provided FFmpeg through reviewed image rebuilds; no live
-self-updating workers. YouTube support may fail due to platform access restrictions;
-do not fix that by importing credentials or evading denied access.
+self-updating workers. YouTube is excluded from v0.1. Upstream access restrictions
+on other sources remain terminal; do not import credentials or evade denied access.
 
 ## Public deployment checklist
 

@@ -27,6 +27,7 @@ func TestAnalysisReturnsSafeDistinctFailureCodes(t *testing.T) {
 		status int
 		code   string
 	}{
+		{media.ErrYouTubeUnavailable, 422, "youtube_unavailable"},
 		{media.ErrPlatformVerification, 503, "platform_verification_required"},
 		{media.ErrUpstreamForbidden, 503, "upstream_forbidden"},
 		{media.ErrUpstreamRateLimit, 503, "upstream_rate_limited"},
@@ -36,7 +37,7 @@ func TestAnalysisReturnsSafeDistinctFailureCodes(t *testing.T) {
 	} {
 		t.Run(item.code, func(t *testing.T) {
 			s := New(Config{Origin: "https://download.example", Fixture: true}, &jobs.Manager{Engine: unavailableEngine{err: item.err}})
-			r := httptest.NewRequest("POST", "/api/v1/analyze", strings.NewReader(`{"url":"https://youtu.be/2cUkUbB3Gu4"}`))
+			r := httptest.NewRequest("POST", "/api/v1/analyze", strings.NewReader(`{"url":"https://example.com/public-media"}`))
 			r.Header.Set("Origin", s.Config.Origin)
 			r.Header.Set("Content-Type", "application/json")
 			w := httptest.NewRecorder()

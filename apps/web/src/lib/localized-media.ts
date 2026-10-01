@@ -1,6 +1,7 @@
 import { ApiError } from "./api";
 import { messages, translate, type Locale, type MessageKey } from "./i18n";
 const codes: Record<string, MessageKey> = {
+  youtube_unavailable: "youtubeUnavailable",
   origin_denied: "originDenied",
   json_required: "invalidRequest",
   invalid_request: "invalidRequest",

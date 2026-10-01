@@ -12,16 +12,17 @@ Only introduce dependencies that solve a documented problem.
 
 ## Required gates
 
-| Area | Evidence |
-|---|---|
-| URL/egress | Special-use IPs, mixed DNS, rebinding-safe pinned addresses, disallowed schemes/ports, credentials |
-| Metadata | DRM/live/auth policy, safe IDs, duplicate qualities, video/audio distinction, missing capabilities |
-| Queue | Capacity, owner scope, atomic claims, terminal transitions, restart recovery |
-| Worker/storage | Cancel, timeouts, subprocess failure, malicious output path/symlink, cleanup, byte limits |
-| HTTP | JSON limits, CSRF/origin, cookies, hidden ownership failures, range/attachment serving |
-| Frontend | URL detection/format utilities, lint, strict typecheck, production build |
-| E2E | Fixture analysis → select → create → complete → save, failure/retry/cancel, narrow-screen reflow |
-| Linux | Race detector, process descendants killed, direct egress blocked, Docker health |
+| Area           | Evidence                                                                                                     |
+| -------------- | ------------------------------------------------------------------------------------------------------------ |
+| URL/egress     | Special-use IPs, mixed DNS, rebinding-safe pinned addresses, disallowed schemes/ports, credentials           |
+| Metadata       | DRM/live/auth policy, safe IDs, duplicate qualities, video/audio distinction, missing capabilities           |
+| Queue          | Capacity, owner scope, atomic claims, terminal transitions, restart recovery                                 |
+| Worker/storage | Cancel, timeouts, subprocess failure, malicious output path/symlink, cleanup, byte limits                    |
+| HTTP           | JSON limits, CSRF/origin, cookies, hidden ownership failures, range/attachment serving                       |
+| Release        | Consistent SemVer metadata; YouTube rejection before DNS/tools; translated recovery; uploaded-image pull/run |
+| Frontend       | URL detection/format utilities, lint, strict typecheck, production build                                     |
+| E2E            | Fixture analysis → select → create → complete → save, failure/retry/cancel, narrow-screen reflow             |
+| Linux          | Race detector, process descendants killed, direct egress blocked, Docker health                              |
 
 Tests assert behavior and failures, not markup trivia. Use test temporary directories
 and fixture metadata, never external live platforms as CI requirements. Real-media

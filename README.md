@@ -4,6 +4,7 @@
 
 [![CI](https://github.com/Lord-shaban/OpenDownload/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Lord-shaban/OpenDownload/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-505bd4)](LICENSE)
+[![Release: v0.1.0](https://img.shields.io/badge/release-v0.1.0-505bd4)](https://github.com/Lord-shaban/OpenDownload/releases/tag/v0.1.0)
 
 Paste a public link. See what is actually available. Choose a format. Save it.
 
@@ -11,30 +12,32 @@ OpenDownload is a self-hosted, open-source media workspace built with Next.js,
 TypeScript, Go, yt-dlp, and FFmpeg. It is designed for people downloading content
 they own or have permission to save. No ads, tracking, accounts, or credentials.
 
-> Pre-release software. Platform availability changes. A supported extractor is
+> **v0.1.0 — first release. YouTube is not supported in this version.**
+> Platform availability changes. A supported extractor is
 > not a guarantee that every URL works. Authenticated, private, paywalled,
 > live, and DRM-protected content are outside the product boundary.
 
 ## Project status
 
-Development follows the [roadmap](docs/ROADMAP.md) and
-[granular backlog](docs/BACKLOG.md). Architectural decisions, limitations, and
-research are recorded in the repository. See [verification](docs/VERIFICATION.md)
-for the checks actually completed; planned checks are not claimed as passing.
+The first release delivers the minimal glass workspace, English/Arabic and RTL,
+real format selection, audio conversion, durable jobs, cancellation/retry,
+temporary files, range downloads and guarded outbound networking.
 
-The development baseline has passed Linux CI, Docker egress checks and a separate
-real MP4/MP3 smoke. The redesigned workspace passes twenty-two production browser
-tests on desktop/mobile, with English, Arabic/RTL and persistent light/dark themes.
-An owned public JPEG also passed a real download/range/delete smoke. M5 still
-tracks gallery integration. No versioned release or published container image
-exists yet.
-Changes follow a [protected-branch PR workflow](docs/GITHUB_WORKFLOW.md).
+**Live instance:** [opendownload.lord.blitz.cloud](https://opendownload.lord.blitz.cloud/).
+The public instance uses real extraction with conservative shared limits and
+15-minute file retention. Its free host can sleep between visits.
+
+[Release notes](docs/releases/0.1.0.md) · [Changelog](CHANGELOG.md) ·
+[Verified capabilities](docs/CAPABILITIES.md) · [Verification record](docs/VERIFICATION.md).
+YouTube and dedicated Instagram/TikTok photo-gallery extraction are deferred.
+The [roadmap](docs/ROADMAP.md) separates these from the completed 0.1 scope.
+Changes follow the [protected-branch PR workflow](docs/GITHUB_WORKFLOW.md).
 
 ![OpenDownload glass workspace, English light theme](docs/assets/workspace-glass-en-light.jpg)
 
 [Arabic dark preview](docs/assets/workspace-glass-ar-dark.jpg) ·
 [Arabic mobile preview](docs/assets/workspace-glass-ar-mobile.jpg) ·
-[Supported sites on mobile](docs/assets/workspace-glass-sites-mobile.jpg)
+[Supported sites on mobile (v0.1 fixture preview)](docs/assets/release-0.1-sites-ar-mobile.png)
 
 ## Focus
 
@@ -52,6 +55,18 @@ Changes follow a [protected-branch PR workflow](docs/GITHUB_WORKFLOW.md).
   [capabilities](docs/CAPABILITIES.md) for the limits of image extraction.
 
 ## Run with Docker
+
+Use the versioned release images:
+
+```sh
+git clone --branch v0.1.0 https://github.com/Lord-shaban/OpenDownload.git
+cd OpenDownload
+cp .env.example .env
+docker compose -f compose.yaml -f compose.release.yaml pull
+docker compose -f compose.yaml -f compose.release.yaml up --no-build -d --wait
+```
+
+Or build from the checked-out source:
 
 ```sh
 cp .env.example .env

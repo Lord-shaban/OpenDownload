@@ -64,6 +64,9 @@ func restricted(raw RawInfo) bool {
 	return raw.DRM || raw.DetectedDRM || raw.Live || raw.Availability != "" && raw.Availability != "public" && raw.Availability != "unlisted"
 }
 func Normalize(raw RawInfo, source string) (Analysis, error) {
+	if YouTubeSource(source) || strings.EqualFold(raw.Extractor, "Youtube") {
+		return Analysis{}, ErrYouTubeUnavailable
+	}
 	if restricted(raw) {
 		return Analysis{}, ErrAccess
 	}

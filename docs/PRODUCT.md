@@ -7,9 +7,19 @@ interpret codec jargon, or obscure long-running work. OpenDownload should make
 the actual capabilities of a URL understandable and keep users in control of
 processing and temporary retention.
 
-Primary audience: individuals and small trusted groups saving their own or
-permitted public media on a self-hosted instance. Anonymous public hosting is
-not the MVP deployment target. No promise of universal platform availability.
+Primary audience: people saving their own or permitted public media on a
+self-hosted instance or the bounded public cloud instance. The public profile
+has one worker, finite shared capacity and temporary retention; it is not an
+unlimited download service. No promise of universal platform availability.
+
+## Release 0.1 scope — 2026-10-01
+
+The first release completes the flow below, including the glass workspace,
+English/Arabic, RTL, persistent themes and real public cloud extraction.
+YouTube is explicitly excluded by the API and omitted from the supported-sites
+list. Its investigation is deferred, not marked solved. Dedicated social photo
+gallery extraction is also deferred; direct images and extractor-provided bounded
+collections remain available. See [release notes](releases/0.1.0.md).
 
 ## Essential MVP
 

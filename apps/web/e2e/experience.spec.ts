@@ -68,9 +68,10 @@ test("clipboard button and native paste analyze without an extra submit", async 
     page.getByRole("list", { name: "Supported sites" }),
   ).toBeVisible();
   const sourceList = page.getByRole("list", { name: "Supported sites" });
-  for (const source of ["YouTube", "Instagram", "TikTok", "SoundCloud"]) {
+  for (const source of ["Instagram", "TikTok", "SoundCloud"]) {
     await expect(sourceList).toContainText(source);
   }
+  await expect(sourceList).not.toContainText("YouTube");
   await expect(
     page.getByText(/Photo galleries have limited support/),
   ).toBeVisible();
