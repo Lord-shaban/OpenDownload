@@ -1,5 +1,32 @@
 # Verification record
 
+## Current source: social adapters - 2026-10-03
+
+These checks apply to the current development source, not the immutable v0.1.0
+release images or the public application's running revision.
+
+- Go 1.27.1 on Windows: all package tests and `go vet ./...` passed.
+- Frontend: 16 unit tests, lint, typecheck and production build passed.
+- LinkedIn analysis: public MathWorks activity 7151241570371948544 returned
+  original MP4, conditional MP3, thumbnail and VTT captions through the guarded
+  proxy with pinned yt-dlp 2026.09.27.232945.
+- Pinterest analysis: pin 664281013778109217 returned its progressive original
+  and HLS formats; missing progressive codec metadata did not hide the video.
+- Threads real gallery: `https://www.threads.com/@mothershipsg/post/C78RkLtS8sj`
+  completed a four-image ZIP of **1,337,809 bytes** through the guarded proxy.
+  `scripts/social-smoke.py --kind image` verified ZIP integrity, image signatures,
+  bounded entries, exact attachment bytes, HTTP 206 ranges and deletion revocation.
+  SHA-256: `c8dac55eb8ab3b5f9933fee39fcb6534df41835a67d1b80fcd62d4bf2fd7905b`.
+
+Threads ordinary anonymous HTML contained no media data for this sample. The
+documented search-preview compatibility header exposed the requested post.
+Fixtures separately cover identity, private posts, mixed collections, missing
+metadata, unsafe formats, bounds and short-link destinations. None of these
+checks establishes universal platform uptime or independent security approval.
+
+Production browser and Linux race/container results are recorded in the delivery
+PR and GitHub Actions; authored gates are not counted as passed results here.
+
 ## Release 0.1.0 — 2026-10-01
 
 The release excludes YouTube by explicit product decision. No YouTube cloud

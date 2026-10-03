@@ -13,6 +13,13 @@ Vimeo and SoundCloud. These are candidate extractors: availability depends on
 each URL, region, upstream changes and the host's access. The list does not
 certify every extractor or imply that every public post is downloadable.
 
+Current source also lists **LinkedIn, Pinterest and Threads**. LinkedIn supports
+public video posts/activity URLs; Pinterest supports public video and original
+single-image pins; Threads supports public single videos/images and image-only
+collections up to 20 items. These additions require a source build, not the
+published v0.1.0 images. See [SOCIAL_SOURCES.md](SOCIAL_SOURCES.md) for URL shapes,
+metadata transport, exclusions and verification evidence.
+
 | Source                                | Actual evidence / release limit                                                                                                     |
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | TikTok video                          | The reported public video downloaded as a 2,178,061-byte MP4 with audio/video, 30.600 s, from the real cloud instance on 2026-10-01 |

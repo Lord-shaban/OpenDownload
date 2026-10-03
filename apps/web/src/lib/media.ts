@@ -8,6 +8,9 @@ export const sources = [
   "TikTok",
   "X / Twitter",
   "Facebook",
+  "LinkedIn",
+  "Pinterest",
+  "Threads",
   "Reddit",
   "Vimeo",
   "SoundCloud",
@@ -25,6 +28,16 @@ const platforms: Record<string, string> = {
   "redd.it": "Reddit",
   "vimeo.com": "Vimeo",
   "soundcloud.com": "SoundCloud",
+  "linkedin.com": "LinkedIn",
+  "lnkd.in": "LinkedIn",
+  "pin.it": "Pinterest",
+  "threads.com": "Threads",
+  "threads.net": "Threads",
+  ...Object.fromEntries(
+    "com fr de ch jp cl ca it co.uk nz ru com.au at pt co.kr es com.mx dk ph th com.uy co nl info kr ie vn com.vn ec mx in pe co.at hu co.in co.nz id com.ec com.py tw be uk com.bo com.pe"
+      .split(" ")
+      .map((suffix) => [`pinterest.${suffix}`, "Pinterest"]),
+  ),
 };
 export function detectSource(raw: string): { name: string; valid: boolean } {
   try {
@@ -42,7 +55,7 @@ export function detectSource(raw: string): { name: string; valid: boolean } {
       url.password
     )
       return { name: "Public links only", valid: false };
-    const hostname = url.hostname.toLowerCase();
+    const hostname = url.hostname.toLowerCase().replace(/\.$/, "");
     for (const [domain, name] of Object.entries(platforms))
       if (hostname === domain || hostname.endsWith(`.${domain}`))
         return { name, valid: true };

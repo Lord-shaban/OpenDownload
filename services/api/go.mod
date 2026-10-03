@@ -2,7 +2,10 @@ module github.com/Lord-shaban/OpenDownload/services/api
 
 go 1.27.1
 
-require modernc.org/sqlite v1.60.1
+require (
+	golang.org/x/net v0.59.0
+	modernc.org/sqlite v1.60.1
+)
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect

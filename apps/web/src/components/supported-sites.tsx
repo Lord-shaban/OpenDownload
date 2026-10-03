@@ -5,6 +5,9 @@ import { InstagramLogoIcon } from "@phosphor-icons/react/dist/csr/InstagramLogo"
 import { TiktokLogoIcon } from "@phosphor-icons/react/dist/csr/TiktokLogo";
 import { XLogoIcon } from "@phosphor-icons/react/dist/csr/XLogo";
 import { FacebookLogoIcon } from "@phosphor-icons/react/dist/csr/FacebookLogo";
+import { LinkedinLogoIcon } from "@phosphor-icons/react/dist/csr/LinkedinLogo";
+import { PinterestLogoIcon } from "@phosphor-icons/react/dist/csr/PinterestLogo";
+import { ThreadsLogoIcon } from "@phosphor-icons/react/dist/csr/ThreadsLogo";
 import { RedditLogoIcon } from "@phosphor-icons/react/dist/csr/RedditLogo";
 import { SoundcloudLogoIcon } from "@phosphor-icons/react/dist/csr/SoundcloudLogo";
 import { PlayCircleIcon } from "@phosphor-icons/react/dist/csr/PlayCircle";
@@ -16,6 +19,9 @@ const logos: Record<string, typeof GlobeSimpleIcon> = {
   TikTok: TiktokLogoIcon,
   "X / Twitter": XLogoIcon,
   Facebook: FacebookLogoIcon,
+  LinkedIn: LinkedinLogoIcon,
+  Pinterest: PinterestLogoIcon,
+  Threads: ThreadsLogoIcon,
   Reddit: RedditLogoIcon,
   Vimeo: PlayCircleIcon,
   SoundCloud: SoundcloudLogoIcon,

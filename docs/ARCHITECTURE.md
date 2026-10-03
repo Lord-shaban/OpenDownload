@@ -12,6 +12,14 @@ with public-address enforcement used by extractors, not a domain service.
 `deploy`: containers and the supported network topology. `docs`: requirements,
 ADRs, operations, backlog and test evidence. `scripts`: development and GitHub setup.
 
+`internal/media/social.go` resolves platform short links through the guarded
+HTTP client, reads original Pinterest single-image pin metadata and tokenizes
+Threads public page JSON with `golang.org/x/net/html`. Threads matches the exact
+requested shortcode, excludes private/mixed-video collections, and keeps CDN
+URLs internal. Video processing still uses pinned yt-dlp and FFmpeg; workers
+reanalyze before processing so signed media URLs are fresh. See
+[SOCIAL_SOURCES.md](SOCIAL_SOURCES.md) for the search-preview request header and limits.
+
 ## Request flow
 
 1. Session cookie is random and HttpOnly; persisted owners use a SHA-256 hash.

@@ -23,6 +23,12 @@ collections remain available. See [release notes](releases/0.1.0.md).
 
 ## Essential MVP
 
+Current source expands the supported-sites guide with LinkedIn, Pinterest and
+Threads. Use only public post/pin links with accessible media; individual videos,
+Pinterest original images and bounded Threads image collections follow the same
+analysis, queue, expiry and guarded-network flow. See
+[source boundaries](SOCIAL_SOURCES.md). Published v0.1.0 images remain unchanged.
+
 One URL → detect source locally → analyze on deliberate paste or typed submission → display
 metadata and actual options → choose → queue → show progress → download.
 Include cancellation, retry, job history, expiry, delete, accessible errors,

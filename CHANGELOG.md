@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- LinkedIn public video posts/activity URLs and `lnkd.in` resolution.
+- Pinterest public video pins, original single-image pins, `pin.it` resolution
+  and regional domains. Full boards and story galleries remain unsupported.
+- Threads public post JSON extraction on `threads.com`/`threads.net`, including
+  legacy `/t/` and redirecting share links. Supports a single video/image or
+  at most 20 image-only carousel items using the existing guarded transport.
+- Source logos/detection in both locales and a repeatable opt-in social smoke
+  check for file bytes, media/ZIP validation, range serving and deletion.
+
+### Fixed
+
+- Preserve original progressive MP4 formats when LinkedIn/Pinterest/Threads
+  omit codec metadata; rank unknown-resolution formats by reported bitrate.
+  Do not invent resolution, codecs or confirmed audio-track availability.
+
+These changes are in current source, not the immutable v0.1.0 images.
+
 ## [0.1.0] — 2026-10-01
 
 First release of OpenDownload.
