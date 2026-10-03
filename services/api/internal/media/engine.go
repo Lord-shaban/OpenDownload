@@ -53,6 +53,19 @@ func (e *YTDLP) Analyze(ctx context.Context, source string) (Analysis, error) {
 	if err != nil {
 		return Analysis{}, err
 	}
+	u, err = e.resolveSocialURL(ctx, u)
+	if err != nil {
+		return Analysis{}, err
+	}
+	source = u.String()
+	if threadsHost(u.Hostname()) {
+		return e.analyzeThreads(ctx, u)
+	}
+	if pinterestHost(u.Hostname()) {
+		if analysis, handled, err := e.analyzePinterestImage(ctx, u); handled || err != nil {
+			return analysis, err
+		}
+	}
 	ext := strings.TrimPrefix(strings.ToLower(filepath.Ext(u.Path)), ".")
 	if imageExt(ext) {
 		req, _ := http.NewRequestWithContext(ctx, http.MethodHead, source, nil)
@@ -233,7 +246,14 @@ func (e *YTDLP) Download(ctx context.Context, a Analysis, opt Option, dir string
 			args = append(args, "--merge-output-format", opt.Extension)
 		}
 	}
-	args = append(args, "--", a.URL)
+	source := a.URL
+	if opt.MediaURL != "" {
+		if _, err := security.Parse(opt.MediaURL); err != nil || YouTubeSource(opt.MediaURL) {
+			return nil, ErrUnsupported
+		}
+		source = opt.MediaURL
+	}
+	args = append(args, "--", source)
 	cmd := command(ctx, e.Binary, args...)
 	cmd.Stdout = &progressWriter{update: update}
 	stderr := &boundedBuffer{limit: 16 << 10}

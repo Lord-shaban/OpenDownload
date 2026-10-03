@@ -30,6 +30,13 @@ The public instance uses real extraction with conservative shared limits and
 [Release notes](docs/releases/0.1.0.md) · [Changelog](CHANGELOG.md) ·
 [Verified capabilities](docs/CAPABILITIES.md) · [Verification record](docs/VERIFICATION.md).
 YouTube and dedicated Instagram/TikTok photo-gallery extraction are deferred.
+
+**Current source additions (2026-10-03):** LinkedIn public video posts,
+Pinterest video and original single-image pins, and Threads public posts
+(single video/image or up to 20 images). Short links and regional Pinterest
+domains are recognized. These additions require a source build; the published
+`v0.1.0` images and existing release tag retain their original scope.
+See [source support and examples](docs/SOCIAL_SOURCES.md) for exact boundaries.
 The [roadmap](docs/ROADMAP.md) separates these from the completed 0.1 scope.
 Changes follow the [protected-branch PR workflow](docs/GITHUB_WORKFLOW.md).
 
@@ -44,6 +51,7 @@ Changes follow the [protected-branch PR workflow](docs/GITHUB_WORKFLOW.md).
 - Paste to analyze immediately, or type a link and press Enter.
 - Choose a real format and download in a minimal glass workspace.
 - Open a compact supported-sites list when you need it.
+- Recognize LinkedIn, Pinterest and Threads alongside the existing sources.
 - Select source video qualities or audio conversion, thumbnails, and subtitles.
 - Queue processing, inspect progress, cancel, retry, and stream the saved file.
 - Keep jobs across restarts. Interruptions become explicit failures you can retry.

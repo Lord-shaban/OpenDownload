@@ -13,6 +13,7 @@ type Option struct {
 	Bytes     int64  `json:"bytes,omitempty"`
 	// Internal selections never appear in API output or accept arbitrary client flags.
 	Selector  string   `json:"-"`
+	MediaURL  string   `json:"-"`
 	AssetURL  string   `json:"-"`
 	AssetURLs []string `json:"-"`
 	Language  string   `json:"-"`

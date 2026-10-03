@@ -19,6 +19,7 @@ type RawFormat struct {
 	Height   int     `json:"height"`
 	Width    int     `json:"width"`
 	FPS      float64 `json:"fps"`
+	TBR      float64 `json:"tbr"`
 	VCodec   string  `json:"vcodec"`
 	ACodec   string  `json:"acodec"`
 	Protocol string  `json:"protocol"`
@@ -102,6 +103,9 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 	}
 	sort.SliceStable(formats, func(i, j int) bool {
 		if formats[i].Height == formats[j].Height {
+			if formats[i].FPS == formats[j].FPS {
+				return formats[i].TBR > formats[j].TBR
+			}
 			return formats[i].FPS > formats[j].FPS
 		}
 		return formats[i].Height > formats[j].Height
@@ -119,17 +123,23 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 	for _, f := range formats {
 		// A generic direct file often has no probed codecs or dimensions. Keep the
 		// original download available without inventing a resolution or audio track.
-		directUnknown := raw.Extractor == "Generic" && f.VCodec == "" && (f.Protocol == "http" || f.Protocol == "https") && (f.Ext == "mp4" || f.Ext == "webm" || f.Ext == "mkv")
+		directUnknown := unprobedVideo(raw.Extractor, f)
 		if !safeFormat(f) || f.VCodec == "none" || !directUnknown && (f.VCodec == "" || f.Height <= 0) {
 			continue
 		}
 		if directUnknown {
-			key := "original-" + f.Ext
+			key := fmt.Sprintf("original-%d-%s", f.Height, f.Ext)
 			if seen[key] {
 				continue
 			}
 			seen[key] = true
-			a.Options = append(a.Options, Option{ID: "video-" + f.ID, Kind: "video", Label: "Original video", Extension: f.Ext, Detail: "Source file · quality not reported", Selector: f.ID, Bytes: f.Bytes})
+			label := "Original video"
+			detail := "Source file · quality not reported"
+			if f.Height > 0 {
+				label = fmt.Sprintf("%dp", f.Height)
+				detail = "Source file · codec not reported"
+			}
+			a.Options = append(a.Options, Option{ID: "video-" + f.ID, Kind: "video", Label: label, Extension: f.Ext, Detail: detail, Selector: f.ID, Bytes: f.Bytes})
 			if len(a.Options) >= 16 {
 				break
 			}
@@ -170,7 +180,7 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 		a.Options = append(a.Options, Option{ID: "audio-mp3", Kind: "audio", Label: "MP3 audio", Extension: "mp3", Detail: "Converted · up to 192 kbps", Selector: audio.ID})
 	} else {
 		for _, f := range formats {
-			directUnknown := raw.Extractor == "Generic" && f.ACodec == "" && (f.Protocol == "http" || f.Protocol == "https")
+			directUnknown := (raw.Extractor == "Generic" || unprobedVideo(raw.Extractor, f)) && f.ACodec == "" && (f.Protocol == "http" || f.Protocol == "https")
 			if safeFormat(f) && (f.ACodec != "none" && f.ACodec != "" || directUnknown) {
 				detail := "Converted from source · up to 192 kbps"
 				if directUnknown {
@@ -223,6 +233,15 @@ func Normalize(raw RawInfo, source string) (Analysis, error) {
 		return Analysis{}, ErrUnsupported
 	}
 	return a, nil
+}
+
+func unprobedVideo(extractor string, f RawFormat) bool {
+	switch extractor {
+	case "Generic", "LinkedIn", "Pinterest", "Threads":
+	default:
+		return false
+	}
+	return f.VCodec == "" && (f.Protocol == "http" || f.Protocol == "https") && (f.Ext == "mp4" || f.Ext == "webm" || f.Ext == "mkv")
 }
 
 func safeFormat(f RawFormat) bool {

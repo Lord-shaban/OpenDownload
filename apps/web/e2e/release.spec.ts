@@ -14,6 +14,8 @@ for (const locale of ["en", "ar"] as const) {
     });
     await expect(list).not.toContainText("YouTube");
     await expect(list).toContainText("TikTok");
+    for (const source of ["LinkedIn", "Pinterest", "Threads"])
+      await expect(list).toContainText(source);
     if (test.info().project.name === "mobile") {
       await page.screenshot({
         path: `../../.data/release-0.1-sites-${locale}.png`,

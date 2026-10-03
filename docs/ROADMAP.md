@@ -20,6 +20,14 @@ YouTube is explicitly excluded; the API and interface enforce that boundary.
 
 ## Implementation milestones
 
+### Source expansion, current development baseline
+
+LinkedIn public videos, Pinterest video/single-image pins and Threads public
+post media are implemented in current source. Supported URL shapes, the Threads
+search-preview representation and verification limits are in
+[SOCIAL_SOURCES.md](SOCIAL_SOURCES.md). This does not change the published v0.1.0
+release scope or complete the deferred Instagram/TikTok gallery investigation.
+
 The M0–M4 implementation baseline passed its documented development gates.
 [GitHub milestones](https://github.com/Lord-shaban/OpenDownload/milestones) and
 the [issue index](GITHUB_ISSUES.md) track accepted work and remaining delivery
