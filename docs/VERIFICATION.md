@@ -7,25 +7,50 @@ release images or the public application's running revision.
 
 - Go 1.27.1 on Windows: all package tests and `go vet ./...` passed.
 - Frontend: 16 unit tests, lint, typecheck and production build passed.
+- All 26 production Chromium scenarios passed on desktop/mobile in English/Arabic.
 - LinkedIn analysis: public MathWorks activity 7151241570371948544 returned
   original MP4, conditional MP3, thumbnail and VTT captions through the guarded
   proxy with pinned yt-dlp 2026.09.27.232945.
 - Pinterest analysis: pin 664281013778109217 returned its progressive original
   and HLS formats; missing progressive codec metadata did not hide the video.
+- LinkedIn real video: the MathWorks sample downloaded **5,602,080 bytes**;
+  FFprobe found video and audio, duration 161.866009 seconds.
+  SHA-256: `7b22c80a6c64163bc68de453cbdf2be9b6d7885c1111eec0360d17b1d0f8d7d9`.
+  MP3 conversion produced **3,886,539 bytes**, an audio stream and the same duration.
+  SHA-256: `7bf05a344a327b8ac9bef3d593d7dc07f8d038ff1df7ebedb28ed0439ce1977c`.
+- Pinterest real video: `https://www.pinterest.com/pin/664281013778109217/`
+  downloaded **18,403,864 bytes**, video/audio, duration 57.700000 seconds.
+  SHA-256: `9d8a2a12434a33648738bbf612c9fe665666abb16b180aca2be612383635815e`.
+- Pinterest original image: `https://in.pinterest.com/pin/841962092843998711/`
+  downloaded **13,448 bytes**; FFprobe verified the actual image file.
+  SHA-256: `3fcb63f0e85b01a31fa2edff1127f0ec6c18878a4d24d7e4583ff63754bb031a`.
+- Threads real video: `https://www.threads.com/@pubity/post/Cxd59tZLMrd`
+  downloaded **4,366,338 bytes**, a video stream, duration 15.400000 seconds.
+  This particular source has no audio track; conditional MP3 is not a promise
+  that a silent video can be converted into audio.
+  SHA-256: `f73469a1793dc05ee7e79edcde1a3f4f150ca51423f2e8aa60a1ed34d35ccd65`.
 - Threads real gallery: `https://www.threads.com/@mothershipsg/post/C78RkLtS8sj`
   completed a four-image ZIP of **1,337,809 bytes** through the guarded proxy.
   `scripts/social-smoke.py --kind image` verified ZIP integrity, image signatures,
   bounded entries, exact attachment bytes, HTTP 206 ranges and deletion revocation.
   SHA-256: `c8dac55eb8ab3b5f9933fee39fcb6534df41835a67d1b80fcd62d4bf2fd7905b`.
 
-Threads ordinary anonymous HTML contained no media data for this sample. The
+All real file checks used fixture mode disabled and the guarded proxy, including
+attachment byte counts, HTTP 206 ranges and deletion revocation. FFprobe verified
+the downloaded video/audio files rather than trusting a completed job label.
+
+Threads ordinary anonymous HTML contained no media data for these samples. The
 documented search-preview compatibility header exposed the requested post.
 Fixtures separately cover identity, private posts, mixed collections, missing
 metadata, unsafe formats, bounds and short-link destinations. None of these
 checks establishes universal platform uptime or independent security approval.
 
-Production browser and Linux race/container results are recorded in the delivery
-PR and GitHub Actions; authored gates are not counted as passed results here.
+[PR #39](https://github.com/Lord-shaban/OpenDownload/pull/39) records the exact
+delivery head and required Linux race, audit, production-browser and fenced
+container gates. All three jobs passed on the implementation commit in
+[CI run 37132071831](https://github.com/Lord-shaban/OpenDownload/actions/runs/37132071831);
+documentation follow-ups also require green checks before merge. Review is solo
+maintainer self-review, not independent security approval.
 
 ## Release 0.1.0 — 2026-10-01
 
